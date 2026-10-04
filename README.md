@@ -1,94 +1,179 @@
-# CY017 — Reusable Security Logging Module
+# Shudha's Studio
 
-TypeScript implementation of the Project Phoenix security logging module specified in
-[`cy017-security-logging-monitoring-module-design-documentation-v0.5.md`](../cy017-security-logging-monitoring-module-design-documentation-v0.5.md).
+Website and owner dashboard for **Shudha's Studio**, a Melbourne personalised-gift maker. Customers browse custom products (no prices) and book an appointment to discuss an order. The owner manages everything from a private dashboard at `/admin`.
 
-## Files
+- Requirements: [`docs/SRS.md`](docs/SRS.md)
+- Decisions log: [`docs/DECISIONS.md`](docs/DECISIONS.md)
+- Work plan: GitHub Issues #1–#16, in build order
 
-| File | Purpose |
-|---|---|
-| `securityLogTypes.ts` | Typed enums (event types, severity, outcome, reason unions per event type) and the `SecurityLogRecord` shape. |
-| `logTransport.ts` | `LogTransport` interface, default `ConsoleJsonTransport`, and a `NullTransport` for tests. |
-| `expressLogContext.ts` | `fromRequest(req)` — extracts `ip_address`, `endpoint`, `method`, `user_id`, `role`, `request_id` from an Express request. |
-| `securityLogger.ts` | Core `logSecurityEvent()` plus eight typed helpers (one per event type). |
-| `examples.ts` | Minimal Express snippets showing each helper called from a typical middleware or route handler. |
+---
 
-## Quick start
+## Current state (October 2026)
 
-```ts
-import {
-  fromRequest,
-  logAuthFailure,
-  logAccessRestricted,
-  logTokenIssued,
-} from './securityLogger';
+**Stage: Foundation (issue #1) built.** The project runs locally. There are no customer-facing features yet. Nothing is online yet.
 
-// Inside a login handler:
-const ctx = fromRequest(req);
-if (!user) {
-  logAuthFailure({
-    ...ctx,
-    reason: 'unknown_user',
-    response_code: 401,
-    rule_triggered: 'CY010 Rule 1 - Authentication Required',
-  });
-}
+| Area | Status |
+| --- | --- |
+| Project setup (Next.js 16, pnpm, Tailwind v4, shadcn v4) | Done |
+| Database schema for every SRS entity (18 tables), migrations, seed data | Done, applied to the shared Supabase project |
+| Security: Row Level Security on all tables, storage buckets, no-overlap rule for bookings | Done |
+| Owner login, `/admin` protected, only `OWNER_EMAIL` can get in | Done |
+| English / Bengali language switch | Done |
+| Home page showing studio name and tagline | Done (placeholder design) |
+| Dashboard settings page (edit studio name and tagline) | Done |
+| Products, catalogue, booking, emails, wizard, wishlist, gallery, themes, PWA | Not started (issues #2–#14) |
+| Visual design | Not started (issue #9) |
+| Hosting on Netlify | Configured (`netlify.toml`), not connected yet |
 
-// Inside JWT middleware on a tampered token:
-logAccessRestricted({
-  ...ctx,
-  reason: 'access_restricted_authentication',
-  response_code: 401,
-});
+Seeded starting data: 7 categories (Mugs, Apparel, Home decor, Keyrings, Cushions, Stationery, Gift packs) and 7 occasions (Birthday, Anniversary, Wedding, Eid, Corporate, Baby, Graduation), with Bengali names. These are **provisional** until the client confirms them.
+
+---
+
+## Run it on any computer
+
+Works on macOS, Windows and Linux. Takes about 15 minutes the first time.
+
+### 1. Install the tools (once per computer)
+
+| Tool | Version | How to install |
+| --- | --- | --- |
+| Git | any recent | macOS: `xcode-select --install` · Windows: [git-scm.com](https://git-scm.com) · Linux: your package manager |
+| Node.js | 24 (see `.nvmrc`) | [nodejs.org](https://nodejs.org) LTS installer, or `nvm install 24` (macOS/Linux) / `nvm-windows` |
+| pnpm | 12 | Comes with Node: run `corepack enable` (macOS/Linux may need `sudo`; Windows: run the terminal as Administrator) |
+
+Check:
+```
+git --version
+node -v      # v24.x
+pnpm -v      # 12.x
 ```
 
-The full set of helpers:
+### 2. Get the code
+```
+git clone https://github.com/TrinityOperations/shudha-s_studio.git
+cd shudha-s_studio
+```
+Avoid folder names with apostrophes or spaces; they break some tools.
 
-| Helper | Event type | Reason values |
-|---|---|---|
-| `logAuthFailure` | `auth_failure` | `bad_password`, `unknown_user`, `account_locked`, `lockout_active` |
-| `logTokenInvalid` | `token_invalid` | `expired`, `malformed`, `bad_signature`, `tampered_claims`, `refresh_expired`, `refresh_replay` |
-| `logTokenIssued` | `token_issued` | (none — audit-only) |
-| `logRbacDenied` | `rbac_denied` | (none for now) |
-| `logValidationFailure` | `validation_failure` | `missing_field`, `invalid_type`, `invalid_enum`, `length_exceeded`, `bad_format`, `size_exceeded` |
-| `logRateLimitExceeded` | `rate_limit_exceeded` | `rate_limit_hit`, `throttled` |
-| `logDuplicateAlert` | `duplicate_alert` | (none) |
-| `logAccessRestricted` | `access_restricted` | **Sync (4):** `access_restricted_authentication`, `access_restricted_rate_limit`, `access_restricted_throttling`, `access_restricted_duplicate`. **Async (7):** `repeated_rate_limit`, `repeated_throttling`, `repeated_duplicate`, `repeated_invalid_input`, `repeated_authentication_failure`, `repeated_rbac_denied`, `sustained_abuse_pattern`. |
+> Until issue #1 is merged, the foundation code lives on the `feat/1-foundation` branch. Run `git switch feat/1-foundation`. After the merge, stay on `main`.
 
-## Output
+### 3. Add your environment file
+Copy the template:
+```
+cp .env.example .env.local        # macOS / Linux
+copy .env.example .env.local      # Windows (Command Prompt)
+```
+Fill in every value in `.env.local`. Get the real keys from Sayek through the shared password vault, never through chat or email. Copy and paste them; don't retype them.
 
-Each helper emits a single newline-delimited JSON record to stdout via the default
-`ConsoleJsonTransport`. Example:
+| Key | Where it comes from |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Project Settings → API |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → API Keys → Publishable key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase → API Keys → Secret key (**private**) |
+| `DATABASE_URL` | Supabase → Connect → Transaction pooler (port 6543) (**private**) |
+| `DIRECT_DATABASE_URL` | Same string, port 5432 (session pooler). Used only for migrations (**private**) |
+| `RESEND_API_KEY` | resend.com → API Keys (**private**) |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` | Cloudflare → Turnstile (secret is **private**). For local work you can use Cloudflare's always-pass test keys listed in `.env.example` |
+| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` |
+| `OWNER_EMAIL` | The one email allowed into `/admin` |
 
-```json
-{"timestamp":"2026-05-06T03:14:22.481Z","component":"teavs-backend","event_type":"token_issued","severity":"info","outcome":"success","user_id":"usr_8821","role":"council_officer","ip_address":"203.0.113.42","endpoint":"/api/users/auth/login","method":"POST","response_code":200,"request_id":"f4d2b1a0-9c4e-4e2b-8f9a-1e6b3a7c2d5f","details":{"expires_in_min":30}}
+`.env.local` is gitignored. Never commit it, paste it in chat, or screenshot it.
+
+### 4. Install dependencies
+```
+pnpm install
 ```
 
-## Swapping the transport later
+### 5. Database (only if needed)
+The team shares one Supabase project, and it is already migrated and seeded. Only run these if you're told the schema changed, or you're setting up a brand-new Supabase project:
+```
+pnpm db:migrate
+pnpm db:seed
+```
+Both are safe to re-run.
 
-When the backend is ready to persist or forward logs:
+### 6. Owner account (once per Supabase project)
+Already done for the shared project. For a new project: Supabase → Authentication → Users → Add user → Create new user, using the `OWNER_EMAIL` address, a strong password and **Auto Confirm User** ticked. Then turn off **Allow new users to sign up** under Authentication → Sign In / Providers.
 
-```ts
-import { setLogTransport } from './securityLogger';
-import { MyDatabaseTransport } from './myDatabaseTransport';
+### 7. Start the site
+```
+pnpm dev
+```
+Open **http://localhost:3000**. The first page load takes 10–20 seconds while it compiles. Stop the server with **Ctrl+C**.
 
-setLogTransport(new MyDatabaseTransport());
+---
+
+## What you can test right now
+
+| # | Do this | Expected |
+| --- | --- | --- |
+| 1 | Open `localhost:3000` | Studio name and tagline |
+| 2 | Click the language switch (top right) | Page switches to Bengali; untranslated text falls back to English |
+| 3 | Go to `localhost:3000/admin` | Redirected to the login page |
+| 4 | Submit the login form empty | Inline error messages |
+| 5 | Sign in with a wrong password | Error, still logged out |
+| 6 | Sign in as the owner | Dashboard opens |
+| 7 | `/admin/settings` → change the tagline → save | "Saved" message; new tagline on the home page |
+| 8 | Sign out, then open `/admin/settings` | Redirected to login |
+
+Automated checks:
+```
+pnpm lint && pnpm typecheck && pnpm test     # must pass before every pull request
+pnpm exec playwright install chromium         # once per computer
+pnpm e2e                                      # browser tests; login test needs E2E_OWNER_EMAIL / E2E_OWNER_PASSWORD in .env.local
 ```
 
-No call-site changes are needed.
+---
 
-## Dependencies
+## Everyday commands
+```
+pnpm dev             # local dev server
+pnpm lint            # code style checks
+pnpm typecheck       # TypeScript checks
+pnpm test            # unit tests (Vitest)
+pnpm e2e             # browser tests (Playwright)
+pnpm format          # auto-format with Prettier
+pnpm db:generate     # create a migration after editing src/db/schema.ts
+pnpm db:migrate      # apply migrations
+pnpm db:seed         # seed starting data
+pnpm db:studio       # browse the database in your browser
+```
 
-- Node.js standard library (`node:crypto.randomUUID()`).
-- TypeScript ≥ 4.9.
-- Express types (only imported by `expressLogContext.ts`); the core compiles without Express.
+---
 
-## What this module does NOT do
+## Troubleshooting
 
-- It does not decide whether a request is valid, authorised, abusive or suspicious.
-- It does not write to a database, SIEM, dashboard or remote log service in this phase.
-- It does not aggregate events across windows — the asynchronous persistent-violation
-  monitor (CY010 Rule 9) is a separate component that will consume these structured
-  records and call `logAccessRestricted` with one of the seven async reasons.
-- It does not log raw passwords, tokens, or full request bodies. The `details` field is
-  sanitised on the way in (control characters stripped, strings truncated to 500 chars).
+| Problem | Fix |
+| --- | --- |
+| Login always says "wrong email or password" | Re-copy the Supabase publishable key and Turnstile secret into `.env.local` (don't retype), then restart `pnpm dev`. Check the user is confirmed in Supabase → Users. Check the Terminal running `pnpm dev` for the real error |
+| Changes to `.env.local` don't take effect | Restart `pnpm dev`; it only reads the file at startup |
+| First page is very slow | Normal on the first load; Turbopack is compiling |
+| `Port 3000 is in use` | Another `pnpm dev` is running. Stop it, or use `pnpm dev -p 3001` |
+| `pnpm: command not found` | Run `corepack enable`, then open a new terminal |
+| Site stopped working after a quiet week | Supabase's free plan pauses inactive projects. Restore it from the Supabase dashboard |
+| Git says another process is running | Delete the stale lock: `rm .git/index.lock` |
+
+---
+
+## Project structure
+```
+src/
+  app/(public)/        public pages
+  app/admin/           owner dashboard (login + protected pages)
+  proxy.ts             session refresh and /admin protection (Next 16's replacement for middleware)
+  actions/             server actions (all writes go here)
+  db/schema.ts         database schema (single source of truth)
+  db/queries/          read functions
+  db/seed.ts           starting data
+  lib/                 auth, i18n (en.json / bn.json), validators, Supabase clients, helpers
+  components/          ui (shadcn), public, admin, shared
+drizzle/               SQL migrations
+e2e/                   Playwright tests
+docs/                  SRS and decisions log
+```
+
+## Team workflow
+- Never commit to `main` directly. Branch as `feat/<issue>-<name>` or `fix/<name>`, push, open a pull request, and get one review.
+- Reference the issue and requirement IDs in commit messages (e.g. `Closes #2`, `OD-10`).
+- Record any non-obvious technical choice in `docs/DECISIONS.md` in the same pull request.
+- Netlify (once connected) deploys `main` to production and each pull request to a preview link. CI on GitHub runs lint, typecheck, unit tests and the format check on every push.
