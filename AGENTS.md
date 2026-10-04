@@ -50,7 +50,7 @@ src/
     shared/          # used by both: FieldMessage, TurnstileField, SubmitButton, LocaleToggle
   db/
     schema.ts        # Drizzle schema, single source of truth
-    index.ts         # client (postgres-js, transaction pooler)
+    index.ts         # client (node-postgres pool, transaction pooler)
     seed.ts          # idempotent seed, `pnpm db:seed`
     queries/         # read functions, one file per entity
   actions/           # server actions, one file per entity, all mutations go here

@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { config } from "dotenv";
 import { defineConfig } from "drizzle-kit";
 
@@ -18,11 +19,26 @@ function migrationUrl(): string {
   return url;
 }
 
+// drizzle-kit ignores `ssl` when `dbCredentials.url` is set, so the URL is split into fields.
+// Same verified TLS as src/db/index.ts: Supabase's poolers chain to Supabase's own root CA, and
+// the project enforces SSL, so an unencrypted connection is refused outright.
+function migrationCredentials() {
+  const url = new URL(migrationUrl());
+  return {
+    host: url.hostname,
+    port: Number(url.port || 5432),
+    user: decodeURIComponent(url.username),
+    password: decodeURIComponent(url.password),
+    database: url.pathname.slice(1) || "postgres",
+    ssl: { ca: readFileSync("certs/supabase-ca.crt", "utf8"), rejectUnauthorized: true },
+  };
+}
+
 export default defineConfig({
   dialect: "postgresql",
   schema: "./src/db/schema.ts",
   out: "./drizzle",
-  dbCredentials: { url: migrationUrl() },
+  dbCredentials: migrationCredentials(),
   strict: true,
   verbose: true,
 });
