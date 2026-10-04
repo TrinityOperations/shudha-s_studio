@@ -1,7 +1,7 @@
 /**
  * Drizzle schema: single source of truth for the database.
  * Conventions: uuid ids, timestamptz stored in UTC, Bengali content in sibling `_bn` columns,
- * no prices anywhere (CLAUDE.md rule 4). Migrations: `pnpm db:generate` then `pnpm db:migrate`.
+ * no prices anywhere. Migrations: `pnpm db:generate` then `pnpm db:migrate`.
  *
  * Not expressible in Drizzle and therefore kept in drizzle/0001_rls_buckets_exclusion.sql:
  * - Row Level Security on every table (deny-all; the app talks to Postgres directly)

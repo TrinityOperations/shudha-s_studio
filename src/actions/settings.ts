@@ -13,7 +13,7 @@ import {
 } from "@/lib/validators/settings";
 
 /**
- * Reference admin action (CLAUDE.md rule 1): validate → requireOwner → write → revalidatePath.
+ * Reference admin action: validate → requireOwner → write → revalidatePath.
  * Thinnest slice of OD-30; the full content editor comes in its own issue.
  */
 export async function updateGeneralSettings(

@@ -13,7 +13,7 @@ import { useT } from "@/lib/i18n/client";
 import type { MessageKey } from "@/lib/i18n/t";
 import { loginSchema, type LoginInput } from "@/lib/validators/auth";
 
-/** Reference public form: React Hook Form + Zod + Turnstile + server action (CLAUDE.md rule 6). */
+/** Reference public form: React Hook Form + Zod + Turnstile + server action. */
 export function LoginForm({ next }: { next?: string }) {
   const t = useT();
   const turnstile = useRef<TurnstileInstance>(null);

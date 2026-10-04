@@ -42,3 +42,4 @@ Thumbs.db
 # next 16 profiling / agent docs cache
 .next-profiles/
 .next-docs/
+.claude/settings.local.json

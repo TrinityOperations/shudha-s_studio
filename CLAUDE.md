@@ -97,3 +97,5 @@ pnpm e2e            # playwright (run `pnpm exec playwright install chromium` on
 
 ## Environment variables (never commit values)
 `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL` (transaction pooler, runtime), `DIRECT_DATABASE_URL` (session pooler, migrations only), `RESEND_API_KEY`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `NEXT_PUBLIC_SITE_URL`, `OWNER_EMAIL`. Optional for e2e: `E2E_OWNER_EMAIL`, `E2E_OWNER_PASSWORD`. See `.env.example`.
+
+- Never add AI attribution to commit messages, pull requests or issues: no Co-Authored-By lines, session links or "Generated with" footers.

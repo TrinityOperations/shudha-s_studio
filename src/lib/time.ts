@@ -1,6 +1,6 @@
 import { formatInTimeZone, fromZonedTime, toZonedTime } from "date-fns-tz";
 
-/** Store UTC, display Australia/Melbourne (CLAUDE.md rule 8). */
+/** Store UTC, display Australia/Melbourne. */
 export const MELBOURNE_TZ = "Australia/Melbourne";
 
 /** Australian-style default: 4 Oct 2026, 2:30 pm */
