@@ -5,6 +5,8 @@ import { z } from "zod";
 const serverEnvSchema = z.object({
   DATABASE_URL: z.string().min(1),
   DIRECT_DATABASE_URL: z.string().optional(),
+  /** Max connections per process (default 10). Lower it on Netlify, where every function instance has its own pool. */
+  DB_POOL_MAX: z.coerce.number().int().min(1).max(100).optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   RESEND_API_KEY: z.string().min(1),
   TURNSTILE_SECRET_KEY: z.string().min(1),

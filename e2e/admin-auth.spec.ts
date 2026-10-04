@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { ownerEmail, ownerPassword, signInAsOwner } from "./helpers";
 
 test("public home page renders the studio name", async ({ page }) => {
   await page.goto("/");
@@ -21,14 +22,8 @@ test("unauthenticated /admin/settings redirects and remembers the destination", 
 
 // Needs the owner's credentials and Cloudflare's Turnstile test keys in the dev server env.
 test("owner can sign in and reach the dashboard", async ({ page }) => {
-  const email = process.env.E2E_OWNER_EMAIL;
-  const password = process.env.E2E_OWNER_PASSWORD;
-  test.skip(!email || !password, "Set E2E_OWNER_EMAIL and E2E_OWNER_PASSWORD to run");
+  test.skip(!ownerEmail || !ownerPassword, "Set E2E_OWNER_EMAIL and E2E_OWNER_PASSWORD to run");
 
-  await page.goto("/admin/login");
-  await page.getByLabel(/email/i).fill(email!);
-  await page.getByLabel(/password/i).fill(password!);
-  await page.getByRole("button", { name: /sign in/i }).click();
-  await expect(page).toHaveURL(/\/admin$/);
+  await signInAsOwner(page);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 });

@@ -6,6 +6,7 @@ export async function AdminNav({ email }: { email: string }) {
   const t = await getT();
   const links = [
     { href: "/admin", label: t("common.dashboard") },
+    { href: "/admin/products", label: t("common.products") },
     { href: "/admin/settings", label: t("common.settings") },
   ];
 
