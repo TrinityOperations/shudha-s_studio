@@ -38,3 +38,7 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# next 16 profiling / agent docs cache
+.next-profiles/
+.next-docs/
