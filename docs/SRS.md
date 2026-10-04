@@ -246,7 +246,7 @@ Private, at `/admin`, for one non-technical user on a phone or laptop.
 
 ## 7. Tech stack
 
-Next.js 15 + TypeScript on Netlify · Tailwind v4 + shadcn/ui · Framer Motion · Supabase (Postgres, Auth, Storage, Sydney) · Drizzle ORM · React Hook Form + Zod · Resend + React Email · Cloudflare Turnstile · Vitest + Playwright · pnpm. Details and rules in `CLAUDE.md`.
+Next.js 15 + TypeScript on Netlify · Tailwind v4 + shadcn/ui · Framer Motion · Supabase (Postgres, Auth, Storage, Sydney) · Drizzle ORM · React Hook Form + Zod · Resend + React Email · Cloudflare Turnstile · Vitest + Playwright · pnpm.
 
 ## 8. Architecture
 

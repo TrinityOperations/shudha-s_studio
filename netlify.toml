@@ -1,0 +1,7 @@
+# Netlify build settings. Environment variables are set in the Netlify UI, never here.
+[build]
+  command = "pnpm build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
