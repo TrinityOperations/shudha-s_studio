@@ -1,0 +1,1087 @@
+SHUDHA'S STUDIO — COMPLETE CUSTOM CONTEXT FOR CODING AGENTS / LLMS
+Snapshot date: October 5, 2026
+Repository root: C:\Users\Sajib\Downloads\shudhas_studio-main codex
+
+PURPOSE OF THIS FILE
+====================
+This is a self-contained orientation and handoff document for another LLM or coding agent. It summarizes the repository structure, authoritative project rules, software requirements, architecture, implemented state, planned work, data model, security constraints, workflow, testing, deployment, and known documentation inconsistencies. Read this first, but still obey AGENTS.md if this file and AGENTS.md ever conflict.
+
+The user originally referred to a file named "Shudha Studio SRS.txt". No file with that exact name exists in this repository. The authoritative requirements document found in the codebase is:
+
+  C:\Users\Sajib\Downloads\shudhas_studio-main codex\docs\SRS.md
+
+The public website and owner dashboard functional requirements in that file are reproduced/summarized in detail below.
+
+
+1. SOURCE-OF-TRUTH ORDER
+========================
+When documents disagree, use this order:
+
+1. AGENTS.md — mandatory coding-agent and project rules.
+2. Current source code and generated migrations — actual implemented behavior.
+3. docs/DECISIONS.md — accepted architectural and product decisions.
+4. The relevant docs/slices/<NN-name>.md card — ownership, dependencies, and completion conditions for a particular issue.
+5. docs/SRS.md — product requirements and requirement IDs.
+6. docs/WORKFLOW.md — team process and conflict-avoidance rules.
+7. README.md — onboarding overview; portions can lag behind the code.
+
+Important examples of stale text:
+- docs/SRS.md section 7 still says Next.js 15, but AGENTS.md, package.json, DECISIONS.md, and the code establish Next.js 16.3.8.
+- README.md says the project is only at foundation and product work is not started, but the current source contains a substantial completed product-management slice (#2). Treat the source tree as newer.
+- Some slice cards describe prerequisites as "merged" from the perspective of their intended execution order. Confirm the actual branch/code state before relying on that wording.
+
+
+2. PRODUCT SUMMARY
+==================
+Shudha's Studio is a Melbourne-based personalised-gift maker. The application is one Next.js deployment with two parts:
+
+A. Public website
+- Content-driven portfolio/storefront, not traditional e-commerce.
+- Visitors browse examples of personalised products.
+- No public prices, cart, checkout, or online payments.
+- Conversion goal is an appointment/consultation booking.
+- Later v1 scope includes a custom-order wizard, browser-only wishlist/mood board, customer gallery, English/Bengali UI, and seasonal themes.
+
+B. Private owner dashboard at /admin
+- Intended for one non-technical owner, primarily on phone or laptop.
+- Manages products, images, taxonomy, bookings, availability, content, testimonials, gallery moderation, themes, insights, and PWA notifications.
+- Current authorization model is a single Supabase Auth user whose email equals OWNER_EMAIL case-insensitively.
+
+Business context from the SRS:
+- One-person studio, started around late 2024.
+- Approximately 3.2K Facebook followers at specification time.
+- Instagram: shudhas.studio.
+- Typical products include mugs, apparel, home decor, keyrings, cushions, stationery, and gift packs.
+- Bengali text, Bengali cultural themes, and Islamic calligraphy are important.
+- Customer base is largely the Bangladeshi community in Melbourne.
+- Orders were historically taken via Messenger.
+
+Explicit v1 exclusions:
+- Online payment.
+- Cart/checkout.
+- Shipping workflow.
+- Multi-vendor support.
+- Customer accounts.
+
+Absolute invariant: THERE ARE NO PRICES ANYWHERE in public UI or the data model. Quotes happen during consultation.
+
+
+3. TECHNOLOGY STACK AND VERSIONS
+================================
+Use the installed stack; do not swap technologies without recording the decision in docs/DECISIONS.md.
+
+Core runtime/framework:
+- Node.js 24 is pinned by .nvmrc; package.json permits Node >=20.9.
+- pnpm 12.8.1 package manager.
+- Next.js 16.3.8, App Router, React Server Components.
+- React and React DOM 19.2.8.
+- TypeScript 5 in strict mode; @/* maps to ./src/*.
+
+Next.js 16 rules that differ from older versions:
+- Use src/proxy.ts, not middleware.ts.
+- cookies(), params, and searchParams are async.
+- Turbopack is the default development bundler.
+- next lint is gone; pnpm lint invokes ESLint directly.
+- LayoutProps<"/x"> and PageProps<"/x"> are generated global types.
+- Before writing Next.js code, consult the bundled docs under node_modules/next/dist/docs because this version can differ from prior training knowledge.
+
+UI/forms:
+- Tailwind CSS v4.
+- shadcn/ui v4, style base-nova, using Base UI primitives.
+- Generated UI components live in src/components/ui and must not be hand-edited. Add them through the shadcn CLI.
+- shadcn v4 has no Form component. Forms use Field, FieldLabel, FieldError, FieldGroup, FieldDescription, etc.
+- React Hook Form 7 + @hookform/resolvers.
+- Zod v4; shared schemas live only in src/lib/validators.
+- Sonner for toasts.
+- Framer Motion for animation; reduced motion must always be respected.
+- Lucide React icons.
+- dnd-kit for accessible product image reordering.
+
+Data/services:
+- Supabase Auth and Storage, Sydney region.
+- PostgreSQL reached server-side through Drizzle ORM.
+- node-postgres (pg), not postgres.js.
+- Drizzle schema: src/db/schema.ts; migrations: drizzle/.
+- RLS is enabled on all application tables with no policies. Client-side/anon REST data access is intentionally denied; application data access is through server-side Drizzle as table owner.
+- Sharp handles server-side image resize/compression.
+- Resend + React Email are selected for transactional emails, but email feature files are not yet present.
+- Cloudflare Turnstile on every public form, including /admin/login.
+- date-fns and date-fns-tz for Melbourne timezone behavior.
+- Umami is the selected privacy-friendly analytics solution, not Vercel Analytics.
+
+Testing/deployment:
+- Vitest 5, Node test environment.
+- Playwright, desktop Chromium and Pixel 7 projects.
+- Netlify hosting. main is intended for production and PRs receive previews.
+- GitHub CI checks lint, typecheck, tests, and formatting.
+
+
+4. HIGH-LEVEL REPOSITORY STRUCTURE
+==================================
+Root files/directories of significance:
+
+AGENTS.md
+  Mandatory project rules for coding agents. Read first every session.
+
+CLAUDE.md
+  Imports AGENTS.md and says project guidance belongs there.
+
+README.md
+  Setup, commands, troubleshooting, and broad status. Some status text is stale.
+
+docs/
+  SRS.md             Authoritative product requirements.
+  DECISIONS.md       Append-only architectural/product decision log.
+  WORKFLOW.md        Branching, slice, ownership, review, and shared-file rules.
+  slices/            Cards for issues #2 through #16 plus dependency/ownership map.
+
+src/
+  proxy.ts           Next.js 16 admin-session refresh and first authorization gate.
+  app/               App Router routes and layouts.
+  actions/           All mutations as server actions.
+  components/        admin, public, shared, and generated ui components.
+  db/                Drizzle client, schema, seed, and read queries.
+  lib/               Auth, environment, i18n, image/storage, validators, helpers.
+  test/              Shared test utilities.
+
+drizzle/
+  0000_lethal_gargoyle.sql          Base schema migration.
+  0001_rls_buckets_exclusion.sql    Custom RLS, storage bucket, and booking exclusion work.
+  meta/                              Drizzle snapshots; never hand-edit.
+
+e2e/
+  admin-auth.spec.ts
+  admin-products.spec.ts
+  helpers.ts
+
+certs/supabase-ca.crt
+  Public Supabase root CA used to verify database TLS; expires April 2031 according to DECISIONS.md.
+
+Configuration:
+- package.json
+- pnpm-lock.yaml
+- pnpm-workspace.yaml
+- tsconfig.json
+- next.config.ts
+- drizzle.config.ts
+- vitest.config.mts
+- vitest.setup.ts
+- playwright.config.ts
+- eslint.config.mjs
+- postcss.config.mjs
+- components.json
+- netlify.toml
+- .env.example
+- .nvmrc
+
+
+5. CURRENT ROUTES AND IMPLEMENTED FILE MAP
+==========================================
+Current App Router routes:
+
+Public:
+- / — src/app/(public)/page.tsx. Currently a placeholder home showing editable studio name/tagline and a construction message.
+- Public layout provides skip link, site header, locale toggle/header behavior, main landmark, and footer.
+- Planned /products, /products/[slug], /book, /about, /faq, /contact, etc. do not yet exist in the current tree.
+
+Admin authentication:
+- /admin/login — email/password owner login with Turnstile.
+
+Protected admin dashboard:
+- /admin — small dashboard intro.
+- /admin/settings — edits general studio name and English/Bengali tagline.
+- /admin/products — product list/filter/bulk actions.
+- /admin/products/new — create product.
+- /admin/products/[id] — edit product and images.
+- /admin/products/taxonomy — categories, occasions, tags management.
+
+Current server actions:
+- src/actions/auth.ts — signIn and signOut.
+- src/actions/locale.ts — persist English/Bengali locale cookie.
+- src/actions/settings.ts — update general site settings.
+- src/actions/products.ts — create/update/archive/delete/duplicate/bulk operations.
+- src/actions/product-images.ts — upload/process, alt text update, delete, reorder.
+- src/actions/taxonomy.ts — create/update/delete/reorder category/occasion/tag items.
+
+Current queries:
+- src/db/queries/settings.ts — general settings with validated defaults.
+- src/db/queries/products.ts — admin product list and product-for-edit reads.
+- src/db/queries/taxonomy.ts — taxonomy lists with product counts.
+
+Current reusable libraries:
+- action-result.ts — ActionResult<T>, ok(), fail().
+- auth.ts / owner.ts — owner lookup and authorization.
+- env.ts / env.public.ts — validated environment access.
+- i18n/* — locale cookie, dictionaries, server/client translators.
+- client-image.ts — browser-side image downsizing before upload.
+- images.ts — Sharp-based server image processing.
+- storage.ts / storage.server.ts — bucket constants and server storage operations.
+- supabase/admin.ts, client.ts, server.ts — Supabase clients by context.
+- slug.ts / slugify.ts — stable unique slug generation.
+- time.ts — UTC/Melbourne conversion and Australian-style formatting.
+- turnstile.ts — server verification.
+- validators/* — Zod schemas shared by clients/actions.
+
+Current notable components:
+- Admin navigation, login form, settings form.
+- Product form, product table, product filters, product image manager, taxonomy list.
+- Shared confirm dialog, translated field messages, submit button, locale toggle, Turnstile field.
+- Basic site header/footer.
+- Generated shadcn UI primitives in src/components/ui.
+
+
+6. ARCHITECTURAL RULES — MUST FOLLOW
+====================================
+Mutations:
+- All mutations belong in server actions under src/actions/.
+- Standard action order: validate with shared Zod schema; requireOwner() for admin actions; perform write; revalidate relevant paths; return ActionResult.
+- Validation errors and action errors are i18n keys, not English prose.
+- Never call the database from a client component.
+- Public actions must verify Turnstile and should be rate-limited where required.
+
+Reads:
+- Put reads in src/db/queries/, generally one entity/domain per file.
+- Call them from server components or server-only code.
+- Do not put inline SQL/database reads in pages.
+- Public product queries must explicitly return published products only. Admin queries may access all statuses.
+
+Admin protection:
+- src/proxy.ts is only the first gate.
+- The admin dashboard layout calls requireOwner().
+- Every individual protected admin page must call requireOwner() because pages can render independently of layouts.
+- Every admin server action must call requireOwner().
+- OWNER_EMAIL comparison is trimmed and case-insensitive.
+- Client-side checks are cosmetic, never authorization.
+
+Forms:
+- React Hook Form + zodResolver + shared schema.
+- Use shadcn Field components and shared FieldMessage.
+- Server action validates the same data again.
+- Show inline field errors and a Sonner success toast.
+- All public forms include TurnstileField and server verification.
+
+i18n:
+- Every user-visible string must be passed through t('key'), including admin text.
+- Flat JSON keys in src/lib/i18n/en.json and bn.json.
+- Server: const t = await getT().
+- Client: const t = useT().
+- Bengali dictionary falls back per key to English.
+- Locale is cookie-persisted; no /bn route prefix.
+- Slice-specific i18n namespaces are defined in slice cards.
+- Add keys alphabetically to both dictionaries; do not rename/delete unrelated keys.
+- Bengali content is stored in sibling *_bn columns rather than a translations table.
+
+Images/storage:
+- Use next/image for rendered images.
+- Prompt for alt text on upload; English alt is required, Bengali alt optional.
+- Product images are processed to WebP, max 1600px full image plus 400px thumbnail.
+- Browser downsizing targets max 2000px before upload to stay below Netlify function body limits; PNG transparency is preserved and other large images become JPEG client-side.
+- Server still validates and re-encodes with Sharp.
+- next.config.ts allows a 12 MB server-action body.
+- Do not hand-roll a second image/storage pipeline; reuse existing helpers.
+- Public buckets: product-images, site-images, gallery-images.
+- Private buckets: gallery-pending, booking-uploads.
+- Gallery submissions remain private until approval, when files are copied to gallery-images.
+
+Time:
+- Store timestamps in UTC.
+- Display and calculate availability in Australia/Melbourne.
+- Use src/lib/time.ts and date-fns-tz.
+
+Accessibility/performance:
+- Semantic markup, labels, focus indication, keyboard operation, accessible dialogs/galleries.
+- Respect prefers-reduced-motion globally and in component animation.
+- Target Lighthouse accessibility >=95 and performance >=90 on mobile.
+- Mobile-first from 360px upward.
+
+Database/migrations:
+- src/db/schema.ts is the schema source of truth.
+- Use pnpm db:generate for normal schema changes.
+- Constraints Drizzle cannot express belong in custom migrations.
+- Never use drizzle-kit push because it could conflict with custom database constraints.
+- Never hand-edit drizzle/meta snapshots.
+- Migrations are serialized across branches and should only be run against the developer's personal Supabase project.
+
+Generated UI:
+- Do not hand-edit src/components/ui/*.
+- Use the shadcn CLI to add/update primitives.
+
+Decision log:
+- Append a dated line to docs/DECISIONS.md for any non-obvious technical choice, library, pattern, or trade-off.
+
+
+7. AUTHENTICATION AND SECURITY MODEL
+====================================
+Current owner model:
+- Supabase email/password authentication.
+- Only a user whose Supabase email equals OWNER_EMAIL can enter admin.
+- No application users table and no helper roles yet.
+- signIn first validates input, verifies Turnstile with optional x-forwarded-for IP, rejects non-owner addresses using the same generic invalid-credentials error, then calls Supabase signInWithPassword.
+- Safe local next paths may be honored after login; external redirect URLs are rejected by validation.
+- signOut clears Supabase auth and redirects to /admin/login.
+
+Proxy behavior:
+- Matches /admin/:path*.
+- Refreshes Supabase session cookies.
+- Calls Supabase getUser() on each admin request.
+- Non-owner requests are redirected to /admin/login?next=<original pathname>.
+- Signed-in owner visiting /admin/login is redirected to /admin.
+
+Defense in depth:
+- requireOwner() is the real server authorization check.
+- RLS is enabled on every table with no anon policies.
+- Supabase anon credentials are used for Auth, not table data.
+- Service role is server-only and used for storage administration.
+- Turnstile is mandatory on all public forms, including login.
+- Booking conflict protection ultimately relies on a PostgreSQL exclusion constraint.
+
+Known incomplete security requirements:
+- General public form rate limiting is required by PW-38/NF-05 but is not yet broadly implemented.
+- Magic link, forgot-password flow, optional 2FA, and explicit session-timeout UX are not implemented.
+- Role support is only a C-priority future requirement.
+
+
+8. DATABASE CONNECTION AND TLS
+==============================
+Runtime:
+- src/db/index.ts uses drizzle-orm/node-postgres and pg.Pool.
+- DATABASE_URL points to Supabase transaction pooler port 6543.
+- Pool default max is 10; DB_POOL_MAX can lower it per Netlify process/function instance.
+- Pool is reused through globalThis during development hot reload.
+- Timeouts: idle 20 seconds, connection 10 seconds.
+- TLS verifies against certs/supabase-ca.crt with rejectUnauthorized: true.
+- Missing CA file throws; there is no insecure fallback.
+
+Migrations:
+- DIRECT_DATABASE_URL should point to session pooler port 5432.
+- drizzle.config.ts can derive port 5432 from a 6543 DATABASE_URL if DIRECT_DATABASE_URL is missing.
+- Credentials are split into host/port/user/password/database because drizzle-kit ignores ssl when a URL field is used.
+- Migration TLS uses the same verified CA.
+
+Reason for pg driver:
+- The project switched from postgres.js because query pipelining/queue behavior could hang with Supabase transaction pooling. node-postgres queues excess queries client-side.
+
+
+9. DATABASE SCHEMA
+==================
+Conventions:
+- UUID primary keys for normal entities.
+- timestamptz in UTC.
+- created_at/updated_at helpers.
+- Bengali content in sibling *_bn columns.
+- No price column anywhere.
+
+Enums:
+- product_status: draft, published, archived.
+- booking_status: new, confirmed, done, cancelled.
+- consultation_type: in_person, phone, video.
+- gallery_submission_status: pending, approved, hidden.
+
+Tables (18 total):
+
+1. categories
+- id, stable unique slug, English/Bengali name, sort order, timestamps.
+- Product category FK uses ON DELETE SET NULL.
+
+2. occasions
+- id, stable unique slug, English/Bengali name, sort order, timestamps.
+
+3. tags
+- id, stable unique slug, English/Bengali name, timestamps.
+
+4. products
+- slug, English/Bengali title and description.
+- English/Bengali material notes.
+- personalisation JSON: option keys, English notes, optional Bengali notes.
+- turnaround days.
+- optional category.
+- draft/published/archived status.
+- featured flag, first published timestamp, timestamps.
+- No price.
+
+5. product_images
+- product FK cascade.
+- full and thumbnail storage paths.
+- required English alt, optional Bengali alt.
+- dimensions and sort order.
+
+6. product_occasions
+- many-to-many join, composite primary key, cascading FKs.
+
+7. product_tags
+- many-to-many join, composite primary key, cascading FKs.
+
+8. product_view_stats
+- product/day composite primary key and view count for insights.
+
+9. booking_settings
+- singleton-style availability defaults/settings, including slot duration, buffer, horizon, notice, consultation types, and timestamps.
+
+10. availability_rules
+- weekday start/end availability ranges and enabled state.
+
+11. blocked_periods
+- holiday/ad-hoc blocked start/end periods and optional reason.
+
+12. bookings
+- customer name, phone, email.
+- UTC starts/ends.
+- consultation type.
+- optional product FK.
+- customer message and private owner notes.
+- optional private reference image path.
+- structured custom-order brief JSON.
+- wishlist product UUID array.
+- status and manage token.
+- reminder/status timestamps and normal timestamps.
+- check starts_at < ends_at.
+- indexes for time/status/email.
+- custom bookings_no_overlap PostgreSQL EXCLUDE constraint blocks overlap for non-cancelled bookings.
+
+13. site_settings
+- text key primary key, JSONB value, updated timestamp.
+- Intended keys include general, home, contact, announcement, theme, etc., each validated by a matching Zod schema.
+
+14. faqs
+- English/Bengali question and answer, sort order, published flag, timestamps.
+
+15. testimonials
+- author name, English/Bengali quote, optional site image path, sort order, visible flag, timestamps.
+
+16. gallery_submissions
+- pending private image/thumb paths.
+- approved public image/thumb paths.
+- optional first name/note.
+- required consent and status.
+- reviewed/timestamps.
+- database check requires consent=true.
+
+17. contact_messages
+- name, email, optional phone, message, read timestamp, created timestamp.
+
+18. push_subscriptions
+- unique endpoint, p256dh, auth, optional user agent, created timestamp.
+
+Custom migration responsibilities:
+- RLS on every table.
+- Supabase storage buckets.
+- bookings_no_overlap EXCLUDE constraint.
+
+
+10. SEEDED DATA
+===============
+src/db/seed.ts is idempotent and uses onConflictDoNothing. It never overwrites owner edits.
+
+Seeds:
+- general site settings from defaultGeneralSettings.
+- singleton booking settings defaults.
+- Categories: Mugs, Apparel, Home decor, Keyrings, Cushions, Stationery, Gift packs, with Bengali names.
+- Occasions: Birthday, Anniversary, Wedding, Eid, Corporate, Baby, Graduation, with Bengali names.
+
+These category/occasion lists are provisional until confirmed with the client.
+
+
+11. CURRENT IMPLEMENTATION STATUS
+=================================
+Implemented or substantially implemented in current source:
+
+Foundation:
+- Next.js/Tailwind/shadcn/TypeScript/pnpm setup.
+- Drizzle schema for the complete planned SRS domain.
+- Base and custom migrations.
+- RLS, storage bucket definitions, and booking no-overlap constraint in migration.
+- Supabase Auth/session refresh and protected admin routes.
+- Single-owner authorization.
+- Validated server/public environment handling.
+- English/Bengali locale cookie and translation helpers.
+- Geist and Noto Sans Bengali fonts.
+- General site settings query/action/form.
+- Placeholder public home page/header/footer.
+- Basic admin dashboard/login/settings.
+
+Product management slice (#2):
+- Product list with filters and search.
+- Create/edit products.
+- English and Bengali product fields.
+- Stable/unique slugs.
+- Draft/published/archived lifecycle.
+- Featured flag.
+- Personalisation checklist and notes.
+- Category/occasion/tag assignment.
+- Taxonomy create, rename, delete, and category/occasion ordering.
+- Product image browser downsizing, server processing, upload, alt text, deletion, and dnd-kit reorder.
+- Duplicate product, including copying storage objects rather than sharing paths.
+- Bulk publish, unpublish, archive, and delete.
+- Storage-first deletion to avoid orphaned files.
+- Product action unit tests and product lifecycle Playwright test.
+
+Implemented behavior details:
+- New products are always initially saved as draft, then redirected to edit page for images.
+- publishedAt is set on first publish and retained across later unpublish/republish.
+- Archived products return to draft when unarchived.
+- Bulk publish touches drafts only.
+- Bulk unpublish touches published only.
+- Bulk archive touches non-archived only.
+- Taxonomy rename never changes slug, preserving future public URLs.
+- Inline-created tags persist even if later unused; owner can delete them in taxonomy.
+- Deleting a category leaves products uncategorized; deleting occasion/tag cascades join rows.
+- Fixed personalisation option keys: name, date, message, photo, language, colour, size, logo.
+
+Not implemented in the current source tree, despite schema support:
+- Public catalogue and product detail routes.
+- Public booking UI and booking engine library.
+- Availability dashboard.
+- Booking creation actions.
+- Transactional emails and reminders.
+- Customer booking manage/reschedule/cancel page.
+- Admin booking management.
+- Custom-order wizard.
+- Wishlist/mood board.
+- Full designed home page.
+- About/how-it-works/contact/FAQ/privacy/terms/404 pages.
+- Full content management, FAQ management, testimonial management, account email/password UI.
+- Customer gallery and moderation.
+- Seasonal theming.
+- PWA manifest/service worker/push implementation.
+- Umami and dashboard insights.
+- Sitemap/robots/structured data quality pass.
+- Owner guide/runbook/training content.
+
+Do not use README.md's "products not started" line as current truth; product management is visibly present.
+
+
+12. PUBLIC WEBSITE FUNCTIONAL REQUIREMENTS (SRS SECTION 3)
+==========================================================
+Priority legend: M = must have, S = should have, C = could have.
+
+Home page:
+- PW-01 (M): Hero with studio name, tagline "Be a reason for someone's happiness & more", and Book an Appointment CTA.
+- PW-02 (M): Owner-curated featured/latest products grid.
+- PW-03 (M): Shop-by-occasion shortcuts: Birthday, Anniversary, Wedding, Eid, Corporate, Baby, Graduation, subject to confirmation.
+- PW-04 (M): Shop-by-category shortcuts: Mugs, Apparel, Home decor, Keyrings, Cushions, Stationery, Gift packs, subject to confirmation.
+- PW-05 (M): About-the-maker photo and short story.
+- PW-06 (S): Customer testimonial carousel.
+- PW-07 (S): Instagram/Facebook links or feed.
+- PW-08 (S): Scroll animations and smooth transitions that respect reduced motion.
+
+Product catalogue:
+- PW-10 (M): Responsive masonry/grid of all published products.
+- PW-11 (M): Combined filters for category, occasion, and tag.
+- PW-12 (M): Keyword search across English and Bengali content.
+- PW-13 (S): Newest/featured sorting.
+- PW-14 (M): No prices on any public page.
+- PW-15 (S): Pagination or infinite loading and lazy images.
+
+Product detail:
+- PW-20 (M): Image gallery with zoom and mobile swipe.
+- PW-21 (M): Title, description, category, occasions, material/size notes.
+- PW-22 (M): Personalisation options as text.
+- PW-23 (S): Typical turnaround time.
+- PW-24 (M): Booking CTA pre-filling the selected product.
+- PW-25 (S): Related products.
+- PW-26 (S): WhatsApp, Facebook, and copy-link sharing.
+
+Appointment booking:
+- PW-30 (M): Name, phone, email, preferred date/time, product, message, reference image.
+- PW-31 (M): Calendar displays only owner availability; hide past and blocked times.
+- PW-32 (M): Prevent double booking with server-side transaction conflict check.
+- PW-33 (S): In-person, phone, and video consultation choices, subject to confirmation.
+- PW-34 (M): Confirmation screen and customer email.
+- PW-35 (M): Owner notification by email; push/SMS/WhatsApp optional.
+- PW-36 (S): Pre-appointment customer reminder.
+- PW-37 (S): Secure email link for reschedule/cancel.
+- PW-38 (M): Turnstile and rate limiting.
+
+Custom-order wizard, confirmed for v1:
+- PW-50 (M): Steps: product type; occasion; names/dates/message/language; photo; quantity and needed-by date; slot booking.
+- PW-51 (M): Start from product page with product preselected.
+- PW-52 (M): Structured brief attached to booking and shown in admin.
+- PW-53 (S): Preserve client-side progress between steps; do not persist abandoned wizards.
+
+Wishlist/mood board, confirmed for v1:
+- PW-60 (M): Save products without account in browser storage.
+- PW-61 (M): Attach saved list to a booking in one step.
+- PW-62 (C): Shareable wishlist link.
+
+Customer gallery, confirmed for v1:
+- PW-70 (M): Happy customers page with customer-submitted photos.
+- PW-71 (M): Submission form with photo, optional first name, note, and required consent.
+- PW-72 (M): Nothing public before owner approval.
+
+Content pages:
+- PW-40 (M): About page.
+- PW-41 (M): How it works: browse -> book -> consult -> create -> collect/deliver.
+- PW-42 (M): Contact page/form, social links, and area served.
+- PW-43 (S): FAQ page.
+- PW-44 (C): Separate gallery/lookbook.
+- PW-45 (M): Privacy policy and terms.
+- PW-46 (S): Branded 404 page.
+
+Localisation:
+- PW-80 (M): Persistent English/Bengali switch.
+- PW-81 (M): All interface strings translated; product content falls back to English when Bengali is missing.
+- PW-82 (M): Correct Bengali rendering with suitable font.
+
+Seasonal theming, confirmed for v1:
+- PW-90 (M): Small theme set such as default, Eid, Christmas, Valentine's, Mother's Day; final list to confirm. Themes change colors, hero imagery, and accents.
+- PW-91 (M): Owner selects active theme from dashboard with no deployment.
+
+
+13. OWNER DASHBOARD FUNCTIONAL REQUIREMENTS (SRS SECTION 4)
+================================================================
+Private /admin for one non-technical owner on phone or laptop.
+
+Authentication/security:
+- OD-01 (M): Email/password login; magic link alternative.
+- OD-02 (S): Optional 2FA.
+- OD-03 (M): Forgot-password flow.
+- OD-04 (M): Session timeout and logout.
+- OD-05 (C): Owner/helper roles with limited helper rights.
+
+Product management:
+- OD-10 (M): Create, edit, delete, archive products.
+- OD-11 (M): Multiple image upload, drag/drop reorder, resize/compression.
+- OD-12 (M): Assign/manage categories, occasions, and tags.
+- OD-13 (M): Featured flag and draft/published states.
+- OD-14 (M): Personalisation checklist plus free text.
+- OD-15 (S): Bulk publish/archive/delete.
+- OD-16 (S): Live public product preview.
+- OD-17 (C): Duplicate product.
+
+Appointment management:
+- OD-20 (M): Calendar/list views for upcoming, past, cancelled.
+- OD-21 (M): Weekly availability, slot length, buffer, blocked dates/holidays.
+- OD-22 (M): Confirm/reschedule/cancel and email customer.
+- OD-23 (M): New/Confirmed/Done/Cancelled status and private notes.
+- OD-24 (S): One-tap WhatsApp/email response.
+- OD-25 (S): Google Calendar sync.
+- OD-26 (M): View structured custom-order brief and wishlist.
+
+Content/settings:
+- OD-30 (M): Edit hero, about, FAQ, contact, social links.
+- OD-31 (S): Add/hide/reorder testimonials.
+- OD-32 (M): Approve/hide/delete gallery submissions.
+- OD-33 (S): Announcement banner toggle.
+- OD-34 (M): Change own password and email.
+- OD-35 (M): Choose seasonal theme.
+- OD-36 (M): Edit Bengali product translations.
+
+Insights:
+- OD-40 (S): Bookings this week, most-viewed products, enquiries by category.
+- OD-41 (C): CSV booking export.
+
+PWA, confirmed for v1:
+- OD-60 (M): Installable dashboard with manifest, icons, offline shell.
+- OD-61 (M): Push notification for new booking and gallery submission.
+
+Handover:
+- OD-50 (M): Plain-language help in dashboard.
+- OD-51 (M): Short owner guide and walkthrough session.
+
+
+14. NON-FUNCTIONAL REQUIREMENTS
+===============================
+- NF-01 Performance: Lighthouse mobile >=90, LCP <2.5s on 4G, responsive WebP/AVIF images.
+- NF-02 Responsiveness: 360px phones through 4K; touch-friendly gallery/calendar.
+- NF-03 Accessibility: WCAG 2.2 AA, keyboard navigation, alt text prompt, reduced motion.
+- NF-04 SEO: server rendering, per-product metadata/Open Graph, sitemap, LocalBusiness and Product structured data.
+- NF-05 Security: HTTPS, hashed passwords, CSRF/XSS protection, rate limiting, signed uploads, server-protected admin, dependency scanning.
+- NF-06 Privacy: Sydney data region, privacy policy, deletion on request.
+- NF-07 Reliability: 99.9% managed-hosting uptime and daily DB backups.
+- NF-08 Maintainability: end-to-end TypeScript, lint/tests/CI, README/runbook.
+- NF-09 Cost: under AUD 10/month at launch.
+- NF-10 Localisation: Bengali correctness, Australian date format, Melbourne timezone.
+- NF-11 Browsers: latest two major-browser versions plus Facebook/Instagram in-app browsers.
+- NF-12 Analytics: privacy-friendly analytics visible in dashboard.
+
+
+15. DEFERRED FEATURES — NOT V1
+==============================
+- 3D live mug/t-shirt preview.
+- Occasion reminders.
+- Gift quiz.
+- Bulk/corporate enquiry form.
+- Order-status tracker.
+- Deposit payments.
+- AI caption helper.
+- Instagram auto-import.
+- Consultation vouchers.
+
+Keep the data model open to these only when cheap; do not implement them as part of v1 unless scope changes.
+
+
+16. BOOKING ENGINE DESIGN (PLANNED, SCHEMA READY)
+=================================================
+The future booking engine belongs under src/lib/booking/.
+
+Required flow:
+1. Owner sets weekly rules, slot duration, buffer, booking horizon, minimum notice, consultation types, and blocked periods.
+2. Pure functions generate candidate slots in Australia/Melbourne, including daylight-saving behavior.
+3. Remove past, blocked, outside-horizon, and conflicting slots.
+4. Public UI submits chosen slot/contact details/product/message/reference image.
+5. Server never trusts the client slot; it recomputes availability.
+6. Create booking within a transaction.
+7. Convert exclusion-constraint collision into a translated "slot just taken" failure.
+8. Later hook invokes email and push notification services.
+
+Suggested defaults until client confirms:
+- Monday-Saturday 10:00-18:00.
+- 30-minute slots.
+- Four-week horizon.
+- 24-hour minimum notice.
+
+Reference images belong in private booking-uploads and should use signed URLs for owner viewing. Never persist signed URLs.
+
+
+17. I18N DETAILS
+================
+Locales: en and bn; default en.
+Cookie name: locale.
+
+Root layout:
+- Reads locale server-side.
+- Sets html lang.
+- Loads Geist and Noto Sans Bengali.
+- Supplies messages through I18nProvider.
+
+Dictionary behavior:
+- en.json is the complete reference dictionary.
+- bn.json may omit keys and falls back per key to English.
+- Tests ensure Bengali does not contain orphan keys and English values are non-empty.
+- Translator supports {param} interpolation and returns unknown keys visibly rather than crashing.
+
+Content localization:
+- Prefer Bengali content when locale=bn and a *_bn value is present.
+- Otherwise fall back to English.
+- Product form already includes Bengali title, description, material notes, personalisation notes, and image alt support.
+
+
+18. IMAGE AND STORAGE DETAILS
+=============================
+Product upload constraints and behavior:
+- Client may downscale large phone images before FormData submission.
+- Server action receives repeated files/alt/altBn fields aligned by index.
+- Shared validator enforces count, image MIME, size, product UUID, and required alt text.
+- Processed full and thumbnail files use UUID-based paths under product-images/<productId>/.
+- Database stores paths, dimensions, and order.
+- Reorder input must contain exactly all image IDs for the product.
+- Duplicate product copies each storage object to independent paths.
+- Single/bulk product deletion removes storage objects before deleting DB rows; storage failure aborts DB deletion.
+
+Gallery future flow:
+- Strip EXIF location information during processing.
+- Upload pending files only to gallery-pending.
+- Owner approval copies to gallery-images and fills public paths.
+- Public query only returns approved rows.
+
+
+19. TESTING CONVENTIONS AND CURRENT COVERAGE
+=============================================
+Required command before declaring coding work complete:
+
+  pnpm lint && pnpm typecheck && pnpm test
+
+Also use:
+- pnpm format:check for CI-equivalent formatting validation.
+- pnpm e2e for Playwright where the slice requires it.
+- pnpm exec playwright install chromium once per machine.
+
+Vitest:
+- Includes src/**/*.test.ts.
+- Node environment.
+- Setup in vitest.setup.ts.
+- @ alias resolves to src.
+- Action tests live beside actions.
+- Mock @/db, @/lib/auth, next/cache, next/navigation, etc. using vi.hoisted + vi.mock following existing patterns.
+- Every server action should have tests.
+
+Current unit tests include:
+- auth action.
+- settings action.
+- products action.
+- product-image action.
+- taxonomy action.
+- i18n translator/dictionaries.
+- owner email helper.
+- slug behavior.
+
+Playwright:
+- Desktop Chrome and Pixel 7 projects.
+- Starts pnpm dev unless E2E_BASE_URL is supplied.
+- Login-dependent tests skip unless E2E_OWNER_EMAIL and E2E_OWNER_PASSWORD are configured.
+- Turnstile test keys must be used locally/e2e.
+- Current specs cover public home existence, admin redirects/login, and admin product lifecycle.
+
+When adding tests:
+- Do not make e2e tests depend on shared permanent data where cleanup is possible.
+- e2e/helpers.ts contains owner login and product cleanup helpers.
+- Booking and public catalogue slices require their own query/unit/e2e coverage.
+
+
+20. ENVIRONMENT VARIABLES
+=========================
+Never commit .env.local or real values.
+
+Required/current:
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY
+- SUPABASE_SERVICE_ROLE_KEY
+- DATABASE_URL — transaction pooler, port 6543, runtime.
+- DIRECT_DATABASE_URL — session pooler, port 5432, migrations.
+- RESEND_API_KEY
+- NEXT_PUBLIC_TURNSTILE_SITE_KEY
+- TURNSTILE_SECRET_KEY
+- NEXT_PUBLIC_SITE_URL
+- OWNER_EMAIL
+
+Optional/current:
+- DB_POOL_MAX
+- E2E_OWNER_EMAIL
+- E2E_OWNER_PASSWORD
+- E2E_BASE_URL is consumed by Playwright config even though it is not highlighted in .env.example.
+
+Likely future variables when relevant slices are implemented:
+- Cron secret for reminders.
+- Configurable sender/business email.
+- VAPID public/private keys for push.
+- Umami configuration.
+
+If adding an environment variable:
+- Add its name with no secret value and a comment to .env.example.
+- List it in the PR description.
+
+
+21. COMMANDS
+============
+Development:
+- pnpm dev
+- pnpm build
+- pnpm start
+
+Quality:
+- pnpm lint
+- pnpm typecheck     (next typegen && tsc --noEmit)
+- pnpm test
+- pnpm test:watch
+- pnpm e2e
+- pnpm format
+- pnpm format:check
+
+Database:
+- pnpm db:generate
+- pnpm db:migrate
+- pnpm db:seed
+- pnpm db:studio
+
+Do not run migrations against the team shared/production database during normal agent work. Use the developer's personal Supabase dev project.
+
+
+22. TEAM WORKFLOW AND OWNERSHIP
+===============================
+Core workflow:
+- One slice = one GitHub issue = one branch = one PR.
+- Branch format: feat/<issue>-<short-name> from latest main.
+- Never commit directly to main.
+- Do not run git commit or git push as an agent; the human does so.
+- Before a non-small implementation, propose a plan and wait for approval.
+- Build vertical slices: schema -> query/action -> UI -> tests.
+- Rebase on origin/main before PR and rerun all checks.
+- Squash and merge.
+
+At completion provide exact human commands:
+- git add with explicit files, never .env.local.
+- commit message: <type>: <summary> (<requirement IDs>) (#<issue>).
+- git push -u origin <branch>.
+- Never include AI attribution, Co-Authored-By, or tool names.
+
+File ownership by slice:
+- #2 Product management: admin products, product/taxonomy actions/queries/validators/components, image/storage/slug helpers.
+- #3 Public catalogue: public products routes/components and catalogue query.
+- #4 Booking engine: src/lib/booking, public /book, admin availability, booking/availability actions.
+- #5 Booking emails: src/emails, email helper, public booking manage token route, reminder cron.
+- #6 Booking management: admin bookings, queries/actions/components/e2e.
+- #7 Custom order: public custom-order and wizard.
+- #8 Wishlist: wishlist library/components/page.
+- #9 Home/design: public home/layout/header/footer and global design tokens.
+- #10 Content: content routes, admin settings/FAQs/testimonials, content actions/queries/validators.
+- #11 Bengali: bn.json completion and coordinated Bengali field additions.
+- #12 Gallery: public/admin gallery, actions, queries, validators, components.
+- #13 Themes: theme definitions/picker and theme variable sets.
+- #14 PWA/push: manifest, service worker, push library/actions/components.
+- #15 Quality: sitemap/robots/structured data/analytics/overview and coordinated targeted fixes.
+- #16 Handover: help text, owner guide, runbook.
+- Foundation files are lead-owned.
+
+Shared hotspots:
+- en.json and bn.json.
+- admin-nav.tsx.
+- e2e/helpers.ts.
+- package.json and pnpm-lock.yaml.
+- docs/DECISIONS.md.
+- .env.example.
+- src/db/schema.ts and drizzle/.
+- src/app/globals.css is reserved for slices #9 and #13 except coordinated quality fixes.
+
+Do not edit another slice's owned files. If a dependency is not merged or another slice must change, stop and tell the lead rather than copying/reimplementing it.
+
+
+23. BUILD SLICE ORDER
+=====================
+Foundation #1 is treated as complete.
+
+Wave 1:
+- #2 Products.
+- #4 Booking engine.
+- #10 Content pages.
+
+Wave 2:
+- #3 Catalogue (after #2).
+- #5 Booking emails (after #4).
+- #12 Gallery (after #2 image pipeline).
+
+Wave 3:
+- #6 Booking management (after #4 and #5).
+- #7 Wizard (after #3 and #4).
+- #8 Wishlist (after #3 and #4).
+- #9 Home/design (after #3 and client design decisions).
+
+Wave 4:
+- #11 Bengali after most public/admin slices.
+- #13 Themes after #9.
+- #14 PWA/push after #6 and #12.
+
+Wave 5:
+- #15 Quality after all feature slices, with feature freeze.
+- #16 Handover after quality pass.
+
+Current code indicates #2 has been implemented substantially even though some broad project status prose was not updated.
+
+
+24. IMPORTANT DECISIONS ALREADY MADE
+====================================
+- No prices/payments in v1.
+- Custom booking engine, not Cal.com, to preserve branding and attach order briefs.
+- Supabase Sydney region.
+- Wishlist in browser, no customer accounts.
+- Netlify instead of Vercel due to private organization repository/commercial free-tier constraints.
+- Umami analytics.
+- Next.js 16 rather than 15.
+- shadcn v4 base-nova/Base UI and Field-based forms.
+- Zod messages are i18n keys.
+- Cookie locale with per-key Bengali fallback, not route-based locale URLs.
+- Admin identity is Supabase user email == OWNER_EMAIL.
+- RLS deny-all for anon; Drizzle server access.
+- PostgreSQL EXCLUDE constraint for booking overlap.
+- Defined public/private storage bucket split.
+- *_bn columns instead of translations table.
+- site_settings key/JSONB design to avoid migrations for content blocks.
+- Seed is idempotent and never overwrites edits.
+- Turnstile also protects admin login.
+- Node 24.
+- Sharp and dnd-kit for image pipeline/order.
+- Client pre-resize due to Netlify body limit; server revalidation/re-encoding remains mandatory.
+- Fixed eight-key personalisation checklist.
+- Storage-first deletion.
+- Stable taxonomy slugs after rename.
+- Product status transition semantics described above.
+- pg/node-postgres with verified Supabase CA.
+
+
+25. DEPLOYMENT AND OPERATIONS
+=============================
+Netlify:
+- Build command pnpm build.
+- Publish .next.
+- @netlify/plugin-nextjs.
+- next.config.ts traces certs/supabase-ca.crt into server output.
+- Supabase Storage host is added dynamically to next/image remotePatterns.
+- AVIF and WebP output formats enabled.
+
+Supabase free-plan warning:
+- Project may pause after inactivity.
+- Before launch, add keep-alive scheduling or move client to paid plan.
+
+Operational constraints:
+- Never expose service role or database URLs.
+- Confirm same Supabase project is used for public URL/key and service role.
+- Changes to .env.local require dev server restart.
+- Email sending may remain sandboxed until the client domain is verified.
+
+
+26. CLIENT QUESTIONS STILL OPEN
+===============================
+- Consultation types and location.
+- Working hours, slot length, booking horizon, minimum notice.
+- Delivery, pickup, postage details.
+- Final products/categories/occasions/personalisation options.
+- Logo, colours, fonts, design references, hero images.
+- Bengali coverage and translation ownership/review.
+- Testimonials and customer-photo permission/consent wording.
+- Whether customer names appear in gallery.
+- Domain and business email.
+- Seasonal theme list.
+- Launch date.
+- Training format.
+
+Where a slice card explicitly allows it, use sensible editable defaults and document them; do not hard-code assumptions that should be owner settings.
+
+
+27. KNOWN GAPS / RISKS FOR FUTURE AGENTS
+========================================
+- Documentation status is partially stale. Inspect current files before asserting a slice is absent or complete.
+- The exact git branch/status could not be reliably captured in the environment used to create this file because the shell intermittently could not resolve git and some long PowerShell listings returned nonzero despite producing output. Run git status --short --branch yourself at the start of the next coding session.
+- The working directory name contains a space; README warns spaces/apostrophes can break some tooling. Use quoted absolute paths.
+- .env.local exists locally but must never be read into documentation, exposed, staged, or committed.
+- Full public site is not built, so published products currently have no public catalogue route.
+- Booking schema exists but booking implementation does not.
+- RESEND_API_KEY is currently validated as required by serverEnv even before email feature completion; be aware when running server paths requiring environment validation.
+- Public rate limiting is a requirement but not yet implemented generally.
+- README's claim that product work is not started is wrong for this snapshot.
+- docs/SRS.md's Next.js 15 statement is superseded by Next.js 16 decisions and package versions.
+
+
+28. START-OF-TASK CHECKLIST FOR THE NEXT LLM
+=============================================
+1. Read AGENTS.md; it overrides this summary.
+2. Run git status --short --branch and inspect existing changes. Never overwrite user work.
+3. Identify the GitHub issue/slice.
+4. Read docs/WORKFLOW.md, docs/slices/README.md, that slice card, matching SRS sections, and docs/DECISIONS.md.
+5. Read existing implementation patterns for the same entity/domain.
+6. If touching Next.js behavior, read relevant node_modules/next/dist/docs guidance.
+7. Present a plan listing owned/shared files, schema changes, dependencies, i18n keys, tests, and questions; wait for approval unless the change is genuinely small or the user explicitly authorized implementation.
+8. Stay within owned paths.
+9. Use current libraries/patterns; do not add dependencies silently.
+10. Implement server validation/auth/revalidation and client form/accessibility behavior consistently.
+11. Add/update tests.
+12. Run pnpm lint && pnpm typecheck && pnpm test; run formatting/e2e when applicable.
+13. Re-read edited files and inspect diff/status.
+14. Summarize completed work, untested limitations, and next slice.
+15. Give human git add/commit/push commands; do not execute commit/push.
+
+
+29. FAST REFERENCE: WHAT NOT TO DO
+==================================
+- Do not show or store prices.
+- Do not access DB from client components.
+- Do not perform mutations outside src/actions.
+- Do not omit requireOwner from any protected page/action.
+- Do not trust booking slots submitted by clients.
+- Do not use local browser time for booking calculations; use Melbourne helpers.
+- Do not hard-code visible strings.
+- Do not hand-edit generated shadcn files.
+- Do not hand-edit drizzle/meta.
+- Do not use drizzle-kit push.
+- Do not create public access to pending gallery or booking uploads.
+- Do not persist signed private URLs.
+- Do not weaken TLS verification.
+- Do not commit secrets or .env.local.
+- Do not edit another slice's owned paths.
+- Do not commit or push as an agent.
+- Do not add AI attribution to code, docs, commits, or PR text.
+
+
+30. FINAL SNAPSHOT SUMMARY
+==========================
+As of October 5, 2026, this repository is a Next.js 16/React 19 application with a strong foundation and a substantially implemented owner product-management slice. Authentication, settings, i18n infrastructure, schema/migrations, image/storage helpers, product CRUD, taxonomy, and associated tests exist. The customer-facing site remains mostly a placeholder, and booking/content/gallery/themes/PWA/quality/handover slices remain future work. The database was deliberately designed in advance to cover the full SRS. Future work must follow strict server-only data access, server-action mutation, single-owner authorization, translation, accessibility, image, timezone, migration, and team ownership rules.
+
+End of custom context.

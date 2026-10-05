@@ -1,0 +1,44 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# Next.js / build output
+.next/
+out/
+build/
+dist/
+next-env.d.ts
+*.tsbuildinfo
+
+# environment files (secrets) - keep .env.example committed
+.env
+.env*.local
+.env.production
+.env.development
+
+# testing
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# hosting / tooling
+.netlify/
+.vercel/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# next 16 profiling / agent docs cache
+.next-profiles/
+.next-docs/
