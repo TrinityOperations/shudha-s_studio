@@ -1,5 +1,5 @@
 {
-<<<<<<< HEAD
+
   "admin.dashboard.intro": "এটি আপনার স্টুডিও ড্যাশবোর্ড। পণ্য, বুকিং ও কনটেন্টের টুলগুলো তৈরি হওয়ার সাথে সাথে এখানে যুক্ত হবে।",
   "admin.dashboard.signedInAs": "{email} হিসেবে সাইন ইন করা আছে",
   "admin.dashboard.title": "ড্যাশবোর্ড",
@@ -89,7 +89,6 @@
   "admin.products.uncategorised": "ক্যাটাগরিবিহীন",
   "admin.settings.description": "পাবলিক ওয়েবসাইটে দেখানো স্টুডিওর নাম ও ট্যাগলাইন।",
   "admin.settings.saved": "সেটিংস সংরক্ষিত হয়েছে",
-=======
   "common.home": "হোম",
   "common.dashboard": "ড্যাশবোর্ড",
   "common.settings": "সেটিংস",
@@ -114,12 +113,10 @@
   "admin.dashboard.intro": "এটি আপনার স্টুডিও ড্যাশবোর্ড। পণ্য, বুকিং ও কনটেন্টের টুলগুলো তৈরি হওয়ার সাথে সাথে এখানে যুক্ত হবে।",
   "admin.settings.title": "সাইট সেটিংস",
   "admin.settings.description": "পাবলিক ওয়েবসাইটে দেখানো স্টুডিওর নাম ও ট্যাগলাইন।",
->>>>>>> 95c0918181f07977a855eb3043f2440e7f5c98d0
   "admin.settings.studioName": "স্টুডিওর নাম",
   "admin.settings.tagline": "ট্যাগলাইন (ইংরেজি)",
   "admin.settings.taglineBn": "ট্যাগলাইন (বাংলা)",
   "admin.settings.taglineBnHint": "ঐচ্ছিক। দর্শক সাইটটি বাংলায় দেখলে এটি দেখানো হবে।",
-<<<<<<< HEAD
   "admin.settings.title": "সাইট সেটিংস",
   "admin.taxonomy.categories": "ক্যাটাগরি",
   "admin.taxonomy.delete.category": "{count}টি পণ্য এই ক্যাটাগরিতে আছে। সেগুলো ক্যাটাগরিবিহীন হয়ে যাবে।",
@@ -302,8 +299,7 @@
   "public.home.placeholder": "আমাদের ওয়েবসাইট তৈরি হচ্ছে। নতুন কাজ দেখতে ইনস্টাগ্রাম ও ফেসবুকে আমাদের অনুসরণ করুন।",
   "status.archived": "আর্কাইভ করা",
   "status.draft": "খসড়া",
-  "status.published": "প্রকাশিত"
-=======
+  "status.published": "প্রকাশিত",
   "admin.settings.saved": "সেটিংস সংরক্ষিত হয়েছে",
   "errors.required": "এই ঘরটি পূরণ করা আবশ্যক",
   "errors.email": "সঠিক ইমেইল ঠিকানা দিন",
@@ -451,5 +447,4 @@
   "errors.altRequired": "প্রতিটি ছবির জন্য অল্ট টেক্সট দিতে হবে",
   "errors.uploadFailed": "আপলোড ব্যর্থ হয়েছে। কিছু ছবি সংরক্ষিত নাও হতে পারে।",
   "errors.storageFailed": "ছবির ফাইল হালনাগাদ করা যায়নি। আবার চেষ্টা করুন।"
->>>>>>> 95c0918181f07977a855eb3043f2440e7f5c98d0
 }

@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "admin.dashboard.intro": "This is your studio dashboard. Products, bookings and content tools will appear here as they are built.",
   "admin.dashboard.signedInAs": "Signed in as {email}",
   "admin.dashboard.title": "Dashboard",
@@ -89,7 +88,6 @@
   "admin.products.uncategorised": "Uncategorised",
   "admin.settings.description": "The studio name and tagline shown on the public website.",
   "admin.settings.saved": "Settings saved",
-=======
   "common.home": "Home",
   "common.dashboard": "Dashboard",
   "common.settings": "Settings",
@@ -114,12 +112,10 @@
   "admin.dashboard.intro": "This is your studio dashboard. Products, bookings and content tools will appear here as they are built.",
   "admin.settings.title": "Site settings",
   "admin.settings.description": "The studio name and tagline shown on the public website.",
->>>>>>> 95c0918181f07977a855eb3043f2440e7f5c98d0
   "admin.settings.studioName": "Studio name",
   "admin.settings.tagline": "Tagline (English)",
   "admin.settings.taglineBn": "Tagline (Bengali)",
   "admin.settings.taglineBnHint": "Optional. Shown when a visitor switches the site to Bengali.",
-<<<<<<< HEAD
   "admin.settings.title": "Site settings",
   "admin.taxonomy.categories": "Categories",
   "admin.taxonomy.delete.category": "{count} products use this category. They will become uncategorised.",
@@ -302,8 +298,7 @@
   "public.home.placeholder": "Our website is being built. Follow us on Instagram and Facebook for the latest creations.",
   "status.archived": "Archived",
   "status.draft": "Draft",
-  "status.published": "Published"
-=======
+  "status.published": "Published",
   "admin.settings.saved": "Settings saved",
   "errors.required": "This field is required",
   "errors.email": "Enter a valid email address",
@@ -451,5 +446,4 @@
   "errors.altRequired": "Alt text is required for every image",
   "errors.uploadFailed": "Upload failed. Some images may not have been saved.",
   "errors.storageFailed": "Could not update the image files. Please try again."
->>>>>>> 95c0918181f07977a855eb3043f2440e7f5c98d0
 }
