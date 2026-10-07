@@ -35,7 +35,7 @@ vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 
 import { StorageError } from "@/lib/storage.server";
-import { emptyProductInput, type ProductInput } from "@/lib/validators/products";
+import { emptyProductInput, type ProductFormValues } from "@/lib/validators/products";
 import {
   archiveProduct,
   bulkUpdateProducts,
@@ -51,7 +51,7 @@ const P2 = "22222222-2222-4222-8222-222222222222";
 const OCC = "33333333-3333-4333-8333-333333333333";
 const TAG = "44444444-4444-4444-8444-444444444444";
 
-const validInput: ProductInput = {
+const validInput: ProductFormValues = {
   ...emptyProductInput,
   title: "Personalised Mug",
   occasionIds: [OCC],
@@ -106,6 +106,83 @@ describe("createProduct", () => {
     dbMock.queueResults([{ id: P1 }]);
     await expect(createProduct({ ...validInput, slug: "my-mug" })).rejects.toThrow("NEXT_REDIRECT");
     expect(mocks.ensureUniqueSlug.mock.calls[0]?.[1]).toBe("my-mug");
+  });
+});
+
+describe("starting price and video link (OD-18, OD-19)", () => {
+  it("stores a whole-dollar price and a YouTube link", async () => {
+    dbMock.queueResults([{ id: P1 }]);
+    await expect(
+      createProduct({ ...validInput, priceFrom: 25, videoUrl: " https://youtu.be/abc123 " }),
+    ).rejects.toThrow("NEXT_REDIRECT");
+    expect(dbMock.methodCalls("values")[0]?.[0]).toMatchObject({
+      priceFrom: 25,
+      videoUrl: "https://youtu.be/abc123",
+    });
+  });
+
+  it.each([
+    ["empty string", ""],
+    ["undefined", undefined],
+    ["null", null],
+  ])("treats %s price and video as blank", async (_label, blank) => {
+    dbMock.queueResults([{ id: P1 }]);
+    await expect(
+      createProduct({
+        ...validInput,
+        priceFrom: blank as ProductFormValues["priceFrom"],
+        videoUrl: blank as ProductFormValues["videoUrl"],
+      }),
+    ).rejects.toThrow("NEXT_REDIRECT");
+    expect(dbMock.methodCalls("values")[0]?.[0]).toMatchObject({ priceFrom: null, videoUrl: null });
+  });
+
+  it.each([
+    ["zero", 0],
+    ["negative", -5],
+    ["decimal", 19.99],
+    ["over the maximum", 100001],
+    ["not a number", Number.NaN],
+  ])("rejects a %s price with errors.priceRange", async (_label, priceFrom) => {
+    const result = await createProduct({ ...validInput, priceFrom });
+    if (result.ok) throw new Error("expected failure");
+    expect(result.fieldErrors?.priceFrom).toEqual(["errors.priceRange"]);
+    expect(mocks.requireOwner).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    "https://vimeo.com/123",
+    "https://youtube.com.evil.example/watch?v=1",
+    "ftp://youtube.com/watch?v=1",
+    "not a url",
+  ])("rejects %s with errors.videoHost", async (videoUrl) => {
+    const result = await createProduct({ ...validInput, videoUrl });
+    if (result.ok) throw new Error("expected failure");
+    expect(result.fieldErrors?.videoUrl).toEqual(["errors.videoHost"]);
+  });
+
+  it.each([
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "https://m.youtube.com/shorts/abc",
+    "https://youtu.be/abc",
+    "https://www.facebook.com/shudhas/videos/1",
+    "https://fb.watch/xyz/",
+    "https://www.instagram.com/reel/abc/",
+  ])("accepts %s", async (videoUrl) => {
+    dbMock.queueResults([{ id: P1 }]);
+    await expect(createProduct({ ...validInput, videoUrl })).rejects.toThrow("NEXT_REDIRECT");
+    expect(dbMock.methodCalls("values")[0]?.[0]).toMatchObject({ videoUrl });
+  });
+
+  it("updates price and video on an existing product", async () => {
+    dbMock.query.products.findFirst.mockResolvedValue({
+      id: P1,
+      status: "draft",
+      publishedAt: null,
+    });
+    const result = await updateProduct(P1, { ...validInput, priceFrom: 1500, videoUrl: "" });
+    expect(result).toMatchObject({ ok: true });
+    expect(setArg()).toMatchObject({ priceFrom: 1500, videoUrl: null });
   });
 });
 

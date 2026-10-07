@@ -1,7 +1,8 @@
 /**
  * Drizzle schema: single source of truth for the database.
  * Conventions: uuid ids, timestamptz stored in UTC, Bengali content in sibling `_bn` columns,
- * no prices anywhere. Migrations: `pnpm db:generate` then `pnpm db:migrate`.
+ * optional starting price only (no cart, checkout or payment). Migrations: `pnpm db:generate` then
+ * `pnpm db:migrate`.
  *
  * Not expressible in Drizzle and therefore kept in drizzle/0001_rls_buckets_exclusion.sql:
  * - Row Level Security on every table (deny-all; the app talks to Postgres directly)
@@ -92,7 +93,7 @@ export const tags = pgTable("tags", {
 });
 
 // ---------------------------------------------------------------------------
-// Products (PW-21..23, OD-10..14, OD-36). No price column, ever.
+// Products (PW-21..23, OD-10..14, OD-18, OD-19, OD-36). Only an optional starting price (PW-14).
 // ---------------------------------------------------------------------------
 export type Personalisation = {
   /** Checklist of what can be personalised, e.g. ["name", "date", "photo"] (OD-14) */
@@ -118,6 +119,10 @@ export const products = pgTable(
       .notNull()
       .default({ options: [], notes: "" }),
     turnaroundDays: smallint("turnaround_days"),
+    /** Optional starting price in whole AUD dollars, shown as "From $X"; null = not shown (OD-18) */
+    priceFrom: integer("price_from"),
+    /** Facebook, Instagram or YouTube link shown on the product page; stored as given (OD-19) */
+    videoUrl: text("video_url"),
     categoryId: uuid("category_id").references(() => categories.id, { onDelete: "set null" }),
     status: productStatusEnum("status").notNull().default("draft"),
     featured: boolean("featured").notNull().default(false),
@@ -128,6 +133,7 @@ export const products = pgTable(
   (t) => [
     index("products_status_featured_idx").on(t.status, t.featured),
     index("products_category_idx").on(t.categoryId),
+    check("products_price_from_non_negative", sql`${t.priceFrom} >= 0`),
   ],
 );
 

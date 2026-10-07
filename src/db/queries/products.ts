@@ -8,7 +8,7 @@ import {
   type ProductImage,
   type ProductStatus,
 } from "@/db/schema";
-import { productInputFromRow, type ProductInput } from "@/lib/validators/products";
+import { productInputFromRow, type ProductFormValues } from "@/lib/validators/products";
 
 export type ProductListFilters = {
   status?: ProductStatus;
@@ -90,7 +90,7 @@ export type ProductForEdit = {
   id: string;
   status: ProductStatus;
   publishedAt: string | null;
-  values: ProductInput;
+  values: ProductFormValues;
   images: ProductImageRow[];
   bookingCount: number;
 };

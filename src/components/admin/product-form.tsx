@@ -38,7 +38,9 @@ import { slugify } from "@/lib/slugify";
 import { formatMelbourne } from "@/lib/time";
 import {
   PERSONALISATION_OPTIONS,
+  PRICE_FROM_MAX,
   productSchema,
+  type ProductFormValues,
   type ProductInput,
 } from "@/lib/validators/products";
 
@@ -50,13 +52,13 @@ export type ProductFormTaxonomy = {
 };
 
 type Props =
-  | { mode: "create"; defaultValues: ProductInput; taxonomy: ProductFormTaxonomy }
+  | { mode: "create"; defaultValues: ProductFormValues; taxonomy: ProductFormTaxonomy }
   | {
       mode: "edit";
       productId: string;
       status: ProductStatus;
       publishedAt: string | null;
-      defaultValues: ProductInput;
+      defaultValues: ProductFormValues;
       taxonomy: ProductFormTaxonomy;
     };
 
@@ -75,7 +77,7 @@ export function ProductForm(props: Props) {
   const [slugTouched, setSlugTouched] = useState(mode === "edit");
   const archived = mode === "edit" && props.status === "archived";
 
-  const form = useForm<ProductInput>({
+  const form = useForm<ProductFormValues, unknown, ProductInput>({
     resolver: zodResolver(productSchema),
     defaultValues,
   });
@@ -90,7 +92,7 @@ export function ProductForm(props: Props) {
   }) {
     setServerError(result.error);
     for (const [name, messages] of Object.entries(result.fieldErrors ?? {})) {
-      if (messages?.[0]) form.setError(name as keyof ProductInput, { message: messages[0] });
+      if (messages?.[0]) form.setError(name as keyof ProductFormValues, { message: messages[0] });
     }
   }
 
@@ -266,6 +268,44 @@ export function ProductForm(props: Props) {
               })}
             />
             <FieldMessage error={errors.turnaroundDays} />
+          </Field>
+
+          <Field data-invalid={!!errors.priceFrom || undefined} className="max-w-xs">
+            <FieldLabel htmlFor="priceFrom">{t("admin.products.form.priceFrom")}</FieldLabel>
+            <Input
+              id="priceFrom"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={PRICE_FROM_MAX}
+              step={1}
+              aria-invalid={!!errors.priceFrom || undefined}
+              aria-describedby="priceFrom-hint"
+              {...form.register("priceFrom", {
+                setValueAs: (value) =>
+                  value === "" || value === null || value === undefined ? null : Number(value),
+              })}
+            />
+            <FieldDescription id="priceFrom-hint">
+              {t("admin.products.form.priceFromHint")}
+            </FieldDescription>
+            <FieldMessage error={errors.priceFrom} />
+          </Field>
+
+          <Field data-invalid={!!errors.videoUrl || undefined}>
+            <FieldLabel htmlFor="videoUrl">{t("admin.products.form.videoUrl")}</FieldLabel>
+            <Input
+              id="videoUrl"
+              type="url"
+              inputMode="url"
+              aria-invalid={!!errors.videoUrl || undefined}
+              aria-describedby="videoUrl-hint"
+              {...form.register("videoUrl")}
+            />
+            <FieldDescription id="videoUrl-hint">
+              {t("admin.products.form.videoUrlHint")}
+            </FieldDescription>
+            <FieldMessage error={errors.videoUrl} />
           </Field>
 
           <Field data-invalid={!!errors.categoryId || undefined} className="max-w-xs">
