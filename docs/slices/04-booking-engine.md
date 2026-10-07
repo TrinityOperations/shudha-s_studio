@@ -1,6 +1,6 @@
 # Slice #4: Availability settings and booking engine
 
-**GitHub issue:** #4 · **Branch:** `feat/4-booking-engine` · **i18n namespace:** `booking.*, availability.*`
+**GitHub issue:** #4 · **Branch:** `feat/4-booking-engine` · **i18n namespace:** `booking.*` (public), `admin.availability.*` (dashboard)
 
 ## Goal
 The owner sets her weekly hours and blocked dates; customers pick a free slot and book a consultation, with no possibility of double booking.

@@ -1,6 +1,6 @@
 # Slice #16: Handover: owner's guide and training
 
-**GitHub issue:** #16 · **Branch:** `feat/16-handover` · **i18n namespace:** `help.*`
+**GitHub issue:** #16 · **Branch:** `feat/16-handover` · **i18n namespace:** `admin.help.*`
 
 ## Goal
 The owner can run the site alone, and every account she needs is in her name.

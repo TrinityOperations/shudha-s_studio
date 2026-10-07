@@ -41,7 +41,7 @@ Full text: `docs/SRS.md`.
 - `e2e/catalogue.spec.ts`
 
 ## Shared files you may touch (follow `docs/WORKFLOW.md` section 6)
-- `src/lib/i18n/en.json`, `bn.json` (add keys in your namespace, alphabetical; the price field label in the product form may use `products.*`)
+- `src/lib/i18n/en.json`, `bn.json` (add keys in your namespace, alphabetical; the price field label in the product form uses `admin.products.*`)
 - `docs/DECISIONS.md` (append)
 - `src/db/schema.ts` and `drizzle/` (the one migration below only)
 - Product form from #2 (merged): `src/components/admin/product-form.tsx`, `src/lib/validators/products.ts`, `src/actions/products.ts` and its test. Add the price (and video) field only
