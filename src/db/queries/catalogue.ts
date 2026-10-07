@@ -418,3 +418,19 @@ export async function listRelatedProducts(input: RelatedInput): Promise<Catalogu
 
   return picked;
 }
+
+export type ProductOption = { id: string; slug: string; title: string; titleBn: string | null };
+
+/** Published products for pickers (booking form "product of interest"), newest first. */
+export async function listPublishedProductOptions(): Promise<ProductOption[]> {
+  return db
+    .select({
+      id: products.id,
+      slug: products.slug,
+      title: products.title,
+      titleBn: products.titleBn,
+    })
+    .from(products)
+    .where(published())
+    .orderBy(desc(products.publishedAt), desc(products.createdAt));
+}
