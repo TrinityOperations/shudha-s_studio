@@ -3,10 +3,12 @@ import { BookingForm } from "@/components/public/booking/booking-form";
 import type { SlotDayOption } from "@/components/public/booking/slot-picker";
 import { listAvailableSlots } from "@/db/queries/availability";
 import { listPublishedProductOptions } from "@/db/queries/catalogue";
+import { getContactSettings } from "@/db/queries/settings";
 import { groupSlotsByMelbourneDate } from "@/lib/booking/slots";
 import { getT } from "@/lib/i18n";
 import { formatMelbourne } from "@/lib/time";
 import { SLUG_PATTERN } from "@/lib/validators/products";
+import { whatsappLink } from "@/lib/whatsapp";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
@@ -23,10 +25,11 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
   const requested = first(params.product) ?? "";
   const initialProductSlug = SLUG_PATTERN.test(requested) ? requested : "";
 
-  const [t, available, products] = await Promise.all([
+  const [t, available, products, contact] = await Promise.all([
     getT(),
     listAvailableSlots(),
     listPublishedProductOptions(),
+    getContactSettings(),
   ]);
 
   const days: SlotDayOption[] = groupSlotsByMelbourneDate(available.slots).map((day) => ({
@@ -49,6 +52,7 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
         products={products.map(({ slug, title, titleBn }) => ({ slug, title, titleBn }))}
         consultationTypes={available.settings.consultationTypes}
         initialProductSlug={initialProductSlug}
+        whatsappUrl={contact.whatsappNumber ? whatsappLink(contact.whatsappNumber) : null}
       />
     </section>
   );

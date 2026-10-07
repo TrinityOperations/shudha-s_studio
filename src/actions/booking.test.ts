@@ -30,6 +30,7 @@ vi.mock("@/lib/storage.server", async (importOriginal) => ({
 }));
 vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
 vi.mock("next/headers", () => ({ headers: mocks.headers }));
+vi.mock("@/lib/i18n", () => ({ getLocale: vi.fn(async () => "bn") }));
 
 import { resetRateLimit } from "@/lib/booking/rate-limit";
 import { createBooking } from "./booking";
@@ -123,6 +124,7 @@ describe("createBooking", () => {
       customerEmail: "asha@example.com",
       productId: PRODUCT.id,
       message: "Hello",
+      locale: "bn",
     });
     expect(mocks.verifyTurnstile).toHaveBeenCalledWith("tok", `198.51.100.${ipCounter}`);
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/book");

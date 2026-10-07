@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { whatsappNumberSchema } from "./common";
 
 // One schema per site_settings key. The row's jsonb value must satisfy its schema.
 
@@ -16,3 +17,14 @@ export const defaultGeneralSettings: GeneralSettings = {
   tagline: "Be a reason for someone's happiness & more",
   taglineBn: "",
 };
+
+/** Studio contact details (PW-34, PW-47, OD-24). Slice #10 extends this key. */
+export const contactSettingsSchema = z.object({
+  /** Normalised WhatsApp number (digits, international) or "" when not set. */
+  whatsappNumber: z.union([z.literal(""), whatsappNumberSchema]),
+  email: z.union([z.literal(""), z.email("errors.email")]),
+});
+
+export type ContactSettings = z.infer<typeof contactSettingsSchema>;
+
+export const defaultContactSettings: ContactSettings = { whatsappNumber: "", email: "" };

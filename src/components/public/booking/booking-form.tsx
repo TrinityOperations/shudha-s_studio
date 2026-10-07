@@ -49,12 +49,20 @@ type Props = {
   products: ProductChoice[];
   consultationTypes: ConsultationType[];
   initialProductSlug: string;
+  /** Studio WhatsApp link for the confirmation panel; null when unset */
+  whatsappUrl?: string | null;
 };
 
 const NONE = "none";
 
 /** PW-30, PW-33, PW-38: the public booking form. Reference public-form pattern plus a file field. */
-export function BookingForm({ days, products, consultationTypes, initialProductSlug }: Props) {
+export function BookingForm({
+  days,
+  products,
+  consultationTypes,
+  initialProductSlug,
+  whatsappUrl = null,
+}: Props) {
   const t = useT();
   const locale = useLocale();
   const router = useRouter();
@@ -115,6 +123,7 @@ export function BookingForm({ days, products, consultationTypes, initialProductS
       <BookingConfirmation
         summary={summary.summary}
         name={summary.name}
+        whatsappUrl={whatsappUrl}
         onReset={() => {
           setSummary(null);
           setImageFile(null);

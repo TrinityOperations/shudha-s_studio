@@ -279,6 +279,8 @@ export const bookings = pgTable(
     customerName: text("customer_name").notNull(),
     customerPhone: text("customer_phone").notNull(),
     customerEmail: text("customer_email").notNull(),
+    /** Language the customer booked in; every email to them is rendered in it (PW-34..37) */
+    locale: text("locale").notNull().default("en"),
     productId: uuid("product_id").references(() => products.id, { onDelete: "set null" }),
     message: text("message"),
     /** Path inside the `booking-uploads` bucket */
@@ -303,6 +305,7 @@ export const bookings = pgTable(
     index("bookings_status_starts_idx").on(t.status, t.startsAt),
     index("bookings_customer_email_idx").on(t.customerEmail),
     check("booking_time_order", sql`${t.startsAt} < ${t.endsAt}`),
+    check("bookings_locale", sql`${t.locale} in ('en', 'bn')`),
   ],
 );
 

@@ -13,6 +13,7 @@ import { clientIpFromHeaders } from "@/lib/booking/client-ip";
 import { createBookingCore } from "@/lib/booking/create-booking";
 import { BOOKING_UPLOADS_BUCKET } from "@/lib/booking/defaults";
 import { checkRateLimit } from "@/lib/booking/rate-limit";
+import { getLocale } from "@/lib/i18n";
 import type { MessageKey } from "@/lib/i18n/t";
 import { processReferenceImage } from "@/lib/images";
 import { uploadStorageObject } from "@/lib/storage.server";
@@ -95,6 +96,7 @@ export async function createBooking(formData: FormData): Promise<ActionResult<Cr
     customerEmail: data.customerEmail,
     productId: product?.id ?? null,
     message: data.message || null,
+    locale: await getLocale(),
   });
   if (!result.ok) return fail(result.error);
   const booking = result.booking;
