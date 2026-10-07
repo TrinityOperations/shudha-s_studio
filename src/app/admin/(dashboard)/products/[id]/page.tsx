@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProductForm } from "@/components/admin/product-form";
 import { ProductImages } from "@/components/admin/product-images";
+import { buttonVariants } from "@/components/ui/button";
 import { getProductForEdit } from "@/db/queries/products";
 import { listTaxonomy } from "@/db/queries/taxonomy";
 import { requireOwner } from "@/lib/auth";
@@ -29,9 +31,19 @@ export default async function EditProductPage({ params }: PageProps<"/admin/prod
   return (
     <div className="space-y-12">
       <section className="space-y-6">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {t("admin.products.form.editTitle")}
-        </h1>
+        <header className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {t("admin.products.form.editTitle")}
+          </h1>
+          <Link
+            href={`/admin/products/${product.id}/preview`}
+            target="_blank"
+            rel="noopener"
+            className={buttonVariants({ variant: "outline" })}
+          >
+            {t("admin.products.preview")}
+          </Link>
+        </header>
         <ProductForm
           mode="edit"
           productId={product.id}

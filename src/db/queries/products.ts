@@ -9,6 +9,7 @@ import {
   type ProductStatus,
 } from "@/db/schema";
 import { productInputFromRow, type ProductFormValues } from "@/lib/validators/products";
+import { detailWith, toProductDetail, type ProductDetail } from "./catalogue";
 
 export type ProductListFilters = {
   status?: ProductStatus;
@@ -139,4 +140,13 @@ export async function getProductForEdit(id: string): Promise<ProductForEdit | nu
 export async function countProducts(): Promise<number> {
   const [{ n }] = await db.select({ n: count() }).from(products);
   return n;
+}
+
+/**
+ * OD-16 live preview: the public product page view model for ANY status. Admin only; the public
+ * route uses getPublishedProduct() from catalogue.ts, which filters on status.
+ */
+export async function getProductDetailForPreview(id: string): Promise<ProductDetail | null> {
+  const row = await db.query.products.findFirst({ where: eq(products.id, id), with: detailWith() });
+  return row ? toProductDetail(row) : null;
 }

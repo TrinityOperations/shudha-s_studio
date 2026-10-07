@@ -12,6 +12,12 @@ export async function SiteHeader({ studioName }: { studioName: string }) {
           {studioName}
         </Link>
         <nav aria-label={t("common.home")} className="flex items-center gap-2">
+          <Link
+            href="/products"
+            className="px-2 py-1 text-sm font-medium underline-offset-4 hover:underline"
+          >
+            {t("common.products")}
+          </Link>
           <LocaleToggle />
         </nav>
       </div>
