@@ -18,9 +18,19 @@ const nextConfig: NextConfig = {
   },
   images: {
     // Product and site images are served from Supabase Storage.
-    remotePatterns: supabaseHost
-      ? [{ protocol: "https", hostname: supabaseHost, pathname: "/storage/v1/object/**" }]
-      : [],
+    remotePatterns: [
+      ...(supabaseHost
+        ? [
+            {
+              protocol: "https" as const,
+              hostname: supabaseHost,
+              pathname: "/storage/v1/object/**",
+            },
+          ]
+        : []),
+      // YouTube poster behind the click-to-load video button on product pages (PW-27).
+      { protocol: "https", hostname: "i.ytimg.com", pathname: "/vi/**" },
+    ],
     formats: ["image/avif", "image/webp"],
   },
 };

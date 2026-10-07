@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { whatsappNumberSchema } from "./validators/common";
-import { normaliseWhatsAppNumber, whatsappLink } from "./whatsapp";
+import { normaliseWhatsAppNumber, whatsappLink, whatsappShareLink } from "./whatsapp";
 
 describe("normaliseWhatsAppNumber", () => {
   it("turns Australian local numbers into international form", () => {
@@ -52,6 +52,14 @@ describe("whatsappNumberSchema", () => {
     expect(whatsappNumberSchema.safeParse("").error?.issues[0]?.message).toBe("errors.required");
     expect(whatsappNumberSchema.safeParse("abc").error?.issues[0]?.message).toBe(
       "errors.whatsappNumber",
+    );
+  });
+});
+
+describe("whatsappShareLink", () => {
+  it("builds a recipient-less wa.me link with the text encoded", () => {
+    expect(whatsappShareLink(" Eid mug https://example.com/products/eid-mug ")).toBe(
+      "https://wa.me/?text=Eid%20mug%20https%3A%2F%2Fexample.com%2Fproducts%2Feid-mug",
     );
   });
 });

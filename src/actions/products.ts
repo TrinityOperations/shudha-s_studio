@@ -18,6 +18,7 @@ import {
   productIdSchema,
   productSchema,
   type BulkProductsInput,
+  type ProductFormValues,
   type ProductInput,
 } from "@/lib/validators/products";
 
@@ -50,7 +51,9 @@ function slugBase(input: ProductInput) {
 }
 
 /** OD-10: saves the basics as a draft, then redirects to the edit page where images can be added. */
-export async function createProduct(input: ProductInput): Promise<ActionResult<{ id: string }>> {
+export async function createProduct(
+  input: ProductFormValues,
+): Promise<ActionResult<{ id: string }>> {
   const parsed = productSchema.safeParse(input);
   if (!parsed.success) {
     return fail("errors.invalidInput", z.flattenError(parsed.error).fieldErrors);
@@ -75,7 +78,7 @@ export async function createProduct(input: ProductInput): Promise<ActionResult<{
 /** OD-10, OD-13: edit fields and draft/published status. Archived products must be unarchived first. */
 export async function updateProduct(
   id: string,
-  input: ProductInput,
+  input: ProductFormValues,
 ): Promise<ActionResult<{ id: string; slug: string }>> {
   const parsedId = productIdSchema.safeParse(id);
   const parsed = productSchema.safeParse(input);

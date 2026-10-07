@@ -21,6 +21,59 @@ export const productIdSchema = z.uuid("errors.invalidInput");
 
 export const productFormStatusSchema = z.enum(["draft", "published"]);
 
+/** Starting price in whole AUD dollars (OD-18, PW-14). Blank means "no price shown". */
+export const PRICE_FROM_MAX = 100000;
+export const priceFromSchema = z
+  .union([z.literal(""), z.number(), z.null(), z.undefined()], "errors.priceRange")
+  .transform((value) => (value === "" || value === undefined ? null : value))
+  .pipe(
+    z
+      .number("errors.priceRange")
+      .int("errors.priceRange")
+      .min(1, "errors.priceRange")
+      .max(PRICE_FROM_MAX, "errors.priceRange")
+      .nullable(),
+  );
+
+/** Hosts a product video link may point at (OD-19, PW-27). The URL is stored as given, never fetched. */
+export const VIDEO_HOSTS = [
+  "facebook.com",
+  "fb.watch",
+  "instagram.com",
+  "youtube.com",
+  "youtu.be",
+] as const;
+export type VideoHost = (typeof VIDEO_HOSTS)[number];
+
+/** The allowed host a URL belongs to ("www.", "m." and similar prefixes ignored), or null. */
+export function videoHost(url: string): VideoHost | null {
+  let hostname: string;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return null;
+    hostname = parsed.hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+  return VIDEO_HOSTS.find((host) => hostname === host || hostname.endsWith(`.${host}`)) ?? null;
+}
+
+export const videoUrlSchema = z
+  .union([z.string(), z.null(), z.undefined()], "errors.videoHost")
+  .transform((value) => (value ?? "").trim() || null)
+  .pipe(
+    z.union(
+      [
+        z.null(),
+        z
+          .string()
+          .max(500, "errors.tooLong")
+          .refine((value) => videoHost(value) !== null, "errors.videoHost"),
+      ],
+      "errors.videoHost",
+    ),
+  );
+
 /** Shared by the product form and the create/update actions. Status is ignored on create. */
 export const productSchema = z.object({
   title: z.string().trim().min(1, "errors.required").max(120, "errors.tooLong"),
@@ -41,6 +94,8 @@ export const productSchema = z.object({
     .min(0, "errors.wholeNumber")
     .max(365, "errors.wholeNumber")
     .nullable(),
+  priceFrom: priceFromSchema,
+  videoUrl: videoUrlSchema,
   categoryId: z.uuid("errors.invalidInput").nullable(),
   occasionIds: z.array(z.uuid("errors.invalidInput")),
   tagIds: z.array(z.uuid("errors.invalidInput")),
@@ -51,7 +106,10 @@ export const productSchema = z.object({
   status: productFormStatusSchema,
 });
 
-export type ProductInput = z.infer<typeof productSchema>;
+/** What the form holds and the actions accept (price may be "", video may be null). */
+export type ProductFormValues = z.input<typeof productSchema>;
+/** Parsed values: price is number | null, video is a validated URL | null. */
+export type ProductInput = z.output<typeof productSchema>;
 
 export const bulkProductActionSchema = z.enum(["publish", "unpublish", "archive", "delete"]);
 export type BulkProductAction = z.infer<typeof bulkProductActionSchema>;
@@ -62,7 +120,7 @@ export const bulkProductsSchema = z.object({
 });
 export type BulkProductsInput = z.infer<typeof bulkProductsSchema>;
 
-export const emptyProductInput: ProductInput = {
+export const emptyProductInput: ProductFormValues = {
   title: "",
   titleBn: "",
   slug: "",
@@ -71,6 +129,8 @@ export const emptyProductInput: ProductInput = {
   materialNotes: "",
   materialNotesBn: "",
   turnaroundDays: null,
+  priceFrom: null,
+  videoUrl: "",
   categoryId: null,
   occasionIds: [],
   tagIds: [],
@@ -86,7 +146,7 @@ export function productInputFromRow(
   row: Product,
   occasionIds: string[],
   tagIds: string[],
-): ProductInput {
+): ProductFormValues {
   const known = new Set<string>(PERSONALISATION_OPTIONS);
   return {
     title: row.title,
@@ -97,6 +157,8 @@ export function productInputFromRow(
     materialNotes: row.materialNotes ?? "",
     materialNotesBn: row.materialNotesBn ?? "",
     turnaroundDays: row.turnaroundDays ?? null,
+    priceFrom: row.priceFrom ?? null,
+    videoUrl: row.videoUrl ?? "",
     categoryId: row.categoryId,
     occasionIds,
     tagIds,
@@ -125,6 +187,8 @@ export function productColumnsFromInput(input: ProductInput) {
     materialNotes: input.materialNotes || null,
     materialNotesBn: input.materialNotesBn || null,
     turnaroundDays: input.turnaroundDays,
+    priceFrom: input.priceFrom,
+    videoUrl: input.videoUrl,
     categoryId: input.categoryId,
     personalisation,
     featured: input.featured,

@@ -41,3 +41,8 @@ export function whatsappLink(number: string | null | undefined, message?: string
     ? `https://wa.me/${normalised}?text=${encodeURIComponent(text)}`
     : `https://wa.me/${normalised}`;
 }
+
+/** Share-sheet link (no recipient): WhatsApp asks the visitor who to send it to (PW-26). */
+export function whatsappShareLink(text: string): string {
+  return `https://wa.me/?text=${encodeURIComponent(text.trim())}`;
+}
