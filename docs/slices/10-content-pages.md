@@ -8,14 +8,15 @@ About, How it works, Contact, FAQ, Privacy, Terms and a branded 404 page, all ed
 ## SRS requirements
 | ID | Requirement | Priority |
 | --- | --- | --- |
-| PW-40 | About page | M |
-| PW-41 | How it works page (browse → book → consult → create → collect/deliver) | M |
-| PW-42 | Contact page with form, social links, area served | M |
+| PW-40 | About page: the owner's story, Bangladeshi heritage, handmade quality | M |
+| PW-41 | How it works page (browse → book → consult → create → pickup or post) | M |
+| PW-42 | Contact page with form, WhatsApp, social links, area served | M |
 | PW-43 | FAQ page | S |
 | PW-44 | Gallery / lookbook separate from the catalogue | C |
 | PW-45 | Privacy policy and terms pages | M |
 | PW-46 | Branded 404 page | S |
-| OD-30 | Edit hero text, about text, FAQ, contact details, social links | M |
+| PW-48 | Delivery note on How it works and the FAQ (pickup or post Australia-wide, arranged in the consultation; #3 shows it on product pages) | M |
+| OD-30 | Edit hero text, about text, FAQ, contact details (WhatsApp number, email), social links, delivery note | M |
 | OD-31 | Manage testimonials (add, hide, reorder) | S |
 | OD-33 | Site-wide announcement banner toggle | S |
 | OD-34 | Change own password and email | M |
@@ -49,7 +50,7 @@ Everything else belongs to another slice or the foundation: don't change it. Ask
 - **Schema changes:** None.
 
 ## Build plan
-1. Settings keys for home, about, contact, social links, announcement banner (Zod-validated values).
+1. Settings keys for home, about, contact (including the studio's WhatsApp number, validated with `whatsappNumberSchema` from `src/lib/validators/common.ts`, already on main), social links, delivery note, announcement banner (Zod-validated values). Export a `getContactSettings()` query: #5 and #9 read the WhatsApp number from it.
 2. Public pages reading from settings; FAQ page from `faqs`; branded 404.
 3. Contact form with Turnstile, saving to `contact_messages` and emailing the owner (use #5's helper if merged, else store only).
 4. Dashboard editors for settings, FAQs (reorder), testimonials (add, hide, reorder), change password/email.
@@ -60,7 +61,7 @@ Everything else belongs to another slice or the foundation: don't change it. Ask
 - PW-44 lookbook is C priority: skip unless trivial.
 
 ## Needs client input
-Her About text, FAQ answers, contact details, testimonials permission.
+Her About text (her story, Bangladeshi heritage, handmade), FAQ answers, contact details including her WhatsApp number, testimonials permission. Seed the FAQ with a delivery question: "Do you deliver?" → pickup or post Australia-wide, arranged during the consultation.
 
 If the answer isn't in yet, build with sensible defaults the owner can change, and note them in the PR.
 

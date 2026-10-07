@@ -30,7 +30,7 @@ Closes #
 - [ ] Every "Done when" item in the slice card is met
 - [ ] Every admin page and admin action calls `requireOwner()` first
 - [ ] Mutations go through server actions with Zod validation
-- [ ] No prices shown anywhere
+- [ ] Prices only as the optional "From $X" starting price; no cart, checkout or payment
 - [ ] All visible text uses `t()` keys
 - [ ] Public forms use Turnstile
 - [ ] Works at phone width and by keyboard

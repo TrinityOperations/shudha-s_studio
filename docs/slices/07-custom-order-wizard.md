@@ -8,7 +8,7 @@ A step-by-step form collects everything the owner needs for a custom order (prod
 ## SRS requirements
 | ID | Requirement | Priority |
 | --- | --- | --- |
-| PW-50 | Multi-step wizard: product type → occasion → details (names, dates, message, language) → photo upload → quantity and needed-by date → book a slot | M |
+| PW-50 | Multi-step wizard: product type → occasion → personal or business order (business name if business) → details (names, dates, message, language) → photo upload → quantity and needed-by date → book a slot | M |
 | PW-51 | Wizard can start from a product page with the product pre-selected | M |
 | PW-52 | Result is a structured brief attached to the booking, visible in the dashboard | M |
 | PW-53 | Progress is kept if the customer navigates between steps; abandoned wizards are not stored | S |
@@ -30,15 +30,16 @@ Full text: `docs/SRS.md`.
 - `src/lib/i18n/en.json`, `bn.json` (add keys in your namespace, alphabetical)
 - `docs/DECISIONS.md` (append)
 - Product page from #3: add one "Start a custom order" link (one line)
+- `src/db/schema.ts`: add `orderFor?: "personal" | "business"` and `businessName?: string` to the `CustomOrderBrief` type only (jsonb, no migration)
 
 Everything else belongs to another slice or the foundation: don't change it. Ask the lead if you need to.
 
 ## Data
 - **Tables and storage:** bookings.brief (jsonb), products, categories, occasions. Photos to `booking-uploads`.
-- **Schema changes:** None.
+- **Schema changes:** Type only: two optional fields on `CustomOrderBrief` (see above). No migration.
 
 ## Build plan
-1. Steps: product type → occasion → details (names, dates, message, language) → photo upload → quantity and needed-by date → pick a slot and contact details.
+1. Steps: product type → occasion → personal or business order (business name if business) → details (names, dates, message, language) → photo upload → quantity and needed-by date → pick a slot and contact details (WhatsApp number, email).
 2. Can start from a product page with the product preselected (`?product=`).
 3. Keep progress in client state across steps (back/forward works); nothing is stored until the final submit.
 4. Final submit calls #4's `createBooking()` with the brief attached.
