@@ -42,14 +42,13 @@ export function WeeklyHoursForm({ defaultValues }: { defaultValues: WeeklyHoursI
         {defaultValues.days.map((day, index) => {
           const active = days[index]?.active ?? day.active;
           const rowErrors = errors.days?.[index];
+          const dayName = t(`common.weekday.${day.weekday}` as MessageKey);
           return (
             <li
               key={day.weekday}
               className="grid items-center gap-3 px-3 py-2 sm:grid-cols-[1fr_auto_auto_auto]"
             >
-              <span className="font-medium">
-                {t(`common.weekday.${day.weekday}` as MessageKey)}
-              </span>
+              <span className="font-medium">{dayName}</span>
               <Controller
                 control={form.control}
                 name={`days.${index}.active`}
@@ -58,32 +57,28 @@ export function WeeklyHoursForm({ defaultValues }: { defaultValues: WeeklyHoursI
                     <Switch
                       checked={field.value}
                       onCheckedChange={(checked) => field.onChange(checked)}
-                      aria-label={`${t("admin.availability.hours.open")}: ${t(`common.weekday.${day.weekday}` as MessageKey)}`}
+                      aria-label={`${t("admin.availability.hours.open")}: ${dayName}`}
                     />
                     {t("admin.availability.hours.open")}
                   </label>
                 )}
               />
-              <label className="flex items-center gap-2 text-sm">
-                <span className="sr-only">{t("admin.availability.hours.start")}</span>
-                <Input
-                  type="time"
-                  step={300}
-                  disabled={!active}
-                  aria-invalid={!!rowErrors?.startTime || undefined}
-                  {...form.register(`days.${index}.startTime`)}
-                />
-              </label>
-              <label className="flex items-center gap-2 text-sm">
-                <span className="sr-only">{t("admin.availability.hours.end")}</span>
-                <Input
-                  type="time"
-                  step={300}
-                  disabled={!active}
-                  aria-invalid={!!rowErrors?.endTime || undefined}
-                  {...form.register(`days.${index}.endTime`)}
-                />
-              </label>
+              <Input
+                type="time"
+                step={300}
+                disabled={!active}
+                aria-label={t("admin.availability.hours.startLabel", { day: dayName })}
+                aria-invalid={!!rowErrors?.startTime || undefined}
+                {...form.register(`days.${index}.startTime`)}
+              />
+              <Input
+                type="time"
+                step={300}
+                disabled={!active}
+                aria-label={t("admin.availability.hours.endLabel", { day: dayName })}
+                aria-invalid={!!rowErrors?.endTime || undefined}
+                {...form.register(`days.${index}.endTime`)}
+              />
               <div className="sm:col-span-4">
                 <FieldMessage error={rowErrors?.startTime ?? rowErrors?.endTime} />
               </div>
