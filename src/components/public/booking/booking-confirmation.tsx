@@ -1,13 +1,19 @@
 "use client";
 import type { BookingSummary } from "@/actions/booking";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useLocale, useT } from "@/lib/i18n/client";
 import type { MessageKey } from "@/lib/i18n/t";
 
-type Props = { summary: BookingSummary; name: string; onReset: () => void };
+type Props = {
+  summary: BookingSummary;
+  name: string;
+  onReset: () => void;
+  /** Studio WhatsApp link (PW-34); null when the owner has not set a number */
+  whatsappUrl?: string | null;
+};
 
 /** PW-34 (screen half): shown in place of the form; details never go in the URL. */
-export function BookingConfirmation({ summary, name, onReset }: Props) {
+export function BookingConfirmation({ summary, name, onReset, whatsappUrl = null }: Props) {
   const t = useT();
   const locale = useLocale();
   const product =
@@ -46,9 +52,22 @@ export function BookingConfirmation({ summary, name, onReset }: Props) {
         ) : null}
       </dl>
       <p className="text-sm">{t("booking.confirmation.next")}</p>
-      <Button type="button" variant="outline" onClick={onReset}>
-        {t("booking.confirmation.another")}
-      </Button>
+      <div className="flex flex-wrap gap-2">
+        {whatsappUrl ? (
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={buttonVariants()}
+            data-testid="confirmation-whatsapp"
+          >
+            {t("common.messageOnWhatsApp")}
+          </a>
+        ) : null}
+        <Button type="button" variant="outline" onClick={onReset}>
+          {t("booking.confirmation.another")}
+        </Button>
+      </div>
     </section>
   );
 }

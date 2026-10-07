@@ -54,3 +54,20 @@ export async function cleanupE2EBookings(emailPrefix: string): Promise<number> {
     await client.end();
   }
 }
+
+/** Current manage token of the booking with this customer email (e2e bookings only). */
+export async function getManageTokenByEmail(email: string): Promise<string | null> {
+  const url = process.env.DIRECT_DATABASE_URL ?? process.env.DATABASE_URL;
+  if (!url) return null;
+  const client = new Client({ connectionString: url, ssl: { rejectUnauthorized: false } });
+  await client.connect();
+  try {
+    const result = await client.query<{ manage_token: string }>(
+      `select manage_token from bookings where customer_email = $1 order by created_at desc limit 1`,
+      [email],
+    );
+    return result.rows[0]?.manage_token ?? null;
+  } finally {
+    await client.end();
+  }
+}

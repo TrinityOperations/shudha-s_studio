@@ -2,6 +2,7 @@ import "server-only";
 import { and, gt, lt, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { bookings, type Booking, type ConsultationType, type NewBooking } from "@/db/schema";
+import type { Locale } from "@/lib/i18n/locale";
 import { getAvailabilityContext, getBookingSettings } from "@/db/queries/availability";
 import { onBookingCreated } from "./hooks";
 import { isSlotAvailable } from "./slots";
@@ -22,6 +23,8 @@ export type CreateBookingInput = {
   customerEmail: string;
   productId: string | null;
   message: string | null;
+  /** Language the customer booked in; their emails are rendered in it. Default "en". */
+  locale?: Locale;
   brief?: NewBooking["brief"];
   wishlistProductIds?: NewBooking["wishlistProductIds"];
 };
@@ -104,6 +107,7 @@ export async function createBookingCore(
           customerEmail: input.customerEmail,
           productId: input.productId,
           message: input.message,
+          locale: input.locale ?? "en",
           ...(input.brief !== undefined ? { brief: input.brief } : {}),
           ...(input.wishlistProductIds !== undefined
             ? { wishlistProductIds: input.wishlistProductIds }

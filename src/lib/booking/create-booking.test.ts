@@ -88,6 +88,7 @@ describe("createBookingCore", () => {
     expect(mocks.execute).toHaveBeenCalledOnce();
     expect(dbMock.methodCalls("values")[0]?.[0]).toMatchObject({
       status: "new",
+      locale: "en",
       consultationType: "phone",
       customerPhone: "61412345678",
       startsAt: input.startsAt,
