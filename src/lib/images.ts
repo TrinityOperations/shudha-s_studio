@@ -39,3 +39,20 @@ export async function processProductImage(input: Buffer): Promise<ProcessedImage
 
   return { full: full.data, thumb, width: full.info.width, height: full.info.height };
 }
+
+/** Customer reference image for a booking (PW-30): full size only, max 1600px, webp. No thumbnail. */
+export async function processReferenceImage(
+  input: Buffer,
+): Promise<{ data: Buffer; width: number; height: number }> {
+  const result = await sharp(input, { failOn: "error" })
+    .rotate()
+    .resize({
+      width: FULL_IMAGE_MAX_PX,
+      height: FULL_IMAGE_MAX_PX,
+      fit: "inside",
+      withoutEnlargement: true,
+    })
+    .webp({ quality: 82 })
+    .toBuffer({ resolveWithObject: true });
+  return { data: result.data, width: result.info.width, height: result.info.height };
+}

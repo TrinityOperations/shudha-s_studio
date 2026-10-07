@@ -38,3 +38,19 @@ export async function signInAsOwner(page: Page) {
   await page.getByRole("button", { name: /sign in/i }).click();
   await expect(page).toHaveURL(/\/admin$/);
 }
+
+/** Deletes bookings whose customer email starts with `emailPrefix` (e2e bookings only). */
+export async function cleanupE2EBookings(emailPrefix: string): Promise<number> {
+  const url = process.env.DIRECT_DATABASE_URL ?? process.env.DATABASE_URL;
+  if (!url) return 0;
+  const client = new Client({ connectionString: url, ssl: { rejectUnauthorized: false } });
+  await client.connect();
+  try {
+    const result = await client.query(`delete from bookings where customer_email like $1`, [
+      `${emailPrefix.replace(/[\\%_]/g, "\\$&")}%`,
+    ]);
+    return result.rowCount ?? 0;
+  } finally {
+    await client.end();
+  }
+}

@@ -8,15 +8,29 @@ config({ path: ".env.local" });
 
 async function main() {
   const { db } = await import("./index");
-  const { bookingSettings, categories, occasions, siteSettings } = await import("./schema");
+  const { availabilityRules, bookingSettings, categories, occasions, siteSettings } =
+    await import("./schema");
   const { defaultGeneralSettings } = await import("@/lib/validators/settings");
+  const { DEFAULT_AVAILABILITY_RULES, DEFAULT_BOOKING_SETTINGS } =
+    await import("@/lib/booking/defaults");
 
   await db
     .insert(siteSettings)
     .values({ key: "general", value: defaultGeneralSettings })
     .onConflictDoNothing();
 
-  await db.insert(bookingSettings).values({ id: 1 }).onConflictDoNothing();
+  // Booking defaults (slice #4): the singleton and Mon–Sat 10:00–18:00, only when none exist yet.
+  await db
+    .insert(bookingSettings)
+    .values({ id: 1, ...DEFAULT_BOOKING_SETTINGS })
+    .onConflictDoNothing();
+  const existingRules = await db
+    .select({ id: availabilityRules.id })
+    .from(availabilityRules)
+    .limit(1);
+  if (existingRules.length === 0) {
+    await db.insert(availabilityRules).values(DEFAULT_AVAILABILITY_RULES);
+  }
 
   const categoryRows = [
     { slug: "chocolate-wrappers", name: "Chocolate wrappers", nameBn: "চকলেট র‍্যাপার" },
@@ -45,7 +59,9 @@ async function main() {
   ].map((row, sortOrder) => ({ ...row, sortOrder }));
   await db.insert(occasions).values(occasionRows).onConflictDoNothing();
 
-  console.log("Seed complete: site_settings, booking_settings, categories, occasions");
+  console.log(
+    "Seed complete: site_settings, booking_settings, availability_rules, categories, occasions",
+  );
 }
 
 main()

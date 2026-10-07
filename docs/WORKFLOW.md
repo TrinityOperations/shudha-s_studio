@@ -133,7 +133,7 @@ git push -u origin feat/<issue>-<short-name>
 ## 9. Open the pull request
 
 1. Open the link Git prints, or GitHub → Pull requests → New.
-2. Title: `#<issue> <slice name>`. The template fills the description: complete every section and tick the checklist.
+2. Title: `feat: <slice name> (#<issue>)`. Never start a title with `#`, or GitHub uses the branch name for the squash commit; check the squash commit message in the merge box before confirming. The template fills the description: complete every section and tick the checklist.
 3. Add `Closes #<issue>` to the description.
 4. Ask for a review from someone who didn't build it (the lead by default).
 5. CI must be green (lint, typecheck, tests, format).
