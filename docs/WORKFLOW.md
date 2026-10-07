@@ -11,8 +11,8 @@ How each team member takes one slice from a GitHub issue to a merged pull reques
 1. **Tools:** Git, Node 24 (see `.nvmrc`), pnpm 12 (`corepack enable`), and the Codex CLI or IDE extension. Check with `node -v` and `pnpm -v`.
 2. **Code:**
    ```
-   git clone https://github.com/TrinityOperations/shudha-s_studio.git
-   cd shudha-s_studio
+   git clone https://github.com/TrinityOperations/shudhas_studio.git
+   cd shudhas_studio
    pnpm install
    ```
    Keep the folder name free of spaces and apostrophes.
@@ -70,7 +70,7 @@ Approve only when all of these are true. If not, tell Codex what to change.
 - [ ] No schema change, or a clear reason for one (then tell the lead before approving).
 - [ ] Every admin page and admin action starts with `requireOwner()`.
 - [ ] Every mutation is a server action in `src/actions/` with a Zod schema from `src/lib/validators/`.
-- [ ] No prices anywhere.
+- [ ] Prices only as the optional "From $X" starting price; no cart, checkout or payment.
 - [ ] All visible text uses `t()` with keys in the card's namespace.
 - [ ] Public forms use Turnstile.
 - [ ] Each "Done when" item has a test or a manual check.

@@ -9,7 +9,7 @@ The owner sets her weekly hours and blocked dates; customers pick a free slot an
 | ID | Requirement | Priority |
 | --- | --- | --- |
 | OD-21 | Set weekly availability, slot length, buffer time, blocked dates/holidays | M |
-| PW-30 | Booking form: name, phone, email, preferred date/time, product of interest, message, reference image upload | M |
+| PW-30 | Booking form: name, WhatsApp number, email, preferred date/time, product of interest, message, reference image upload | M |
 | PW-31 | Calendar shows only the owner's available slots; past and blocked times hidden | M |
 | PW-32 | Prevents double-booking (server-side conflict check in a transaction) | M |
 | PW-33 | Choice of consultation type: in person, phone, video call (to confirm) | S |
@@ -52,6 +52,7 @@ Everything else belongs to another slice or the foundation: don't change it. Ask
 6. Rate-limit the public action.
 
 ## Watch out for
+- The phone field is labelled "WhatsApp number" and stored in `customer_phone`. Accept Australian mobiles (04xx xxx xxx) and international numbers; validate and normalise with `whatsappNumberSchema` from `src/lib/validators/common.ts` (already on main; it stores e.g. `61412345678` so `wa.me` links work).
 - Never trust a slot from the client; always recompute on the server.
 - Store UTC, display Melbourne time.
 - Leave an obvious hook (e.g. an `onBookingCreated` call) where #5 will send emails; don't send emails here.

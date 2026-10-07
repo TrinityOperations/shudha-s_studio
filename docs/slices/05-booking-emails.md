@@ -8,8 +8,8 @@ Every booking event sends the right branded email to the right person, plus a da
 ## SRS requirements
 | ID | Requirement | Priority |
 | --- | --- | --- |
-| PW-34 | Confirmation screen + confirmation email to customer | M |
-| PW-35 | Notification to owner (email; optionally push/SMS/WhatsApp) | M |
+| PW-34 | Confirmation screen + confirmation email to customer, both with a WhatsApp link to the studio | M |
+| PW-35 | Notification email to the owner with a one-tap WhatsApp link to the customer (push in OD-61) | M |
 | PW-36 | Reminder to customer before the appointment | S |
 | PW-37 | Customer can reschedule/cancel via a secure link in the email | S |
 | OD-22 | Confirm, reschedule, cancel bookings; customer gets an email | M |
@@ -50,6 +50,8 @@ Everything else belongs to another slice or the foundation: don't change it. Ask
 6. Tests for each send path with Resend mocked.
 
 ## Watch out for
+- WhatsApp links come from `whatsappLink()` in `src/lib/whatsapp.ts` (on main). The studio's number is in the contact settings from #10; if #10 isn't merged yet, read it from `site_settings` with a fallback and leave the link out when it is empty.
+- No WhatsApp API or automated WhatsApp messages: links only.
 - Until the client's domain is verified in Resend, only sandbox sending works; keep the sender configurable.
 - Don't leak other customers' data on the manage page; token lookups only.
 

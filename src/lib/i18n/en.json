@@ -173,5 +173,6 @@
   "errors.imageCount": "Choose between 1 and 10 images",
   "errors.altRequired": "Alt text is required for every image",
   "errors.uploadFailed": "Upload failed. Some images may not have been saved.",
-  "errors.storageFailed": "Could not update the image files. Please try again."
+  "errors.storageFailed": "Could not update the image files. Please try again.",
+  "errors.whatsappNumber": "Enter a valid WhatsApp number, e.g. 0412 345 678"
 }

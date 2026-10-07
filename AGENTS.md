@@ -14,7 +14,7 @@ Read this file first in every session. Then read `docs/WORKFLOW.md` (how the tea
 
 ## What this is
 A website for Shudha's Studio, a Melbourne personalised-gift maker. Two parts in one Next.js app:
-- Public site: browse custom products (no prices, no checkout), book an appointment to discuss an order.
+- Public site: browse custom products (optional "From $X" starting prices, no cart or checkout), book an appointment to discuss an order.
 - Owner dashboard at `/admin`: one non-technical owner manages products, bookings and site content herself.
 
 Requirement IDs (PW-xx, OD-xx, NF-xx) are defined in `docs/SRS.md`. Reference them in commit messages and PR titles.
@@ -74,7 +74,7 @@ docs/
 1. **Mutations only through server actions** in `src/actions/`. Every action: validate with the Zod schema → `requireOwner()` if it's an admin action → do the work → `revalidatePath`. Return an `ActionResult` (`src/lib/action-result.ts`); error strings are i18n keys. Never call the DB from a client component. Reference example: `src/actions/settings.ts`.
 2. **Reads through `src/db/queries/`**, called from server components. No inline SQL in pages. Reference example: `src/db/queries/settings.ts`.
 3. **Admin protection is server-side.** `src/proxy.ts` redirects unauthenticated `/admin/*` to `/admin/login`; the `admin/(dashboard)` layout, **every admin page** and every admin action call `requireOwner()` as their first line. The owner is whoever signs in with `OWNER_EMAIL` (compared case-insensitively). Client-side checks are cosmetic only.
-4. **No prices anywhere** in the public UI or the data model. Quotes happen in the appointment.
+4. **Starting prices only.** A product may have an optional starting price (`products.price_from`, whole AUD dollars), shown as "From $X" and hidden when blank. No cart, checkout, payment or price calculation anywhere: the final price is quoted in the appointment.
 5. **Images**: upload through a server action to Supabase Storage (`product-images`, `site-images`, `gallery-images`, private `gallery-pending` and `booking-uploads`), resize to max 1600px and generate a 400px thumbnail on upload, serve with `next/image`. Prompt for alt text on upload. Customer gallery photos stay in `gallery-pending` until approved, then are copied to `gallery-images`.
 6. **Forms**: React Hook Form + Zod + shadcn `Field` components + `FieldMessage` for errors. Client validates with `zodResolver`, calls the server action with the parsed values, the action re-validates. Show field errors inline, a toast (`sonner`) on success. Public forms include `TurnstileField` and the action calls `verifyTurnstile()`. Reference examples: `src/components/admin/login-form.tsx` (public pattern) and `settings-form.tsx` (admin pattern).
 7. **i18n**: all user-facing strings go through `t('key')`, flat keys in `src/lib/i18n/en.json` and `bn.json`. Server: `const t = await getT()`. Client: `const t = useT()`. Bengali falls back to English per key. Never hard-code visible text in components, even in admin.
@@ -83,6 +83,7 @@ docs/
 10. **Accessibility**: semantic HTML, labelled inputs, focus states, keyboard-reachable dialogs and galleries. Lighthouse a11y ≥ 95.
 11. **Tests**: every server action has a Vitest test (`*.test.ts` next to the file; mock `@/db`, `@/lib/auth`, `next/*` with `vi.hoisted` + `vi.mock`); booking flow and product CRUD have Playwright tests. Run `pnpm lint && pnpm typecheck && pnpm test` before declaring work done.
 12. **Keep DECISIONS.md current.** When you make a non-obvious choice (library, pattern, trade-off), append a dated line.
+13. **WhatsApp through links only.** Use click-to-chat links (`https://wa.me/<number>?text=<encoded message>`, number in international format without `+`). Never call a WhatsApp or Meta API. `bookings.customer_phone` holds the customer's WhatsApp number.
 
 ## Working style for agent sessions
 - Start by reading this file, your slice card, the relevant SRS sections, and the existing code for the entity you're touching.

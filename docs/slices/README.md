@@ -6,7 +6,7 @@ Each slice is one GitHub issue, one branch and one pull request. Pick up a slice
 | # | Slice | Card | Depends on | Needs client |
 | --- | --- | --- | --- | --- |
 | 2 | Product management in the dashboard | [`02-product-management.md`](02-product-management.md) | #1 Foundation | – |
-| 3 | Public catalogue and product page | [`03-public-catalogue.md`](03-public-catalogue.md) | #2 Product management | – |
+| 3 | Public catalogue and product page (contains migration: starting price) | [`03-public-catalogue.md`](03-public-catalogue.md) | #2 Product management | – |
 | 4 | Availability settings and booking engine | [`04-booking-engine.md`](04-booking-engine.md) | #1 Foundation | Yes |
 | 5 | Booking emails: confirmations, notifications, reminders | [`05-booking-emails.md`](05-booking-emails.md) | #4 Booking engine | – |
 | 6 | Booking management in the dashboard | [`06-booking-management.md`](06-booking-management.md) | #4 Booking engine, #5 Booking emails | – |
@@ -43,10 +43,15 @@ Slices in the same wave can run in parallel, one person each. Start a slice only
 #11 Bengali after most slices · #15 Quality pass after all · #16 Handover last
 ```
 
-## Lead tasks before wave 1 runs in parallel
-1. Merge #2 (it adds shared helpers the others reuse: images, storage, slugs, confirm dialog, e2e helpers).
+## Lead tasks
+1. ~~Merge #2~~ (done: PR #19).
 2. Sort `en.json` and `bn.json` by key once (command in `docs/WORKFLOW.md` section 6), in its own small PR, so the alphabetical rule holds from then on.
 3. Assign each wave-1 slice on the board and post the slice owner list to the team.
+4. Update GitHub issues #3–#10 so their text matches the v1.0 cards (starting price, WhatsApp, delivery note, business orders).
+5. When the client sends her product spreadsheet: one-off import into **draft** products (OD-52) with a script in `scripts/`, run against the shared project after a backup. She then adds photos and publishes.
+
+## Shared helpers already on main
+`src/lib/whatsapp.ts` (`normaliseWhatsAppNumber`, `whatsappLink`) and `whatsappNumberSchema` in `src/lib/validators/common.ts`. Every WhatsApp link in the app uses them (AGENTS.md rule 13).
 
 ## Who owns which top-level area
 | Area | Owner slice |

@@ -10,7 +10,7 @@ The owner sees all bookings in a calendar and list, confirms, reschedules or can
 | --- | --- | --- |
 | OD-20 | Calendar and list view of bookings (upcoming, past, cancelled) | M |
 | OD-23 | Booking status (New, Confirmed, Done, Cancelled) and private notes | M |
-| OD-24 | One-tap reply to the customer by WhatsApp/email from the booking | S |
+| OD-24 | One-tap reply to the customer on WhatsApp (prefilled message) or by email from the booking | M |
 | OD-25 | Google Calendar sync | S |
 | OD-26 | View the custom-order brief and attached wishlist on each booking | M |
 
@@ -45,7 +45,7 @@ Everything else belongs to another slice or the foundation: don't change it. Ask
 2. Calendar and list views at phone width.
 3. Detail view: customer info, status (New, Confirmed, Done, Cancelled), private notes, reference image via signed URL, custom-order brief and wishlist display (render whatever `brief` / `wishlist_product_ids` contain; #7 and #8 fill them).
 4. Actions: confirm, reschedule (reuse slot logic), cancel, mark done, save notes; each sends the matching email from #5.
-5. One-tap WhatsApp (`wa.me` link) and email reply.
+5. One-tap WhatsApp reply (now must-have): a button using `whatsappLink()` from `src/lib/whatsapp.ts` (on main) with a prefilled message in the customer's language (e.g. "Hi <name>, this is Shudha from Shudha's Studio about your booking on <date>"), plus an email reply link. Show the business name from the brief when it is a business order.
 6. Google Calendar sync is S priority: propose separately, don't block the slice.
 
 ## Watch out for

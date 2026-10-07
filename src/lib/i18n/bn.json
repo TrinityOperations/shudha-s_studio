@@ -173,5 +173,6 @@
   "errors.imageCount": "১ থেকে ১০টি ছবি বাছুন",
   "errors.altRequired": "প্রতিটি ছবির জন্য অল্ট টেক্সট দিতে হবে",
   "errors.uploadFailed": "আপলোড ব্যর্থ হয়েছে। কিছু ছবি সংরক্ষিত নাও হতে পারে।",
-  "errors.storageFailed": "ছবির ফাইল হালনাগাদ করা যায়নি। আবার চেষ্টা করুন।"
+  "errors.storageFailed": "ছবির ফাইল হালনাগাদ করা যায়নি। আবার চেষ্টা করুন।",
+  "errors.whatsappNumber": "একটি সঠিক WhatsApp নম্বর দিন, যেমন 0412 345 678"
 }
