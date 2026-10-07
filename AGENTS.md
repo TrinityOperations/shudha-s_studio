@@ -115,7 +115,7 @@ pnpm e2e            # playwright (run `pnpm exec playwright install chromium` on
 3. **Never edit another slice's owned paths.** If you need something from another slice that isn't merged yet, stop and tell the human; don't build a copy.
 4. **Schema changes are rare and serialised.** The schema already covers every SRS entity. If a slice truly needs a change: edit `src/db/schema.ts`, generate the migration only after rebasing on the latest `main`, and say so in the plan. Never hand-edit files in `drizzle/meta/`.
 5. **Your own database only.** Run `pnpm db:migrate` and `pnpm db:seed` only against the developer's personal Supabase dev project in their `.env.local`, never against the team's shared project.
-6. **i18n keys** are prefixed with the slice's namespace (shown in the card), added in alphabetical order in both `en.json` and `bn.json`. Never rename or delete keys you didn't add.
+6. **i18n keys** are prefixed with the slice's namespace (shown in the card): `<section>.*` for public pages, `admin.<section>.*` for the dashboard. Add them in alphabetical order in both `en.json` and `bn.json`. Never rename or delete keys you didn't add.
 7. **New dependencies**: propose them in the plan with a reason. Install with `pnpm add`; never hand-edit `pnpm-lock.yaml`.
 8. **New environment variables**: add the name (no value) to `.env.example` with a comment, and list it in the PR description.
 9. **Do not run `git commit` or `git push`.** A human does. At the end, list the exact commands: files to `git add` (never `.env.local`), a commit message `<type>: <summary> (#<issue>)` referencing requirement IDs, and the push command.

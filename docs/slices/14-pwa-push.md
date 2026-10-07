@@ -1,6 +1,6 @@
 # Slice #14: PWA dashboard and push notifications
 
-**GitHub issue:** #14 · **Branch:** `feat/14-pwa` · **i18n namespace:** `push.*`
+**GitHub issue:** #14 · **Branch:** `feat/14-pwa` · **i18n namespace:** `admin.push.*`
 
 ## Goal
 The owner installs the dashboard on her phone like an app and gets a push notification for each new booking and gallery submission.

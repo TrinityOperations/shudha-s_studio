@@ -1,6 +1,6 @@
 # Slice #13: Seasonal theming
 
-**GitHub issue:** #13 · **Branch:** `feat/13-themes` · **i18n namespace:** `themes.*`
+**GitHub issue:** #13 · **Branch:** `feat/13-themes` · **i18n namespace:** `themes.*` (public), `admin.themes.*` (dashboard)
 
 ## Goal
 The owner switches the whole site's look for a season (Eid, Christmas, Valentine's, Mother's Day) with one click, no deploy.

@@ -1,6 +1,6 @@
 # Slice #15: Performance, accessibility and SEO pass
 
-**GitHub issue:** #15 · **Branch:** `feat/15-quality` · **i18n namespace:** `seo.*, overview.*`
+**GitHub issue:** #15 · **Branch:** `feat/15-quality` · **i18n namespace:** `seo.*` (public), `admin.overview.*` (dashboard)
 
 ## Goal
 Every public page is fast, accessible and well indexed before launch.

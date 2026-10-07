@@ -1,6 +1,6 @@
 # Slice #10: Content pages and site settings
 
-**GitHub issue:** #10 · **Branch:** `feat/10-content-pages` · **i18n namespace:** `pages.*, contact.*, faqs.*, testimonials.*, settings.*`
+**GitHub issue:** #10 · **Branch:** `feat/10-content-pages` · **i18n namespace:** `pages.*, contact.*, faq.*` (public), `admin.settings.*, admin.faqs.*, admin.testimonials.*` (dashboard)
 
 ## Goal
 About, How it works, Contact, FAQ, Privacy, Terms and a branded 404 page, all editable by the owner from the dashboard.

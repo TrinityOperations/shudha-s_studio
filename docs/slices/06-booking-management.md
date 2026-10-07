@@ -1,6 +1,6 @@
 # Slice #6: Booking management in the dashboard
 
-**GitHub issue:** #6 · **Branch:** `feat/6-booking-management` · **i18n namespace:** `adminBookings.*`
+**GitHub issue:** #6 · **Branch:** `feat/6-booking-management` · **i18n namespace:** `admin.bookings.*`
 
 ## Goal
 The owner sees all bookings in a calendar and list, confirms, reschedules or cancels them, keeps private notes, and replies quickly by WhatsApp or email.

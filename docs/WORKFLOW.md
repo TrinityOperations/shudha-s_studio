@@ -91,7 +91,7 @@ Most conflicts come from a few files every slice touches. Follow these exactly:
 
 | Shared file | Rule |
 | --- | --- |
-| `src/lib/i18n/en.json` and `bn.json` | Only **add** keys, prefixed with your slice's namespace (for example `booking.form.title`). Insert each key in **alphabetical position by full key**, not at the end. Never rename or delete existing keys. Bengali text may be left out; it falls back to English. To re-sort both files after resolving a conflict, run the sort command below |
+| `src/lib/i18n/en.json` and `bn.json` | Only **add** keys, prefixed with your slice's namespace: public pages use `<section>.*` (for example `booking.form.title`), dashboard screens use `admin.<section>.*` (for example `admin.bookings.status`). Shared words stay in `common.*`, validation messages in `errors.*`. Insert each key in **alphabetical position by full key**, not at the end. Never rename or delete existing keys. Bengali text may be left out; it falls back to English. To re-sort both files after resolving a conflict, run the sort command below |
 | `e2e/helpers.ts`, `src/test/` | Shared test helpers. Add new helpers; don't change existing ones without asking the lead |
 | `src/components/admin/admin-nav.tsx` | Add **one** link line for your section in the `links` list. Nothing else |
 | `src/db/schema.ts` and `drizzle/` | Don't change unless the card says so. If you must: rebase on `main` first, then `pnpm db:generate`. Only one open PR may contain a migration at a time; say "Contains migration" in the PR title. If `main` gets a new migration while your PR is open, delete your migration files, rebase, regenerate. Never hand-edit `drizzle/meta/` |

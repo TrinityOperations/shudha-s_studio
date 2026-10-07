@@ -1,6 +1,6 @@
 # Slice #12: Customer gallery (happy customers)
 
-**GitHub issue:** #12 · **Branch:** `feat/12-gallery` · **i18n namespace:** `gallery.*`
+**GitHub issue:** #12 · **Branch:** `feat/12-gallery` · **i18n namespace:** `gallery.*` (public), `admin.gallery.*` (dashboard)
 
 ## Goal
 Customers submit photos of their gifts; the owner approves them before they appear on a public "happy customers" page.
