@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { BriefWithOrderFor } from "@/db/queries/bookings";
+import type { CustomOrderBrief } from "@/db/schema";
 import { BOOKING_UPLOADS_BUCKET } from "@/lib/booking/defaults";
 import { getT } from "@/lib/i18n";
 import type { MessageKey, T } from "@/lib/i18n/t";
@@ -9,7 +9,7 @@ export const SIGNED_URL_SECONDS = 600;
 
 /** Pure: label/value rows for whatever the brief contains (OD-26). Exported for tests. */
 export function briefRows(
-  brief: BriefWithOrderFor | null | undefined,
+  brief: CustomOrderBrief | null | undefined,
   t: T,
 ): { label: string; value: string }[] {
   if (!brief) return [];
@@ -37,7 +37,7 @@ export function briefRows(
   return rows;
 }
 
-export async function BriefSection({ brief }: { brief: BriefWithOrderFor | null }) {
+export async function BriefSection({ brief }: { brief: CustomOrderBrief | null }) {
   const t = await getT();
   const rows = briefRows(brief, t);
   const photos = brief?.photoPaths ?? [];

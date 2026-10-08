@@ -82,19 +82,13 @@ export async function listReminderCandidates(from: Date, to: Date): Promise<{ id
 // Owner's reads (slice #6, OD-20, OD-23, OD-26)
 // ---------------------------------------------------------------------------
 
-/** Fields slice #7 adds to the brief; read defensively until the schema type carries them. */
-export type BriefWithOrderFor = CustomOrderBrief & {
-  orderFor?: "personal" | "business";
-  businessName?: string;
-};
-
 export function isBusinessBrief(
   brief: unknown,
-): brief is BriefWithOrderFor & { orderFor: "business" } {
+): brief is CustomOrderBrief & { orderFor: "business" } {
   return (
     typeof brief === "object" &&
     brief !== null &&
-    (brief as BriefWithOrderFor).orderFor === "business"
+    (brief as CustomOrderBrief).orderFor === "business"
   );
 }
 
@@ -182,7 +176,7 @@ function toRow(row: {
     customerPhone: row.customerPhone,
     productTitle: row.productTitle,
     isBusiness: business,
-    businessName: business ? ((row.brief as BriefWithOrderFor).businessName ?? null) : null,
+    businessName: business ? ((row.brief as CustomOrderBrief).businessName ?? null) : null,
   };
 }
 

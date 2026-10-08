@@ -12,13 +12,9 @@ import { WishlistSection } from "@/components/admin/bookings/wishlist-section";
 import type { SlotDayOption } from "@/components/public/booking/slot-picker";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  getAdminBookingDetail,
-  isBusinessBrief,
-  listRescheduleSlots,
-  type BriefWithOrderFor,
-} from "@/db/queries/bookings";
+import { getAdminBookingDetail, isBusinessBrief, listRescheduleSlots } from "@/db/queries/bookings";
 import { getGeneralSettings } from "@/db/queries/settings";
+import type { CustomOrderBrief } from "@/db/schema";
 import { BOOKING_UPLOADS_BUCKET } from "@/lib/booking/defaults";
 import { groupSlotsByMelbourneDate } from "@/lib/booking/slots";
 import { requireOwner } from "@/lib/auth";
@@ -71,7 +67,7 @@ export default async function BookingDetailPage({ params }: PageProps<"/admin/bo
     })),
   }));
 
-  const brief = (booking.brief ?? null) as BriefWithOrderFor | null;
+  const brief = (booking.brief ?? null) as CustomOrderBrief | null;
   const business = isBusinessBrief(brief)
     ? brief.businessName || t("admin.bookings.brief.business")
     : null;

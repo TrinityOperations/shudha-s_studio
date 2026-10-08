@@ -82,13 +82,22 @@ export async function ProductDetail({ product, related, preview = false }: Props
           </header>
 
           <div className="space-y-2">
-            <Link
-              href={`/book?product=${encodeURIComponent(product.slug)}`}
-              prefetch={false}
-              className={buttonVariants({ size: "lg" })}
-            >
-              {t("common.bookAppointment")}
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href={`/book?product=${encodeURIComponent(product.slug)}`}
+                prefetch={false}
+                className={buttonVariants({ size: "lg" })}
+              >
+                {t("common.bookAppointment")}
+              </Link>
+              <Link
+                href={`/custom-order?product=${encodeURIComponent(product.slug)}`}
+                prefetch={false}
+                className={buttonVariants({ size: "lg", variant: "outline" })}
+              >
+                {t("catalogue.product.customOrder")}
+              </Link>
+            </div>
             <p className="text-muted-foreground text-sm">{t("catalogue.product.deliveryNote")}</p>
           </div>
 
