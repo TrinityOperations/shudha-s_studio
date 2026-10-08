@@ -51,6 +51,13 @@ export function BookingConfirmation({ summary, name, onReset, whatsappUrl = null
           </div>
         ) : null}
       </dl>
+      {summary.wishlistCount ? (
+        <p className="text-sm" data-testid="confirmation-wishlist">
+          {summary.wishlistCount === 1
+            ? t("wishlist.attachedOne")
+            : t("wishlist.attached", { count: summary.wishlistCount })}
+        </p>
+      ) : null}
       <p className="text-sm">{t("booking.confirmation.next")}</p>
       <div className="flex flex-wrap gap-2">
         {whatsappUrl ? (

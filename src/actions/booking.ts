@@ -7,7 +7,7 @@ import { headers } from "next/headers";
 import { z } from "zod";
 import { db } from "@/db";
 import { bookings, type ConsultationType } from "@/db/schema";
-import { listPublishedProductOptions } from "@/db/queries/catalogue";
+import { listPublishedProductOptions, listPublishedProductsBySlugs } from "@/db/queries/catalogue";
 import { fail, ok, type ActionResult } from "@/lib/action-result";
 import { clientIpFromHeaders } from "@/lib/booking/client-ip";
 import { createBookingCore } from "@/lib/booking/create-booking";
@@ -24,6 +24,7 @@ import {
   REFERENCE_IMAGE_MAX_BYTES,
   REFERENCE_IMAGE_TYPES,
 } from "@/lib/validators/booking";
+import { attachedWishlistSchema } from "@/lib/validators/wishlist";
 
 export type BookingSummary = {
   id: string;
@@ -34,6 +35,8 @@ export type BookingSummary = {
   consultationType: ConsultationType;
   productTitle: string | null;
   productTitleBn: string | null;
+  /** PW-61: how many wishlist products were attached; absent when none */
+  wishlistCount?: number;
 };
 
 export type CreateBookingData = { summary: BookingSummary; warning?: MessageKey };
@@ -88,6 +91,8 @@ export async function createBooking(formData: FormData): Promise<ActionResult<Cr
     ? ((await listPublishedProductOptions()).find((p) => p.slug === data.productSlug) ?? null)
     : null;
 
+  const wishlistProductIds = await resolveWishlist(formData);
+
   const result = await createBookingCore({
     startsAt: new Date(data.slotStart),
     consultationType: data.consultationType,
@@ -97,6 +102,7 @@ export async function createBooking(formData: FormData): Promise<ActionResult<Cr
     productId: product?.id ?? null,
     message: data.message || null,
     locale: await getLocale(),
+    ...(wishlistProductIds.length ? { wishlistProductIds } : {}),
   });
   if (!result.ok) return fail(result.error);
   const booking = result.booking;
@@ -133,7 +139,19 @@ export async function createBooking(formData: FormData): Promise<ActionResult<Cr
       consultationType: booking.consultationType,
       productTitle: product?.title ?? null,
       productTitleBn: product?.titleBn ?? null,
+      ...(wishlistProductIds.length ? { wishlistCount: wishlistProductIds.length } : {}),
     },
     ...(warning ? { warning } : {}),
   });
+}
+
+/**
+ * PW-61: the `wishlistSlugs` fields (slugs only, never ids) resolved against published products;
+ * unknown, draft and archived slugs are dropped, the rest capped at 20. Shared with the wizard.
+ */
+export async function resolveWishlist(formData: FormData): Promise<string[]> {
+  const parsed = attachedWishlistSchema.safeParse(formData.getAll("wishlistSlugs"));
+  const slugs = parsed.success ? parsed.data : [];
+  if (slugs.length === 0) return [];
+  return (await listPublishedProductsBySlugs(slugs)).map((product) => product.id);
 }

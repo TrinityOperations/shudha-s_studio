@@ -13,6 +13,7 @@ import { localised } from "./localised";
 import { ProductCard } from "./product-card";
 import { ProductGallery } from "./product-gallery";
 import { ProductVideo } from "./product-video";
+import { WishlistButton } from "@/components/public/wishlist/wishlist-button";
 import { ShareButtons } from "./share-buttons";
 
 type Props = {
@@ -176,6 +177,7 @@ export async function ProductDetail({ product, related, preview = false }: Props
             </section>
           ) : null}
 
+          <WishlistButton slug={product.slug} title={title} variant="full" />
           <ShareButtons url={url} title={title} />
         </div>
       </div>

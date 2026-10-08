@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { WishlistButton } from "@/components/public/wishlist/wishlist-button";
 import type { CatalogueCard } from "@/db/queries/catalogue";
 import { getLocale, getT } from "@/lib/i18n";
 import { productImageUrl } from "@/lib/storage";
@@ -20,7 +21,10 @@ export async function ProductCard({ product, priority = false }: Props) {
 
   return (
     <article className="group relative flex flex-col gap-2">
-      <div className="bg-muted aspect-square overflow-hidden rounded-lg">
+      <div className="bg-muted relative aspect-square overflow-hidden rounded-lg">
+        <div className="absolute top-2 right-2">
+          <WishlistButton slug={product.slug} title={title} />
+        </div>
         {product.thumb ? (
           <Image
             src={productImageUrl(product.thumb.thumbPath)}
