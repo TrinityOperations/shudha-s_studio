@@ -255,6 +255,9 @@ export const blockedPeriods = pgTable(
 export type CustomOrderBrief = {
   productType?: string;
   occasion?: string;
+  orderFor?: "personal" | "business";
+  /** Only when orderFor is "business" */
+  businessName?: string;
   details?: {
     names?: string;
     dates?: string;

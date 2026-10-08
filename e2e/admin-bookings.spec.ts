@@ -38,6 +38,28 @@ test.describe("booking management", () => {
     return (await dates.nth(index).textContent())!.trim();
   }
 
+  /**
+   * Reschedule picker: the owner's chips can start a day earlier than the visitor's (minimum
+   * notice is ignored for her), so indices don't line up. Pick by label instead: the first chip at
+   * or after `startIndex` that isn't the booked date, and its first time, which can't be the
+   * booking's own slot.
+   */
+  async function pickOtherDate(page: Page, bookedDate: string, startIndex: number) {
+    const dates = page.getByRole("group", { name: /choose a date/i }).getByRole("button");
+    const count = await dates.count();
+    let index = startIndex;
+    while (index < count && (await dates.nth(index).textContent())!.trim() === bookedDate) index++;
+    expect(index, "a free date other than the booked one").toBeLessThan(count);
+    await dates.nth(index).click();
+    const times = page.getByRole("radio", { name: /am|pm/i });
+    expect(await times.count()).toBeGreaterThan(0);
+    const radio = times.first();
+    const id = await radio.getAttribute("id");
+    await page.locator(`label[for="${id}"]`).click();
+    await expect(radio).toBeChecked();
+    return (await dates.nth(index).textContent())!.trim();
+  }
+
   test("list, detail, notes, confirm, reschedule, calendar, cancel", async ({
     page,
     context,
@@ -50,7 +72,7 @@ test.describe("booking management", () => {
       .browser()!
       .newPage({ extraHTTPHeaders: { "x-nf-client-connection-ip": workerIp } });
     await visitor.goto("/book");
-    await pickDate(visitor, base);
+    const bookedDate = await pickDate(visitor, base);
     await visitor.getByLabel(/your name/i).fill(name);
     await visitor.getByLabel(/whatsapp number/i).fill("0412 345 678");
     await visitor.getByLabel(/^email/i).fill(email);
@@ -86,8 +108,9 @@ test.describe("booking management", () => {
     await expect(page.getByText(/booking confirmed/i)).toBeVisible();
     await expect(page.getByTestId("booking-status").first()).toHaveText(/confirmed/i);
 
-    // Reschedule to the next date
-    const newDate = await pickDate(page, base + 1);
+    // Reschedule to another date
+    const newDate = await pickOtherDate(page, bookedDate, base + 1);
+    expect(newDate).not.toBe(bookedDate);
     await page.getByRole("button", { name: /^move booking$/i }).click();
     await expect(page.getByText(/booking moved/i)).toBeVisible();
     await expect(page.locator("header")).toContainText(newDate.split(" ")[1]); // day number
