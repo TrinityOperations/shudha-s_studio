@@ -29,8 +29,15 @@ describe("briefRows", () => {
       { label: "Product type", value: "mug" },
       { label: "Occasion", value: "corporate" },
       { label: "Quantity", value: "50" },
-      { label: "Needed by", value: "2026-12-01" },
+      { label: "Needed by", value: "1 Dec 2026" },
     ]);
     expect(rows.some((r) => r.label.includes("admin."))).toBe(false);
+  });
+
+  it("formats the needed-by date with the page's month names", () => {
+    const bn = createT(getMessages("bn"));
+    expect(briefRows({ neededBy: "2026-12-10" }, bn)).toEqual([
+      { label: bn("admin.bookings.brief.neededBy"), value: `10 ${bn("common.month.11")} 2026` },
+    ]);
   });
 });

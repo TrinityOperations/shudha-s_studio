@@ -1,6 +1,7 @@
 "use client";
 import type { WizardState } from "@/components/public/wizard/wizard-state";
 import { useT } from "@/lib/i18n/client";
+import { formatCivilDate } from "@/lib/time";
 
 /** Shown under the booking confirmation: what the customer told us, as sent to the studio. */
 export function BriefSummary({ state }: { state: WizardState }) {
@@ -25,7 +26,10 @@ export function BriefSummary({ state }: { state: WizardState }) {
     { label: t("wizard.summary.message"), value: state.details.message },
     { label: t("wizard.summary.language"), value: language },
     { label: t("wizard.summary.quantity"), value: state.quantity },
-    { label: t("wizard.summary.neededBy"), value: state.neededBy },
+    {
+      label: t("wizard.summary.neededBy"),
+      value: state.neededBy && formatCivilDate(state.neededBy, t),
+    },
     { label: t("wizard.summary.photos"), value: String(state.photos.length) },
   ].filter((row) => row.value.trim() !== "" && row.value !== "0");
 

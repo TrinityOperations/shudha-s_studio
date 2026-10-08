@@ -4,6 +4,7 @@ import { BOOKING_UPLOADS_BUCKET } from "@/lib/booking/defaults";
 import { getT } from "@/lib/i18n";
 import type { MessageKey, T } from "@/lib/i18n/t";
 import { createSignedStorageUrl } from "@/lib/storage.server";
+import { formatCivilDate } from "@/lib/time";
 
 export const SIGNED_URL_SECONDS = 600;
 
@@ -33,7 +34,7 @@ export function briefRows(
   add("admin.bookings.brief.message", brief.details?.message);
   add("admin.bookings.brief.language", brief.details?.language);
   add("admin.bookings.brief.quantity", brief.quantity);
-  add("admin.bookings.brief.neededBy", brief.neededBy);
+  add("admin.bookings.brief.neededBy", brief.neededBy && formatCivilDate(brief.neededBy, t));
   return rows;
 }
 
@@ -72,7 +73,7 @@ export async function BriefSection({ brief }: { brief: CustomOrderBrief | null }
                       <a href={signed[i]!} target="_blank" rel="noopener noreferrer">
                         <Image
                           src={signed[i]!}
-                          alt=""
+                          alt={t("admin.bookings.brief.photoAlt", { n: i + 1 })}
                           width={120}
                           height={120}
                           unoptimized

@@ -137,7 +137,15 @@ test.describe("custom order wizard", () => {
 
     // 6. Quantity and needed-by.
     await expect(visitor.getByText("Step 6 of 7")).toBeVisible();
-    const neededBy = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
+    const neededByDate = new Date(Date.now() + 30 * 86_400_000);
+    const neededBy = neededByDate.toISOString().slice(0, 10);
+    // Shown as "10 Dec 2026" on the summary and in the dashboard.
+    const neededByLabel = neededByDate.toLocaleDateString("en-AU", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      timeZone: "UTC",
+    });
     await visitor.getByLabel(/quantity/i).fill("12");
     await visitor.getByLabel(/needed by/i).fill(neededBy);
     await next.click();
@@ -159,7 +167,7 @@ test.describe("custom order wizard", () => {
     await expect(confirmation).toContainText("Phone call");
     await expect(confirmation).toContainText(productTitle);
     const summary = visitor.getByTestId("brief-summary");
-    for (const text of ["Retirement", "Acme Pty Ltd", "Asha and Rafi", "12", neededBy]) {
+    for (const text of ["Retirement", "Acme Pty Ltd", "Asha and Rafi", "12", neededByLabel]) {
       await expect(summary).toContainText(text);
     }
     await visitor.close();
@@ -181,7 +189,7 @@ test.describe("custom order wizard", () => {
       "Happy retirement!",
       "both",
       "12",
-      neededBy,
+      neededByLabel,
     ]) {
       await expect(brief).toContainText(text);
     }
