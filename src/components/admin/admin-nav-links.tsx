@@ -7,7 +7,7 @@ export function AdminNavLinks({ links }: { links: { href: string; label: string 
   const pathname = usePathname();
 
   return (
-    <ul className="flex items-center gap-1 md:flex-col md:items-stretch">
+    <ul className="flex flex-wrap items-center gap-1 md:flex-col md:items-stretch">
       {links.map((link) => {
         const active =
           link.href === "/admin" ? pathname === "/admin" : pathname.startsWith(link.href);

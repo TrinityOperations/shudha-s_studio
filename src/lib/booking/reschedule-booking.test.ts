@@ -84,6 +84,24 @@ describe("rescheduleBookingCore", () => {
     expect(dbMock.methodCalls("set")[0]?.[0]).toMatchObject({ reminderSentAt: null });
   });
 
+  it("respects the minimum notice unless ignoreMinNotice is set (owner reschedule)", async () => {
+    const strict = { ...settings, minNoticeHours: 24 };
+    mocks.getBookingSettings.mockResolvedValue(strict);
+    mocks.getAvailabilityContext.mockResolvedValue({
+      settings: strict,
+      rules: DEFAULT_AVAILABILITY_RULES,
+      blockedPeriods: [],
+      bookings: [],
+    });
+    const soon = melbourneWallClock("2026-07-15", "15:00"); // 6h after now
+    expect(await rescheduleBookingCore("b1", soon, { now })).toEqual({
+      ok: false,
+      error: "errors.slotUnavailable",
+    });
+    dbMock.queueResults([], [{ ...existing, startsAt: soon }]);
+    expect((await rescheduleBookingCore("b1", soon, { now, ignoreMinNotice: true })).ok).toBe(true);
+  });
+
   it("rejects a start the rules do not generate, or one another booking holds", async () => {
     expect(
       await rescheduleBookingCore("b1", melbourneWallClock("2026-07-15", "11:10"), { now }),

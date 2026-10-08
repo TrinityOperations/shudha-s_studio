@@ -155,7 +155,7 @@ describe("rescheduleBooking", () => {
       ok: true,
       data: { summary: { date: "Thursday 16 July 2026", time: "11:00 am" } },
     });
-    expect(mocks.rescheduleBookingCore).toHaveBeenCalledWith("b1", new Date(target));
+    expect(mocks.rescheduleBookingCore).toHaveBeenCalledWith("b1", new Date(target)); // customers keep the notice rule
     const set = dbMock.methodCalls("set")[0]?.[0] as { manageToken: string };
     expect(set.manageToken).not.toBe(TOKEN);
     expect(mocks.sendBookingEmail).toHaveBeenCalledWith("rescheduled", rotated);
