@@ -103,7 +103,11 @@ export function WishlistList() {
         open={clearOpen}
         onOpenChange={setClearOpen}
         title={t("wishlist.clearTitle")}
-        description={t("wishlist.clearBody", { count: products.length })}
+        description={
+          products.length === 1
+            ? t("wishlist.clearBodyOne")
+            : t("wishlist.clearBody", { count: products.length })
+        }
         confirmLabel={t("wishlist.clearConfirm")}
         destructive
         onConfirm={() => {

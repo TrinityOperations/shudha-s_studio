@@ -129,7 +129,7 @@ test.describe("wishlist", () => {
     await expect(shared).toContainText(titleB);
     await expect(shared).not.toContainText(draftTitle);
     await visitor.getByRole("button", { name: /save these to my list/i }).click();
-    await expect(visitor.getByText(/added 1 products to your wishlist/i)).toBeVisible();
+    await expect(visitor.getByText(/added 1 product to your wishlist/i)).toBeVisible();
     await visitor.goto("/wishlist");
     await expect(visitor.getByTestId("wishlist-tile")).toHaveCount(2);
 

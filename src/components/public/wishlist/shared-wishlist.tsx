@@ -25,7 +25,9 @@ export function SharedWishlist({ products }: { products: CatalogueCard[] }) {
   return (
     <div className="space-y-8" data-testid="shared-wishlist">
       <p className="text-muted-foreground">
-        {t("wishlist.shared.intro", { count: products.length })}
+        {products.length === 1
+          ? t("wishlist.shared.introOne")
+          : t("wishlist.shared.intro", { count: products.length })}
       </p>
       <ul className="grid gap-3 sm:grid-cols-2">
         {products.map((product) => (
@@ -40,7 +42,13 @@ export function SharedWishlist({ products }: { products: CatalogueCard[] }) {
           size="lg"
           onClick={() => {
             const added = merge(products.map((p) => p.slug));
-            toast.success(t("wishlist.shared.saved", { count: added }));
+            toast.success(
+              added === 0
+                ? t("wishlist.shared.savedNone")
+                : added === 1
+                  ? t("wishlist.shared.savedOne")
+                  : t("wishlist.shared.saved", { count: added }),
+            );
           }}
         >
           {t("wishlist.shared.save")}

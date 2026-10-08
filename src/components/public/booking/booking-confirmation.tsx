@@ -53,7 +53,9 @@ export function BookingConfirmation({ summary, name, onReset, whatsappUrl = null
       </dl>
       {summary.wishlistCount ? (
         <p className="text-sm" data-testid="confirmation-wishlist">
-          {t("wishlist.attached", { count: summary.wishlistCount })}
+          {summary.wishlistCount === 1
+            ? t("wishlist.attachedOne")
+            : t("wishlist.attached", { count: summary.wishlistCount })}
         </p>
       ) : null}
       <p className="text-sm">{t("booking.confirmation.next")}</p>

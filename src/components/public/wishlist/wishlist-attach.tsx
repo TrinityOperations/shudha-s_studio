@@ -50,7 +50,9 @@ export function WishlistAttach({ attachByDefault }: Props) {
       />
       <div className="space-y-1">
         <FieldLabel htmlFor="attachWishlist" className="font-normal">
-          {t("wishlist.attach.label", { count: attached.length })}
+          {attached.length === 1
+            ? t("wishlist.attach.labelOne")
+            : t("wishlist.attach.label", { count: attached.length })}
         </FieldLabel>
         <FieldDescription id="attachWishlist-hint">{t("wishlist.attach.hint")}</FieldDescription>
         {checked ? (
