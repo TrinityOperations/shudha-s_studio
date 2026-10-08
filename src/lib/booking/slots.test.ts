@@ -69,6 +69,22 @@ describe("generateSlots: rules and window", () => {
     expect(groupSlotsByMelbourneDate(slots).map((d) => d.date)).toEqual(["2026-07-16"]);
   });
 
+  it("ignoreMinNotice keeps slots inside the notice window but still hides the past and keeps the horizon", () => {
+    const now = new Date("2026-07-15T03:10:00Z"); // Wed 13:10 Melbourne
+    const settings = { ...DEFAULT_BOOKING_SETTINGS, minNoticeHours: 24, horizonDays: 2 };
+    const withNotice = generateSlots(base({ now, from: now, settings }));
+    const without = generateSlots(base({ now, from: now, settings, ignoreMinNotice: true }));
+    expect(wall(withNotice[0])).toBe("2026-07-16 13:30");
+    expect(wall(without[0])).toBe("2026-07-15 13:30"); // today, after now
+    expect(without.some((s) => s.startsAt < now)).toBe(false);
+    expect(groupSlotsByMelbourneDate(without).map((d) => d.date)).toEqual([
+      "2026-07-15",
+      "2026-07-16",
+      "2026-07-17",
+    ]); // two days from Wed 13:10 ends Fri 13:10
+    expect(wall(without.at(-1)!)).toBe("2026-07-17 12:30");
+  });
+
   it("hides past slots when the notice is zero", () => {
     const now = new Date("2026-07-15T03:10:00Z"); // Wed 13:10 Melbourne
     const slots = generateSlots(base({ now, from: now }));

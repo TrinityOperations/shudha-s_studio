@@ -18,6 +18,8 @@ export type GenerateSlotsInput = {
   from: Date;
   to: Date;
   now: Date;
+  /** Owner reschedules skip the minimum notice; past slots are still hidden. */
+  ignoreMinNotice?: boolean;
 };
 
 const MINUTE = 60_000;
@@ -58,10 +60,18 @@ function overlaps(a: Interval, b: Interval): boolean {
  * period, or within `bufferMinutes` of an existing booking.
  */
 export function generateSlots(input: GenerateSlotsInput): Slot[] {
-  const { rules, settings, blockedPeriods, bookings, from, to, now } = input;
-  const earliest = new Date(
-    Math.max(from.getTime(), now.getTime() + settings.minNoticeHours * HOUR),
-  );
+  const {
+    rules,
+    settings,
+    blockedPeriods,
+    bookings,
+    from,
+    to,
+    now,
+    ignoreMinNotice = false,
+  } = input;
+  const noticeMs = ignoreMinNotice ? 0 : settings.minNoticeHours * HOUR;
+  const earliest = new Date(Math.max(from.getTime(), now.getTime() + noticeMs));
   const latest = new Date(Math.min(to.getTime(), now.getTime() + settings.horizonDays * DAY));
   if (earliest >= latest) return [];
 

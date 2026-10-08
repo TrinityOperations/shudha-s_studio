@@ -21,14 +21,16 @@ class SlotTakenError extends Error {}
  * slot set, advisory lock, in-transaction re-check, exclusion constraint) but the booking's own
  * interval is ignored so it can move to an adjacent slot. Status is kept; the reminder flag is
  * cleared when the new start is more than 24 h away so the day-before reminder fires again.
- * Shared with slice #6 (owner reschedule).
+ * Shared with slice #6 (owner reschedule), which passes ignoreMinNotice: the owner may move a
+ * booking inside the minimum notice; customers on the manage page may not.
  */
 export async function rescheduleBookingCore(
   bookingId: string,
   newStart: Date,
-  deps: { now?: Date } = {},
+  deps: { now?: Date; ignoreMinNotice?: boolean } = {},
 ): Promise<RescheduleBookingResult> {
   const now = deps.now ?? new Date();
+  const ignoreMinNotice = deps.ignoreMinNotice ?? false;
   const existing = await getBookingById(bookingId);
   if (!existing || existing.status === "cancelled") return { ok: false, error: "errors.notFound" };
 
@@ -46,7 +48,7 @@ export async function rescheduleBookingCore(
   const others = context.bookings.filter(
     (b) => !(b.startsAt.getTime() === own.startsAt && b.endsAt.getTime() === own.endsAt),
   );
-  if (!isSlotAvailable(startsAt, { ...context, bookings: others, now })) {
+  if (!isSlotAvailable(startsAt, { ...context, bookings: others, now, ignoreMinNotice })) {
     return { ok: false, error: "errors.slotUnavailable" };
   }
 
