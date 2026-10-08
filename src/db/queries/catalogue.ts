@@ -419,6 +419,21 @@ export async function listRelatedProducts(input: RelatedInput): Promise<Catalogu
   return picked;
 }
 
+/**
+ * PW-60..PW-62: the published products behind a wishlist, in the order the slugs were given.
+ * Unknown, draft and archived slugs are simply missing from the result.
+ */
+export async function listPublishedProductsBySlugs(slugs: string[]): Promise<CatalogueCard[]> {
+  if (slugs.length === 0) return [];
+  const rows = await db.query.products.findMany({
+    where: and(published(), inArray(products.slug, slugs)),
+    columns: cardColumns,
+    with: cardWith(),
+  });
+  const bySlug = new Map(rows.map((row) => [row.slug, toCard(row)]));
+  return slugs.map((slug) => bySlug.get(slug)).filter((card): card is CatalogueCard => !!card);
+}
+
 export type ProductOption = { id: string; slug: string; title: string; titleBn: string | null };
 
 /** Published products for pickers (booking form "product of interest"), newest first. */

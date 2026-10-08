@@ -9,6 +9,7 @@ import { createBooking, type BookingSummary } from "@/actions/booking";
 import { FieldMessage } from "@/components/shared/field-message";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { TurnstileField } from "@/components/shared/turnstile-field";
+import { WISHLIST_FIELD, WishlistAttach } from "@/components/public/wishlist/wishlist-attach";
 import {
   Field,
   FieldDescription,
@@ -51,6 +52,8 @@ type Props = {
   initialProductSlug: string;
   /** Studio WhatsApp link for the confirmation panel; null when unset */
   whatsappUrl?: string | null;
+  /** PW-61: tick "Attach my wishlist" from the start (`/book?wishlist=1`) */
+  attachWishlist?: boolean;
 };
 
 const NONE = "none";
@@ -62,6 +65,7 @@ export function BookingForm({
   consultationTypes,
   initialProductSlug,
   whatsappUrl = null,
+  attachWishlist = false,
 }: Props) {
   const t = useT();
   const locale = useLocale();
@@ -96,6 +100,9 @@ export function BookingForm({
       formData.set("message", values.message);
       formData.set("turnstileToken", values.turnstileToken);
       if (imageFile) formData.set("referenceImage", await prepareImageForUpload(imageFile));
+      for (const slug of new FormData(formElement).getAll(WISHLIST_FIELD)) {
+        formData.append(WISHLIST_FIELD, slug);
+      }
 
       const result = await createBooking(formData);
       turnstile.current?.reset();
@@ -271,6 +278,8 @@ export function BookingForm({
           <FieldDescription id="message-hint">{t("booking.form.messageHint")}</FieldDescription>
           <FieldMessage error={errors.message} />
         </Field>
+
+        <WishlistAttach attachByDefault={attachWishlist} />
 
         <Field>
           <FieldLabel htmlFor="referenceImage">{t("booking.form.image")}</FieldLabel>

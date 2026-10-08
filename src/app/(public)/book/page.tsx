@@ -24,6 +24,7 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
   const params = await searchParams;
   const requested = first(params.product) ?? "";
   const initialProductSlug = SLUG_PATTERN.test(requested) ? requested : "";
+  const attachWishlist = first(params.wishlist) === "1";
 
   const [t, available, products, contact] = await Promise.all([
     getT(),
@@ -53,6 +54,7 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
         consultationTypes={available.settings.consultationTypes}
         initialProductSlug={initialProductSlug}
         whatsappUrl={contact.whatsappNumber ? whatsappLink(contact.whatsappNumber) : null}
+        attachWishlist={attachWishlist}
       />
     </section>
   );

@@ -12,6 +12,7 @@ import type { WizardState } from "@/components/public/wizard/wizard-state";
 import { FieldMessage } from "@/components/shared/field-message";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { TurnstileField } from "@/components/shared/turnstile-field";
+import { WISHLIST_FIELD, WishlistAttach } from "@/components/public/wishlist/wishlist-attach";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -88,6 +89,9 @@ export function BookStep({ state, days, consultationTypes, onBack, onBooked }: P
       formData.set("slotStart", values.slotStart);
       formData.set("turnstileToken", values.turnstileToken);
       for (const photo of state.photos) formData.append("photos", photo.file, photo.file.name);
+      for (const slug of new FormData(formElement).getAll(WISHLIST_FIELD)) {
+        formData.append(WISHLIST_FIELD, slug);
+      }
 
       const result = await createCustomOrder(formData);
       turnstile.current?.reset();
@@ -203,6 +207,8 @@ export function BookStep({ state, days, consultationTypes, onBack, onBooked }: P
           />
           <FieldMessage error={errors.customerEmail} />
         </Field>
+
+        <WishlistAttach attachByDefault />
 
         <Field data-invalid={!!errors.turnstileToken || undefined}>
           <TurnstileField

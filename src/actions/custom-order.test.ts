@@ -8,6 +8,7 @@ const { dbMock, mocks } = await vi.hoisted(async () => {
       verifyTurnstile: vi.fn(),
       createBookingCore: vi.fn(),
       listPublishedProductOptions: vi.fn(),
+      listPublishedProductsBySlugs: vi.fn(),
       processReferenceImage: vi.fn(),
       uploadStorageObject: vi.fn(),
       removeStorageObjects: vi.fn(),
@@ -22,6 +23,7 @@ vi.mock("@/lib/turnstile", () => ({ verifyTurnstile: mocks.verifyTurnstile }));
 vi.mock("@/lib/booking/create-booking", () => ({ createBookingCore: mocks.createBookingCore }));
 vi.mock("@/db/queries/catalogue", () => ({
   listPublishedProductOptions: mocks.listPublishedProductOptions,
+  listPublishedProductsBySlugs: mocks.listPublishedProductsBySlugs,
 }));
 vi.mock("@/lib/images", () => ({ processReferenceImage: mocks.processReferenceImage }));
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: vi.fn() }));
@@ -82,6 +84,18 @@ function png(name = "x.png") {
   return new File([new Uint8Array(16)], name, { type: "image/png" });
 }
 
+const WISHLIST_CARDS = {
+  frame: { id: "22222222-2222-4222-8222-222222222222", slug: "frame" },
+  lamp: { id: "33333333-3333-4333-8333-333333333333", slug: "lamp" },
+};
+
+/** Published lookup stand-in: only "frame" and "lamp" exist; order follows the request. */
+function publishedBySlugs(slugs: string[]) {
+  return slugs
+    .filter((slug): slug is keyof typeof WISHLIST_CARDS => slug in WISHLIST_CARDS)
+    .map((slug) => WISHLIST_CARDS[slug]);
+}
+
 let ipCounter = 0;
 beforeEach(() => {
   dbMock.reset();
@@ -91,6 +105,9 @@ beforeEach(() => {
   );
   mocks.verifyTurnstile.mockResolvedValue(true);
   mocks.listPublishedProductOptions.mockResolvedValue([PRODUCT]);
+  mocks.listPublishedProductsBySlugs.mockImplementation(async (slugs: string[]) =>
+    publishedBySlugs(slugs),
+  );
   mocks.createBookingCore.mockResolvedValue({ ok: true, booking });
   mocks.processReferenceImage.mockResolvedValue({
     data: Buffer.from("webp"),
@@ -235,5 +252,18 @@ describe("createCustomOrder", () => {
       data: { warning: "wizard.photos.tooMany" },
     });
     expect(mocks.uploadStorageObject).not.toHaveBeenCalled();
+  });
+
+  it("attaches the wishlist by slug only (ids ignored) and reports the count", async () => {
+    const fd = form();
+    for (const slug of ["lamp", WISHLIST_CARDS.frame.id, "draft-thing"]) {
+      fd.append("wishlistSlugs", slug);
+    }
+    const result = await createCustomOrder(fd);
+    expect(result).toMatchObject({ ok: true, data: { summary: { wishlistCount: 1 } } });
+    expect(mocks.listPublishedProductsBySlugs).toHaveBeenCalledWith(["lamp", "draft-thing"]);
+    expect(mocks.createBookingCore.mock.calls[0]?.[0]).toMatchObject({
+      wishlistProductIds: [WISHLIST_CARDS.lamp.id],
+    });
   });
 });

@@ -8,6 +8,7 @@ const { dbMock, mocks } = await vi.hoisted(async () => {
       verifyTurnstile: vi.fn(),
       createBookingCore: vi.fn(),
       listPublishedProductOptions: vi.fn(),
+      listPublishedProductsBySlugs: vi.fn(),
       processReferenceImage: vi.fn(),
       uploadStorageObject: vi.fn(),
       revalidatePath: vi.fn(),
@@ -21,6 +22,7 @@ vi.mock("@/lib/turnstile", () => ({ verifyTurnstile: mocks.verifyTurnstile }));
 vi.mock("@/lib/booking/create-booking", () => ({ createBookingCore: mocks.createBookingCore }));
 vi.mock("@/db/queries/catalogue", () => ({
   listPublishedProductOptions: mocks.listPublishedProductOptions,
+  listPublishedProductsBySlugs: mocks.listPublishedProductsBySlugs,
 }));
 vi.mock("@/lib/images", () => ({ processReferenceImage: mocks.processReferenceImage }));
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: vi.fn() }));
@@ -65,6 +67,18 @@ function form(over: Record<string, string | File> = {}) {
   return fd;
 }
 
+const WISHLIST_CARDS = {
+  frame: { id: "22222222-2222-4222-8222-222222222222", slug: "frame" },
+  lamp: { id: "33333333-3333-4333-8333-333333333333", slug: "lamp" },
+};
+
+/** Published lookup stand-in: only "frame" and "lamp" exist; order follows the request. */
+function publishedBySlugs(slugs: string[]) {
+  return slugs
+    .filter((slug): slug is keyof typeof WISHLIST_CARDS => slug in WISHLIST_CARDS)
+    .map((slug) => WISHLIST_CARDS[slug]);
+}
+
 let ipCounter = 0;
 beforeEach(() => {
   dbMock.reset();
@@ -74,6 +88,9 @@ beforeEach(() => {
   );
   mocks.verifyTurnstile.mockResolvedValue(true);
   mocks.listPublishedProductOptions.mockResolvedValue([PRODUCT]);
+  mocks.listPublishedProductsBySlugs.mockImplementation(async (slugs: string[]) =>
+    publishedBySlugs(slugs),
+  );
   mocks.createBookingCore.mockResolvedValue({ ok: true, booking });
   mocks.processReferenceImage.mockResolvedValue({
     data: Buffer.from("webp"),
@@ -183,5 +200,34 @@ describe("createBooking", () => {
       data: { warning: "booking.form.imageFailed" },
     });
     expect(mocks.createBookingCore).toHaveBeenCalledTimes(2);
+  });
+
+  it("attaches wishlist slugs as published product ids, dropping unknown and draft ones", async () => {
+    const fd = form();
+    for (const slug of ["frame", "draft-thing", "lamp", "frame"]) fd.append("wishlistSlugs", slug);
+    const result = await createBooking(fd);
+    expect(result).toMatchObject({ ok: true, data: { summary: { wishlistCount: 2 } } });
+    expect(mocks.listPublishedProductsBySlugs).toHaveBeenCalledWith([
+      "frame",
+      "draft-thing",
+      "lamp",
+    ]);
+    expect(mocks.createBookingCore.mock.calls[0]?.[0]).toMatchObject({
+      wishlistProductIds: [WISHLIST_CARDS.frame.id, WISHLIST_CARDS.lamp.id],
+    });
+  });
+
+  it("never accepts ids in the wishlist field and caps the attached list at 20", async () => {
+    const fd = form();
+    fd.append("wishlistSlugs", WISHLIST_CARDS.frame.id);
+    fd.append("wishlistSlugs", "../../etc");
+    await createBooking(fd);
+    expect(mocks.listPublishedProductsBySlugs).not.toHaveBeenCalled();
+    expect(mocks.createBookingCore.mock.calls[0]?.[0]).not.toHaveProperty("wishlistProductIds");
+
+    const many = form();
+    for (let i = 0; i < 30; i++) many.append("wishlistSlugs", `product-${i}`);
+    await createBooking(many);
+    expect(mocks.listPublishedProductsBySlugs.mock.calls[0]?.[0]).toHaveLength(20);
   });
 });

@@ -21,7 +21,7 @@ import { formatMelbourne } from "@/lib/time";
 import { verifyTurnstile } from "@/lib/turnstile";
 import { REFERENCE_IMAGE_MAX_BYTES, REFERENCE_IMAGE_TYPES } from "@/lib/validators/booking";
 import { customOrderFormSchema, MAX_WIZARD_PHOTOS, toBrief } from "@/lib/validators/brief";
-import type { BookingSummary } from "./booking";
+import { resolveWishlist, type BookingSummary } from "./booking";
 
 export type CreateCustomOrderData = { summary: BookingSummary; warning?: MessageKey };
 
@@ -92,6 +92,7 @@ export async function createCustomOrder(
     ? ((await listPublishedProductOptions()).find((p) => p.slug === data.productSlug) ?? null)
     : null;
   const brief = toBrief(data);
+  const wishlistProductIds = await resolveWishlist(formData);
 
   const result = await createBookingCore({
     startsAt: new Date(data.slotStart),
@@ -103,6 +104,7 @@ export async function createCustomOrder(
     message: brief.details?.message ?? null,
     locale: await getLocale(),
     brief,
+    ...(wishlistProductIds.length ? { wishlistProductIds } : {}),
   });
   if (!result.ok) return fail(result.error);
   const booking = result.booking;
@@ -119,6 +121,7 @@ export async function createCustomOrder(
       consultationType: booking.consultationType,
       productTitle: product?.title ?? null,
       productTitleBn: product?.titleBn ?? null,
+      ...(wishlistProductIds.length ? { wishlistCount: wishlistProductIds.length } : {}),
     },
     ...(warning ? { warning } : {}),
   });
