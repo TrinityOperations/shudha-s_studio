@@ -17,6 +17,7 @@ export function LocaleToggle() {
       variant="ghost"
       size="sm"
       lang={nextLocale}
+      className={nextLocale === "bn" ? "font-bangla" : undefined}
       aria-label={t("common.language")}
       disabled={pending}
       onClick={() =>

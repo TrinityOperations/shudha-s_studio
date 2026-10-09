@@ -1,10 +1,24 @@
-import { SiteFooter } from "@/components/public/site-footer";
-import { SiteHeader } from "@/components/public/site-header";
-import { getGeneralSettings } from "@/db/queries/settings";
-import { getLocale, getT } from "@/lib/i18n";
+import { SiteFooter } from "@/components/public/layout/site-footer";
+import { SiteHeader } from "@/components/public/layout/site-header";
+import { WhatsAppButton } from "@/components/public/layout/whatsapp-button";
+import {
+  getAnnouncementSettings,
+  getContactSettings,
+  getGeneralSettings,
+  getSocialSettings,
+} from "@/db/queries/settings";
+import { getT } from "@/lib/i18n";
+import { whatsappLink } from "@/lib/whatsapp";
 
 export default async function PublicLayout({ children }: LayoutProps<"/">) {
-  const [settings, t, locale] = await Promise.all([getGeneralSettings(), getT(), getLocale()]);
+  const [settings, announcement, contact, social, t] = await Promise.all([
+    getGeneralSettings(),
+    getAnnouncementSettings(),
+    getContactSettings(),
+    getSocialSettings(),
+    getT(),
+  ]);
+  const whatsappUrl = whatsappLink(contact.whatsappNumber);
 
   return (
     <>
@@ -14,14 +28,12 @@ export default async function PublicLayout({ children }: LayoutProps<"/">) {
       >
         {t("common.skipToContent")}
       </a>
-      <SiteHeader studioName={settings.studioName} />
-      <main id="main" className="flex-1">
+      <SiteHeader studioName={settings.studioName} announcement={announcement} />
+      <main id="main" className={`flex-1 ${whatsappUrl ? "pb-20 sm:pb-0" : ""}`}>
         {children}
       </main>
-      <SiteFooter
-        studioName={settings.studioName}
-        tagline={locale === "bn" && settings.taglineBn ? settings.taglineBn : settings.tagline}
-      />
+      <SiteFooter studioName={settings.studioName} social={social} whatsappUrl={whatsappUrl} />
+      {whatsappUrl ? <WhatsAppButton href={whatsappUrl} /> : null}
     </>
   );
 }

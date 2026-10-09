@@ -7,9 +7,17 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist), var(--font-noto-bengali), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-heading-stack);
+  --color-paper: var(--paper);
+  --color-mist: var(--mist);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-mark: var(--mark);
+  --color-brand: var(--brand-accent);
+  --color-scrim: var(--scrim);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,39 +56,57 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/*
+ * Design tokens (docs/design.md, "the gift tag"). Components never use raw hex: they use these
+ * through Tailwind (bg-paper, text-ink, text-mark, bg-primary…). Seasonal themes (#13) swap only
+ * --brand-accent; --mark stays sindoor in every theme. shadcn's own --accent is the hover surface
+ * (mist), which is why the brand colour is called --brand-accent here.
+ */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --paper: #fbf9f6;
+  --white: #ffffff;
+  --mist: #edf0ea;
+  --line: #e3ddd3;
+  --ink: #2a2420;
+  --ink-soft: #4e4740;
+  --muted-text: #6b635b;
+  --brand-accent: #1e4a3a;
+  --mark: #c2402a;
+  --scrim: #1a1613;
+  --font-heading-stack: var(--font-eczar), Georgia, serif;
+
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--white);
+  --card-foreground: var(--ink);
+  --popover: var(--white);
+  --popover-foreground: var(--ink);
+  --primary: var(--brand-accent);
+  --primary-foreground: var(--white);
+  --secondary: var(--white);
+  --secondary-foreground: var(--ink);
+  --muted: var(--mist);
+  --muted-foreground: var(--muted-text);
+  --accent: var(--mist);
+  --accent-foreground: var(--ink);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--brand-accent);
+  --chart-1: var(--brand-accent);
+  --chart-2: var(--mark);
+  --chart-3: var(--ink-soft);
+  --chart-4: var(--muted-text);
+  --chart-5: var(--line);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: var(--white);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--brand-accent);
+  --sidebar-primary-foreground: var(--white);
+  --sidebar-accent: var(--mist);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--line);
+  --sidebar-ring: var(--brand-accent);
 }
 
 .dark {
@@ -128,9 +154,181 @@
     @apply font-sans;
   }
 }
-/* Bengali first when the visitor has switched language (PW-82). */
+@layer base {
+  /* Sentence case everywhere; the focus ring is 2px accent with 3px offset on plain links and
+     buttons (shadcn components keep their own ring). */
+  a:focus-visible,
+  button:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--brand-accent);
+    outline-offset: 3px;
+  }
+}
+
+/* Bengali web fonts are applied only on bn pages (the root layout adds the variables there). */
 html[lang="bn"] {
   font-family: var(--font-noto-bengali), var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-heading-stack: var(--font-tiro-bangla), var(--font-eczar), serif;
+}
+
+/* Bangla accent lines on English pages (the header toggle, the hero line, the signature) use a
+   tiny Tiro Bangla subset holding just those characters (root layout, `text` option), then a
+   system Bengali font; bn pages use the full Tiro Bangla. "Noto Sans Bengali" is deliberately
+   absent: next/font registers it under that name and the full font must not load here. */
+.font-bangla {
+  font-family:
+    var(--font-tiro-bangla-accent), "Bangla Sangam MN", "Nirmala UI", "Vrinda", "Kalpurush",
+    system-ui, sans-serif;
+}
+html[lang="bn"] .font-bangla {
+  font-family: var(--font-tiro-bangla), "Bangla Sangam MN", "Nirmala UI", system-ui, sans-serif;
+}
+
+/* Hero welcome card rise (docs/design.md, "On load"): CSS so the card paints before hydration. */
+.hero-rise {
+  animation: hero-rise 0.8s ease-out both;
+}
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise {
+    animation: none;
+  }
+  .marquee {
+    animation: none;
+    width: auto;
+    flex-wrap: wrap;
+  }
+}
+
+/* Pills for buttons and chips only; inputs, cards and dialogs keep --radius. Unlayered so it wins
+   over the rounded-* utilities in the generated button variants. */
+[data-slot="button"],
+.chip {
+  border-radius: 9999px;
+}
+
+@layer components {
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--ink);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--white);
+    white-space: nowrap;
+  }
+  .chip[aria-current="true"],
+  .chip[data-on="true"] {
+    background: var(--brand-accent);
+    border-color: var(--brand-accent);
+    color: var(--white);
+  }
+
+  /* The gift tag: pointed left end and a punched hole (docs/design.md, "The tag"). */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--white);
+    color: var(--ink);
+    font-weight: 500;
+    font-size: 15px;
+    padding: 10px 18px 10px 24px;
+    clip-path: polygon(13px 0, 100% 0, 100% 100%, 13px 100%, 0 50%);
+  }
+  .tag::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border: 1.5px solid var(--ink);
+    border-radius: 9999px;
+    flex: none;
+  }
+  .tag-quiet {
+    background: var(--mist);
+    font-size: 13px;
+    padding: 6px 12px 6px 18px;
+    clip-path: polygon(10px 0, 100% 0, 100% 100%, 10px 100%, 0 50%);
+  }
+  .tag-credit {
+    font-size: 14px;
+    padding: 8px 14px 8px 20px;
+    clip-path: polygon(11px 0, 100% 0, 100% 100%, 11px 100%, 0 50%);
+  }
+  /* Hanging tag: top-left of a tile, rotated, with a thread from the tile's top edge. */
+  .tag-hanging {
+    position: absolute;
+    top: 22px;
+    left: 18px;
+    transform: rotate(-5deg);
+    transform-origin: 13px 50%;
+    z-index: 1;
+  }
+  .tag-thread {
+    position: absolute;
+    top: 0;
+    left: 31px;
+    width: 1.5px;
+    height: 26px;
+    background: var(--mark);
+    z-index: 1;
+  }
+
+  .shadow-soft {
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--ink) 14%, transparent);
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Studio facts strip (home section 2): slow marquee, paused on hover, static under reduced motion. */
+  .marquee {
+    display: flex;
+    width: max-content;
+    animation: marquee 48s linear infinite;
+  }
+  .marquee:hover,
+  .marquee:focus-within {
+    animation-play-state: paused;
+  }
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Frosted welcome card over the hero video (docs/design.md, hero). */
+  .frosted {
+    background: color-mix(in srgb, var(--paper) 85%, transparent);
+    border: 1px solid color-mix(in srgb, var(--white) 60%, transparent);
+    box-shadow: 0 24px 60px color-mix(in srgb, var(--scrim) 25%, transparent);
+  }
+  @supports (backdrop-filter: blur(1px)) {
+    .frosted {
+      background: color-mix(in srgb, var(--paper) 40%, transparent);
+      backdrop-filter: blur(28px) saturate(1.2);
+      -webkit-backdrop-filter: blur(28px) saturate(1.2);
+    }
+  }
 }
 
 /* Always respect reduced motion (PW-08, NF-03). Framer Motion checks this itself too. */

@@ -8,7 +8,7 @@ config({ path: ".env.local" });
 
 async function main() {
   const { db } = await import("./index");
-  const { availabilityRules, bookingSettings, categories, occasions, siteSettings } =
+  const { availabilityRules, bookingSettings, categories, occasions, siteSettings, tags } =
     await import("./schema");
   const { defaultGeneralSettings } = await import("@/lib/validators/settings");
   const { DEFAULT_AVAILABILITY_RULES, DEFAULT_BOOKING_SETTINGS } =
@@ -59,8 +59,14 @@ async function main() {
   ].map((row, sortOrder) => ({ ...row, sortOrder }));
   await db.insert(occasions).values(occasionRows).onConflictDoNothing();
 
+  // The "signature" tag drives the home page's signature designs section (PW-09).
+  await db
+    .insert(tags)
+    .values({ slug: "signature", name: "Signature", nameBn: "সিগনেচার" })
+    .onConflictDoNothing();
+
   console.log(
-    "Seed complete: site_settings, booking_settings, availability_rules, categories, occasions",
+    "Seed complete: site_settings, booking_settings, availability_rules, categories, occasions, tags",
   );
 }
 
