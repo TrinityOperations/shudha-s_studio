@@ -16,7 +16,9 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "tsx src/db/seed.ts"
+    "db:seed": "tsx src/db/seed.ts",
+    "demo:seed": "tsx scripts/demo-content/seed.ts seed",
+    "demo:clear": "tsx scripts/demo-content/seed.ts clear"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

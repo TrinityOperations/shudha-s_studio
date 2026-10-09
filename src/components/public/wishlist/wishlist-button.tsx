@@ -33,20 +33,22 @@ export function WishlistButton({ slug, title, variant = "icon" }: Props) {
     <Button
       type="button"
       variant="outline"
-      size={variant === "icon" ? "icon" : "sm"}
+      size={variant === "icon" ? "icon-lg" : "sm"}
       aria-pressed={saved}
       aria-label={variant === "icon" ? `${label}: ${title}` : undefined}
       onClick={onClick}
       className={
         variant === "icon"
-          ? "bg-background/90 relative z-10 rounded-full shadow-sm backdrop-blur"
+          ? "bg-paper text-ink relative z-10 size-11 rounded-full border-transparent shadow-sm"
           : "relative z-10"
       }
       data-testid="wishlist-button"
     >
       <HeartIcon
         data-icon={variant === "icon" ? undefined : "inline-start"}
-        className={saved ? "fill-current" : undefined}
+        className={`transition-transform duration-300 motion-safe:active:scale-125 ${
+          saved ? "fill-mark text-mark" : ""
+        }`}
         aria-hidden
       />
       {variant === "icon" ? <span className="sr-only">{label}</span> : label}

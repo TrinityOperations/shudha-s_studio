@@ -28,7 +28,7 @@ Full text: `docs/SRS.md`.
 
 ## Files you own (create and change freely)
 - `src/app/(public)/page.tsx`, `src/app/(public)/layout.tsx`
-- `src/components/public/home/**`, `src/components/public/site-header.tsx`, `site-footer.tsx`
+- `src/components/public/home/**`, `src/components/public/layout/**` (header, footer, announcement strip, WhatsApp button)
 - `src/app/globals.css` (design tokens)
 - `public/` brand images
 

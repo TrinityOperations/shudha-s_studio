@@ -3,12 +3,27 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { siteSettings } from "@/db/schema";
 import {
+  aboutSettingsSchema,
+  announcementSettingsSchema,
   contactSettingsSchema,
+  defaultAboutSettings,
+  defaultAnnouncementSettings,
   defaultContactSettings,
   defaultGeneralSettings,
+  defaultHomeContent,
+  defaultSeasonalBannerSettings,
+  defaultSocialSettings,
   generalSettingsSchema,
+  homeSettingsSchema,
+  seasonalBannerSettingsSchema,
+  socialSettingsSchema,
+  type AboutSettings,
+  type AnnouncementSettings,
   type ContactSettings,
   type GeneralSettings,
+  type HomeContent,
+  type SeasonalBannerSettings,
+  type SocialSettings,
 } from "@/lib/validators/settings";
 
 /** Studio name and taglines. Missing or malformed rows fall back to defaults. */
@@ -27,4 +42,70 @@ export async function getContactSettings(): Promise<ContactSettings> {
   const stored = row && typeof row.value === "object" && row.value !== null ? row.value : {};
   const parsed = contactSettingsSchema.safeParse({ ...defaultContactSettings, ...stored });
   return parsed.success ? parsed.data : defaultContactSettings;
+}
+
+async function readSetting<T>(key: string, parse: (stored: unknown) => T, fallback: T): Promise<T> {
+  const row = await db.query.siteSettings.findFirst({ where: eq(siteSettings.key, key) });
+  const stored = row && typeof row.value === "object" && row.value !== null ? row.value : {};
+  try {
+    return parse(stored);
+  } catch {
+    return fallback;
+  }
+}
+
+/** The published home page photo choices (slice #9); a missing or malformed row gives the defaults. */
+export async function getHomeSettings(): Promise<HomeContent> {
+  return readSetting(
+    "home",
+    (stored) => {
+      const parsed = homeSettingsSchema.safeParse(stored);
+      return parsed.success ? parsed.data.published : defaultHomeContent;
+    },
+    defaultHomeContent,
+  );
+}
+
+export async function getAnnouncementSettings(): Promise<AnnouncementSettings> {
+  return readSetting(
+    "announcement",
+    (stored) => {
+      const parsed = announcementSettingsSchema.safeParse(stored);
+      return parsed.success ? parsed.data : defaultAnnouncementSettings;
+    },
+    defaultAnnouncementSettings,
+  );
+}
+
+export async function getSeasonalBannerSettings(): Promise<SeasonalBannerSettings> {
+  return readSetting(
+    "seasonal_banner",
+    (stored) => {
+      const parsed = seasonalBannerSettingsSchema.safeParse(stored);
+      return parsed.success ? parsed.data : defaultSeasonalBannerSettings;
+    },
+    defaultSeasonalBannerSettings,
+  );
+}
+
+export async function getAboutSettings(): Promise<AboutSettings> {
+  return readSetting(
+    "about",
+    (stored) => {
+      const parsed = aboutSettingsSchema.safeParse(stored);
+      return parsed.success ? parsed.data : defaultAboutSettings;
+    },
+    defaultAboutSettings,
+  );
+}
+
+export async function getSocialSettings(): Promise<SocialSettings> {
+  return readSetting(
+    "social",
+    (stored) => {
+      const parsed = socialSettingsSchema.safeParse(stored);
+      return parsed.success ? parsed.data : defaultSocialSettings;
+    },
+    defaultSocialSettings,
+  );
 }

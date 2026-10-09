@@ -27,6 +27,8 @@ Seasonal accents for #13: Everyday Bengal green #1E4A3A, Eid indigo #2D4356, Wed
 
 Map the shadcn variables onto these so the dashboard follows without its own styling: `--background` paper, `--foreground` ink, `--primary` accent, `--primary-foreground` white, `--border` line, `--muted` mist, `--muted-foreground` muted, `--ring` accent.
 
+In `globals.css` the accent is the variable `--brand-accent` (shadcn already uses `--accent` for its hover surface), mapped onto `--primary`; #13 swaps `--brand-accent` only. The other tokens are `--paper`, `--white`, `--mist`, `--line`, `--ink`, `--ink-soft`, `--muted-text`, `--mark` and `--scrim`, exposed to Tailwind as `bg-paper`, `text-ink`, `text-mark`, `bg-mist`, `border-line`, `bg-brand`, `from-scrim/75` and so on.
+
 ## Type
 - Headings: **Eczar** (Google Fonts via `next/font`, weights 400 and 500, latin). Display 38–58 (`clamp(38px, 4.4vw, 58px)`), section headings 40 (30 on phones), feature headings 44, product titles 20, quotes 21–22, facts strip 22. Letter-spacing −0.01em on display sizes.
 - Body and UI: **Geist** (already in the app), 16–18; small text 13 for categories and captions; nav and buttons 15, weight 500.

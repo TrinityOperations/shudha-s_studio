@@ -1,0 +1,518 @@
+{
+  "note": "Demo content for the home page showcase. Descriptions are adapted from the studio's own Facebook posts. Everything here is marked demo and removed with `pnpm demo:clear`. The hero video is one of her own reels (the alpona mug), muted, re-cut to 1280x720 with blurred edges, 12 s loop.",
+  "products": [
+    {
+      "key": "alpona-mug",
+      "slug": "alpona-name-mug",
+      "title": "Alpona name mug",
+      "titleBn": "আমার মগের মল্লুক",
+      "category": "mugs",
+      "occasions": [
+        "birthday"
+      ],
+      "tags": [
+        "signature"
+      ],
+      "priceFrom": 25,
+      "description": "Your tea, your rules, your mug. A ceramic mug wrapped in a hand-drawn alpona pattern with your name or a short line in Bangla or English. Made to order in Melbourne and printed to last through the dishwasher.",
+      "personalisation": [
+        "name",
+        "message"
+      ],
+      "photo": "779455107.jpg",
+      "alt": "A blue and white alpona-patterned mug with Bangla lettering"
+    },
+    {
+      "key": "welcome-sign",
+      "slug": "welcome-sign-swagatom",
+      "title": "Welcome sign (স্বাগতম)",
+      "titleBn": "স্বাগতম সাইন",
+      "category": "home-decor",
+      "occasions": [
+        "wedding"
+      ],
+      "tags": [
+        "signature"
+      ],
+      "priceFrom": 60,
+      "description": "A round hand-lettered welcome sign for a wedding, holud or housewarming, with স্বাগতম in bold Bangla lettering, painted flowers and a ribbon bow. Comes with a small easel so it stands at the door.",
+      "personalisation": [
+        "message",
+        "colour"
+      ],
+      "photo": "480738904.jpg",
+      "alt": "A round welcome sign with স্বাগতম in red lettering and a ribbon bow"
+    },
+    {
+      "key": "leather-earrings",
+      "slug": "leather-earrings",
+      "title": "Leather earrings",
+      "titleBn": "চামড়ার কানের দুল",
+      "category": "apparel",
+      "occasions": [],
+      "tags": [
+        "signature"
+      ],
+      "priceFrom": 20,
+      "description": "Lightweight leather earrings cut in a leaf shape with a glitter edge and a patterned centre. Pick the colours to match an outfit, or send a photo of your saree and we match it for you.",
+      "personalisation": [
+        "colour"
+      ],
+      "photo": "644545878.jpg",
+      "alt": "A pair of blue and gold leaf-shaped leather earrings on a card"
+    },
+    {
+      "key": "event-poster",
+      "slug": "event-poster",
+      "title": "Event poster",
+      "titleBn": "অনুষ্ঠানের পোস্টার",
+      "category": "posters",
+      "occasions": [
+        "corporate"
+      ],
+      "tags": [
+        "signature"
+      ],
+      "priceFrom": 90,
+      "description": "Bring poetry to your own space. A designed and printed poster for a cultural evening, community program or celebration, with Bangla typography and illustration drawn for the occasion. Supplied on board or canvas, with an easel if you need one.",
+      "personalisation": [
+        "message",
+        "date"
+      ],
+      "photo": "712623698.jpg",
+      "alt": "A Rabindra-Nazrul Jayanti poster standing on an easel"
+    },
+    {
+      "key": "drink-bottle",
+      "slug": "personalised-drink-bottle",
+      "title": "Personalised drink bottle",
+      "titleBn": "নাম লেখা পানির বোতল",
+      "category": "mugs",
+      "occasions": [
+        "birthday"
+      ],
+      "tags": [],
+      "priceFrom": 30,
+      "description": "Not just a bottle, it is your identity. An insulated steel bottle printed with your name, a line that is yours and a little floral border. Want one with your name on it? Book a consultation and we will design it together.",
+      "personalisation": [
+        "name",
+        "message"
+      ],
+      "photo": "645898442.jpg",
+      "alt": "A white personalised drink bottle held up against a blue sky"
+    },
+    {
+      "key": "name-keyring",
+      "slug": "name-and-number-keyring",
+      "title": "Name and number keyring",
+      "titleBn": "নাম ও নম্বর লেখা কি-রিং",
+      "category": "keyrings",
+      "occasions": [
+        "corporate"
+      ],
+      "tags": [],
+      "priceFrom": 12,
+      "description": "Made with care, for those who care. A fabric keyring strap printed with a name and phone number, so keys, school bags and work lanyards always find their way home. Order one or a set for the whole team.",
+      "personalisation": [
+        "name",
+        "message"
+      ],
+      "photo": "644517319.jpg",
+      "alt": "Two printed keyring straps with a name and phone number"
+    },
+    {
+      "key": "teacher-mug",
+      "slug": "best-teacher-ever-mug",
+      "title": "Best teacher ever mug",
+      "titleBn": "সেরা শিক্ষকের মগ",
+      "category": "mugs",
+      "occasions": [],
+      "tags": [],
+      "priceFrom": 25,
+      "description": "A token of gratitude for the one who inspires every day. A personalised teacher mug with their name and a cheerful design, made with love for end of year, Teachers' Day or a thank-you from the class.",
+      "personalisation": [
+        "name",
+        "message"
+      ],
+      "photo": "474128509.jpg",
+      "alt": "Four personalised Best Teacher Ever mugs"
+    },
+    {
+      "key": "coffee-tea-sign",
+      "slug": "coffee-and-tea-kitchen-sign",
+      "title": "Coffee and tea kitchen sign",
+      "titleBn": "কফি ও চা রান্নাঘরের সাইন",
+      "category": "home-decor",
+      "occasions": [],
+      "tags": [],
+      "priceFrom": 55,
+      "description": "A framed kitchen sign with hand-lettered script, painted roses and a little coffee pot, for the corner where the kettle lives. Add a family name or a line of your own.",
+      "personalisation": [
+        "name",
+        "message"
+      ],
+      "photo": "644368186.jpg",
+      "alt": "A framed Coffee and Tea sign with painted roses"
+    },
+    {
+      "key": "gift-box",
+      "slug": "boxed-gift-set",
+      "title": "Boxed gift set",
+      "titleBn": "উপহারের বাক্স",
+      "category": "gift-packs",
+      "occasions": [
+        "birthday",
+        "anniversary"
+      ],
+      "tags": [],
+      "priceFrom": 65,
+      "description": "Why give something everyone can buy, when you can give something made only for your loved one? A kraft gift box packed with pieces chosen for one person: a mug, a small frame or candle, and a card with your words. Soft, personal and budget friendly.",
+      "personalisation": [
+        "name",
+        "message",
+        "photo"
+      ],
+      "photo": "782149400.jpg",
+      "alt": "A kraft gift box with a mug and a candle, tied with twine, under fairy lights"
+    },
+    {
+      "key": "couple-mugs",
+      "slug": "magic-of-love-couple-mugs",
+      "title": "Magic of Love couple mugs",
+      "titleBn": "যুগল মগ",
+      "category": "mugs",
+      "occasions": [
+        "anniversary",
+        "wedding"
+      ],
+      "tags": [],
+      "priceFrom": 45,
+      "description": "Magic of Love: a pair of mugs with two little characters and a line for each of you. \"A doctor saves love\", \"An engineer builds love\", or whatever your story is. An anniversary gift that gets used every morning.",
+      "personalisation": [
+        "name",
+        "message"
+      ],
+      "photo": "831142396.jpg",
+      "alt": "Two couple mugs reading A doctor saves love and An engineer builds love"
+    },
+    {
+      "key": "matching-earrings",
+      "slug": "saree-matching-earrings",
+      "title": "Saree-matching earrings",
+      "titleBn": "শাড়ির সাথে মানানসই কানের দুল",
+      "category": "apparel",
+      "occasions": [
+        "wedding"
+      ],
+      "tags": [],
+      "priceFrom": 25,
+      "description": "You pick the saree or dress, we create the matching earrings. Send a photo of your fabric and we design a pair in the same colours and pattern, so the whole look comes together for the wedding, holud or Eid.",
+      "personalisation": [
+        "colour",
+        "photo"
+      ],
+      "photo": "770919088.jpg",
+      "alt": "Orange patterned earrings on a card, laid on a red and gold saree"
+    },
+    {
+      "key": "eid-stickers",
+      "slug": "eid-mubarak-stickers",
+      "title": "Eid Mubarak stickers",
+      "titleBn": "ঈদ মোবারক স্টিকার",
+      "category": "cards",
+      "occasions": [
+        "eid"
+      ],
+      "tags": [],
+      "priceFrom": 10,
+      "description": "Round Eid Mubarak stickers in Bangla, in six colourways, for gift boxes, chocolate wrappers and envelopes. Add the family name or a short wish underneath. Sold in sheets.",
+      "personalisation": [
+        "name",
+        "message"
+      ],
+      "photo": "648436982.jpg",
+      "alt": "Six round Eid Mubarak stickers in different colours"
+    },
+    {
+      "key": "door-nameplate",
+      "slug": "engraved-door-nameplate",
+      "title": "Engraved door nameplate",
+      "titleBn": "খোদাই করা দরজার নেমপ্লেট",
+      "category": "nameplates",
+      "occasions": [
+        "corporate"
+      ],
+      "tags": [],
+      "priceFrom": 80,
+      "description": "Not the usual nameplate. A brushed metal door sign with engraved names and titles, made for a clinic, office or practice. Single names or a full list, in English or Bangla.",
+      "personalisation": [
+        "name"
+      ],
+      "photo": "684148497.jpg",
+      "alt": "A brushed metal door sign engraved with doctors' names"
+    },
+    {
+      "key": "calligraphy-art",
+      "slug": "calligraphy-wall-art",
+      "title": "Calligraphy wall art",
+      "titleBn": "ক্যালিগ্রাফি ওয়াল আর্ট",
+      "category": "home-decor",
+      "occasions": [
+        "eid"
+      ],
+      "tags": [],
+      "priceFrom": 120,
+      "description": "Islamic calligraphy painted in gold on a deep black canvas, ready to hang. A piece for a new home, a wedding gift or Eid, with the verse or phrase of your choice.",
+      "personalisation": [
+        "message"
+      ],
+      "photo": "644359285.jpg",
+      "alt": "Gold calligraphy on a black canvas being hung on a wall"
+    },
+    {
+      "key": "framed-eid-art",
+      "slug": "framed-eid-art",
+      "title": "Framed Eid art",
+      "titleBn": "ফ্রেমে বাঁধানো ঈদের আর্ট",
+      "category": "home-decor",
+      "occasions": [
+        "eid"
+      ],
+      "tags": [],
+      "priceFrom": 70,
+      "description": "A layered paper-cut Eid piece in a white frame: a crescent, a mosque silhouette and the family name, built up in coloured card. Made for the Eid table or the hallway wall.",
+      "personalisation": [
+        "name",
+        "date"
+      ],
+      "photo": "644391036.jpg",
+      "alt": "A woman holding a framed layered paper-cut Eid piece"
+    },
+    {
+      "key": "eid-chocolates",
+      "slug": "eid-chocolate-wrappers",
+      "title": "Eid chocolate wrappers",
+      "titleBn": "ঈদের চকলেট র‍্যাপার",
+      "category": "chocolate-wrappers",
+      "occasions": [
+        "eid",
+        "corporate"
+      ],
+      "tags": [],
+      "priceFrom": 4,
+      "description": "Customised Eid chocolates for the team: sweet treats to say thanks and share the celebration. Each bar is wrapped in a printed sleeve with Eid Mubarak and a name, a perfect little gift for colleagues, neighbours and the kids' class. Price per bar.",
+      "personalisation": [
+        "name",
+        "message"
+      ],
+      "photo": "652672328.jpg",
+      "alt": "Hands holding a chocolate bar in a blue Eid Mubarak wrapper"
+    },
+    {
+      "key": "photo-puzzle",
+      "slug": "photo-puzzle",
+      "title": "Photo puzzle",
+      "titleBn": "ছবির পাজল",
+      "category": "home-decor",
+      "occasions": [
+        "birthday",
+        "anniversary"
+      ],
+      "tags": [],
+      "priceFrom": 35,
+      "description": "Your photo, printed as a jigsaw puzzle. A gift that takes an evening to put together and then goes in a frame. Send the picture and we take care of the rest.",
+      "personalisation": [
+        "photo"
+      ],
+      "photo": "475809963.jpg",
+      "alt": "Two photo jigsaw puzzles beside a bunch of roses"
+    },
+    {
+      "key": "passport-cover",
+      "slug": "personalised-passport-cover",
+      "title": "Personalised passport cover",
+      "titleBn": "নাম লেখা পাসপোর্ট কভার",
+      "category": "apparel",
+      "occasions": [
+        "corporate"
+      ],
+      "tags": [],
+      "priceFrom": 25,
+      "description": "A soft leather-look passport cover engraved with a name or initials. A small gift for someone flying home, a graduate, or a team heading to a conference.",
+      "personalisation": [
+        "name"
+      ],
+      "photo": "651704306.jpg",
+      "alt": "A pile of grey engraved passport covers"
+    }
+  ],
+  "siteImages": {
+    "heroPoster": {
+      "photo": "hero-poster.jpg",
+      "focus": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "signaturePanel": {
+      "photo": "644359285.jpg",
+      "focus": {
+        "x": 0.5,
+        "y": 0.3
+      }
+    },
+    "madeForYou": {
+      "photo": "644391036.jpg",
+      "focus": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "collage": [
+      {
+        "photo": "644391036.jpg",
+        "focus": {
+          "x": 0.5,
+          "y": 0.5
+        }
+      },
+      {
+        "photo": "831142396.jpg",
+        "focus": {
+          "x": 0.5,
+          "y": 0.5
+        }
+      },
+      {
+        "photo": "648436982.jpg",
+        "focus": {
+          "x": 0.5,
+          "y": 0.5
+        }
+      },
+      {
+        "photo": "770919088.jpg",
+        "focus": {
+          "x": 0.5,
+          "y": 0.5
+        }
+      },
+      {
+        "photo": "782149400.jpg",
+        "focus": {
+          "x": 0.5,
+          "y": 0.5
+        }
+      },
+      {
+        "photo": "644368186.jpg",
+        "focus": {
+          "x": 0.5,
+          "y": 0.5
+        }
+      },
+      {
+        "photo": "644517319.jpg",
+        "focus": {
+          "x": 0.5,
+          "y": 0.5
+        }
+      },
+      {
+        "photo": "475809963.jpg",
+        "focus": {
+          "x": 0.5,
+          "y": 0.5
+        }
+      },
+      {
+        "photo": "645898442.jpg",
+        "focus": {
+          "x": 0.5,
+          "y": 0.5
+        }
+      },
+      {
+        "photo": "684148497.jpg",
+        "focus": {
+          "x": 0.5,
+          "y": 0.4
+        }
+      }
+    ],
+    "heroVideo": "hero.mp4"
+  },
+  "occasionTiles": {
+    "birthday": "gift-box",
+    "wedding": "matching-earrings",
+    "eid": "eid-stickers",
+    "anniversary": "couple-mugs",
+    "corporate": "door-nameplate"
+  },
+  "signaturePicks": [
+    "alpona-mug",
+    "welcome-sign",
+    "leather-earrings",
+    "event-poster"
+  ],
+  "newPicks": [
+    "drink-bottle",
+    "name-keyring",
+    "teacher-mug",
+    "coffee-tea-sign",
+    "gift-box"
+  ],
+  "announcement": {
+    "messages": [
+      {
+        "text": "Eid orders close two weeks before Eid.",
+        "linkLabel": "Book a consultation",
+        "href": "/book"
+      },
+      {
+        "text": "Pickup in Melbourne or post across Australia.",
+        "linkLabel": "How it works",
+        "href": "/custom-order"
+      }
+    ]
+  },
+  "seasonalBanner": {
+    "enabled": true
+  },
+  "testimonials": [
+    {
+      "authorName": "Sample: Nusrat",
+      "quote": "[Sample quote] The nameplate arrived exactly as we imagined it, and the Bangla lettering was perfect. Our parents were thrilled."
+    },
+    {
+      "authorName": "Sample: Farhan",
+      "quote": "[Sample quote] Shudha made fifty chocolate wrappers for our office Eid lunch in under a week. Everyone asked where they came from."
+    },
+    {
+      "authorName": "Sample: Priya",
+      "quote": "[Sample quote] I sent one photo of my saree and the earrings she made matched it exactly. Wore them to the wedding and got stopped all night."
+    }
+  ],
+  "gallery": [
+    {
+      "photo": "644391036.jpg",
+      "firstName": "Sample"
+    },
+    {
+      "photo": "652672328.jpg",
+      "firstName": "Sample"
+    },
+    {
+      "photo": "782149400.jpg",
+      "firstName": "Sample"
+    },
+    {
+      "photo": "831142396.jpg",
+      "firstName": "Sample"
+    },
+    {
+      "photo": "770919088.jpg",
+      "firstName": "Sample"
+    }
+  ]
+}

@@ -47,6 +47,8 @@ export type CatalogueCard = {
   priceFrom: number | null;
   category: { slug: string; name: string; nameBn: string | null } | null;
   thumb: { thumbPath: string; alt: string; altBn: string | null } | null;
+  /** Second photo, shown on hover by the restyled card (docs/design.md); null when there is one photo */
+  hoverThumb: { thumbPath: string; alt: string; altBn: string | null } | null;
 };
 
 export type CataloguePage = {
@@ -161,7 +163,7 @@ function cardWith() {
     images: {
       columns: { thumbPath: true, alt: true, altBn: true } as const,
       orderBy: [asc(productImages.sortOrder), asc(productImages.createdAt)],
-      limit: 1,
+      limit: 2,
     },
   };
 }
@@ -185,7 +187,36 @@ function toCard(row: CardRow): CatalogueCard {
     priceFrom: row.priceFrom,
     category: row.category,
     thumb: row.images[0] ?? null,
+    hoverThumb: row.images[1] ?? null,
   };
+}
+
+/** Cards for any published-only where clause (home page sections, slice #9). */
+export async function listCatalogueCards(
+  where: SQL,
+  orderBy: SQL[],
+  limit: number,
+): Promise<CatalogueCard[]> {
+  const rows = await db.query.products.findMany({
+    where,
+    orderBy,
+    limit,
+    columns: cardColumns,
+    with: cardWith(),
+  });
+  return rows.map(toCard);
+}
+
+/** Published products by id, in the order the ids were given (the owner's home page picks). */
+export async function listPublishedProductsByIds(ids: string[]): Promise<CatalogueCard[]> {
+  if (ids.length === 0) return [];
+  const rows = await db.query.products.findMany({
+    where: and(published(), inArray(products.id, ids)),
+    columns: cardColumns,
+    with: cardWith(),
+  });
+  const byId = new Map(rows.map((row) => [row.id, toCard(row)]));
+  return ids.map((id) => byId.get(id)).filter((card): card is CatalogueCard => !!card);
 }
 
 /** PW-10..13, PW-15: one page of published products matching the URL params. */

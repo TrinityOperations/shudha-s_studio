@@ -42,3 +42,6 @@ Thumbs.db
 # next 16 profiling / agent docs cache
 .next-profiles/
 .next-docs/
+
+# demo content state (local database only)
+scripts/demo-content/manifest.json
