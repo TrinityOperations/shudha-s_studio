@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LocaleToggle } from "@/components/shared/locale-toggle";
 import { buttonVariants } from "@/components/ui/button";
 import { getLocale, getT } from "@/lib/i18n";
+import { localised } from "@/lib/i18n/localised";
 import type { AnnouncementSettings } from "@/lib/validators/settings";
 import { AnnouncementStrip } from "./announcement-strip";
 import { HeaderChrome } from "./header-chrome";
@@ -17,8 +18,8 @@ export async function SiteHeader({ studioName, announcement }: Props) {
   const [t, locale] = await Promise.all([getT(), getLocale()]);
   const messages = (announcement.enabled ? announcement.messages : [])
     .map((m) => ({
-      text: locale === "bn" && m.textBn ? m.textBn : m.text,
-      linkLabel: locale === "bn" && m.linkLabelBn ? m.linkLabelBn : m.linkLabel,
+      text: localised(locale, m.text, m.textBn),
+      linkLabel: localised(locale, m.linkLabel, m.linkLabelBn),
       href: m.href,
     }))
     .filter((m) => m.text);

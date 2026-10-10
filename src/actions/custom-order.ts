@@ -17,7 +17,7 @@ import { getLocale } from "@/lib/i18n";
 import type { MessageKey } from "@/lib/i18n/t";
 import { processReferenceImage } from "@/lib/images";
 import { removeStorageObjects, uploadStorageObject } from "@/lib/storage.server";
-import { formatMelbourne } from "@/lib/time";
+import { formatMelbourneFor } from "@/lib/time";
 import { verifyTurnstile } from "@/lib/turnstile";
 import { REFERENCE_IMAGE_MAX_BYTES, REFERENCE_IMAGE_TYPES } from "@/lib/validators/booking";
 import { customOrderFormSchema, MAX_WIZARD_PHOTOS, toBrief } from "@/lib/validators/brief";
@@ -93,6 +93,7 @@ export async function createCustomOrder(
     : null;
   const brief = toBrief(data);
   const wishlistProductIds = await resolveWishlist(formData);
+  const locale = await getLocale();
 
   const result = await createBookingCore({
     startsAt: new Date(data.slotStart),
@@ -102,7 +103,7 @@ export async function createCustomOrder(
     customerEmail: data.customerEmail,
     productId: product?.id ?? null,
     message: brief.details?.message ?? null,
-    locale: await getLocale(),
+    locale,
     brief,
     ...(wishlistProductIds.length ? { wishlistProductIds } : {}),
   });
@@ -116,8 +117,8 @@ export async function createCustomOrder(
   return ok({
     summary: {
       id: booking.id,
-      date: formatMelbourne(booking.startsAt, "EEEE d MMMM yyyy"),
-      time: formatMelbourne(booking.startsAt, "h:mm aaa"),
+      date: formatMelbourneFor(locale, booking.startsAt, "long"),
+      time: formatMelbourneFor(locale, booking.startsAt, "time"),
       consultationType: booking.consultationType,
       productTitle: product?.title ?? null,
       productTitleBn: product?.titleBn ?? null,

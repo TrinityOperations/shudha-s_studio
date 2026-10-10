@@ -6,6 +6,7 @@ import type { SlotDayOption } from "@/components/public/booking/slot-picker";
 import { Button } from "@/components/ui/button";
 import type { ConsultationType } from "@/db/schema";
 import { useLocale, useT } from "@/lib/i18n/client";
+import { localised } from "@/lib/i18n/localised";
 import { WIZARD_STEP_COUNT } from "@/lib/validators/brief";
 import { BriefSummary } from "./brief-summary";
 import { StepIndicator } from "./step-indicator";
@@ -77,7 +78,7 @@ export function CustomOrderWizard({
     document.getElementById("wizard-step")?.focus({ preventScroll: false });
   }, [state.step]);
 
-  const localise = (en: string, bn: string | null) => (locale === "bn" && bn ? bn : en);
+  const localise = (en: string, bn: string | null) => localised(locale, en, bn);
 
   if (booked) {
     return (

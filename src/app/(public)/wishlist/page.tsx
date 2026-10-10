@@ -2,17 +2,17 @@ import type { Metadata } from "next";
 import { SharedWishlist } from "@/components/public/wishlist/shared-wishlist";
 import { WishlistList } from "@/components/public/wishlist/wishlist-list";
 import { listPublishedProductsBySlugs } from "@/db/queries/catalogue";
-import { getT } from "@/lib/i18n";
+import { getLocale, getT } from "@/lib/i18n";
+import { pageMetadata } from "@/lib/i18n/metadata";
 import { parseShareItems, SHARE_PARAM } from "@/lib/wishlist/share-link";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getT();
-  return {
+  const [t, locale] = await Promise.all([getT(), getLocale()]);
+  return pageMetadata("/wishlist", locale, {
     title: t("wishlist.title"),
     description: t("wishlist.description"),
-    alternates: { canonical: "/wishlist" },
     robots: { index: false },
-  };
+  });
 }
 
 /**

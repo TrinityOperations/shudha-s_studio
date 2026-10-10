@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Occasion } from "@/db/schema";
 import type { TilePhoto } from "@/lib/home";
 import { getLocale, getT } from "@/lib/i18n";
+import { localised } from "@/lib/i18n/localised";
 import { productImageUrl } from "@/lib/storage";
 import { Carousel } from "./carousel";
 import { SiteImage } from "./site-image";
@@ -30,7 +31,7 @@ export async function Occasions({
     >
       <Carousel label={title} title={title} headingId="occasions-heading" showControls>
         {tiles.map(({ occasion, photo }) => {
-          const name = locale === "bn" && occasion.nameBn ? occasion.nameBn : occasion.name;
+          const name = localised(locale, occasion.name, occasion.nameBn);
           const tile = (
             <div className="bg-mist relative aspect-[3/4] overflow-hidden">
               {photo.kind === "site" ? (

@@ -7,14 +7,15 @@ import { Paragraphs } from "@/components/public/pages/paragraphs";
 import { buttonVariants } from "@/components/ui/button";
 import { getAboutSettings, getHomeSettings } from "@/db/queries/settings";
 import { getLocale, getT } from "@/lib/i18n";
+import { localised } from "@/lib/i18n/localised";
+import { pageMetadata } from "@/lib/i18n/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getT();
-  return {
+  const [t, locale] = await Promise.all([getT(), getLocale()]);
+  return pageMetadata("/about", locale, {
     title: t("pages.about.title"),
     description: t("pages.about.description"),
-    alternates: { canonical: "/about" },
-  };
+  });
 }
 
 /** PW-40: her story (the `about` key) and portrait (the `home` key); a [placeholder] until she writes it. */
@@ -25,8 +26,7 @@ export default async function AboutPage() {
     getAboutSettings(),
     getHomeSettings(),
   ]);
-  const story =
-    (locale === "bn" && about.storyBn ? about.storyBn : about.story) || t("home.meet.story");
+  const story = localised(locale, about.story, about.storyBn) || t("home.meet.story");
   return (
     <PageShell title={t("pages.about.title")} wide>
       <div className="flex flex-wrap items-start gap-10 lg:gap-16">

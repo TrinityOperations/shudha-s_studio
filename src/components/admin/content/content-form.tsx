@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { updateContentSettings } from "@/actions/settings";
+import { BanglaBadge } from "@/components/shared/bangla-badge";
 import { FieldMessage } from "@/components/shared/field-message";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -50,7 +51,10 @@ export function ContentForm({ defaultValues }: { defaultValues: ContentSettingsV
     lang?: string,
   ) => (
     <Field data-invalid={!!errors[name] || undefined}>
-      <FieldLabel htmlFor={name}>{t(label)}</FieldLabel>
+      <FieldLabel htmlFor={name}>
+        {t(label)}
+        {name.endsWith("Bn") ? <BanglaBadge /> : null}
+      </FieldLabel>
       <Textarea
         id={name}
         rows={rows}
@@ -69,7 +73,10 @@ export function ContentForm({ defaultValues }: { defaultValues: ContentSettingsV
     hint?: MessageKey,
   ) => (
     <Field data-invalid={!!errors[name] || undefined}>
-      <FieldLabel htmlFor={name}>{t(label)}</FieldLabel>
+      <FieldLabel htmlFor={name}>
+        {t(label)}
+        {name.endsWith("Bn") ? <BanglaBadge /> : null}
+      </FieldLabel>
       <Input
         id={name}
         type={type}

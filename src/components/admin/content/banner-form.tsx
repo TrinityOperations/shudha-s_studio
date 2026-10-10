@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { updateSeasonalBannerSettings } from "@/actions/settings";
+import { BanglaBadge } from "@/components/shared/bangla-badge";
 import { FieldMessage } from "@/components/shared/field-message";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -42,7 +43,10 @@ export function BannerForm({ defaultValues }: { defaultValues: SeasonalBannerSet
 
   const input = (name: keyof BannerValues, label: MessageKey, lang?: string) => (
     <Field data-invalid={!!errors[name] || undefined}>
-      <FieldLabel htmlFor={name}>{t(label)}</FieldLabel>
+      <FieldLabel htmlFor={name}>
+        {t(label)}
+        {name.endsWith("Bn") ? <BanglaBadge /> : null}
+      </FieldLabel>
       <Input id={name} lang={lang} {...form.register(name)} />
       <FieldMessage error={errors[name]} />
     </Field>

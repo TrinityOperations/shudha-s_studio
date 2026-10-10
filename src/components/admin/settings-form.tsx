@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { updateGeneralSettings } from "@/actions/settings";
+import { BanglaBadge } from "@/components/shared/bangla-badge";
 import { FieldMessage } from "@/components/shared/field-message";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -65,7 +66,10 @@ export function SettingsForm({ defaultValues }: { defaultValues: GeneralSettings
         </Field>
 
         <Field data-invalid={!!errors.taglineBn || undefined}>
-          <FieldLabel htmlFor="taglineBn">{t("admin.settings.taglineBn")}</FieldLabel>
+          <FieldLabel htmlFor="taglineBn">
+            {t("admin.settings.taglineBn")}
+            <BanglaBadge />
+          </FieldLabel>
           <Input
             id="taglineBn"
             lang="bn"

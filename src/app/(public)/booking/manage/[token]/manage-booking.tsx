@@ -8,6 +8,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field";
 import type { BookingSummary } from "@/lib/booking/summary";
 import { useLocale, useT } from "@/lib/i18n/client";
+import { localised } from "@/lib/i18n/localised";
 import type { MessageKey } from "@/lib/i18n/t";
 
 type Props = {
@@ -24,8 +25,7 @@ type Phase =
 function SummaryList({ summary }: { summary: BookingSummary }) {
   const t = useT();
   const locale = useLocale();
-  const product =
-    locale === "bn" && summary.productTitleBn ? summary.productTitleBn : summary.productTitle;
+  const product = localised(locale, summary.productTitle ?? "", summary.productTitleBn) || null;
   return (
     <dl className="grid gap-3 sm:grid-cols-2" data-testid="booking-summary">
       <div>

@@ -1,6 +1,6 @@
 import { createT, getMessages } from "@/lib/i18n/t";
 import { isLocale, type Locale } from "@/lib/i18n/locale";
-import { formatMelbourne } from "@/lib/time";
+import { formatMelbourneFor } from "@/lib/time";
 import { whatsappLink } from "@/lib/whatsapp";
 
 export type ReplyInput = {
@@ -23,8 +23,8 @@ export function buildReplyMessage(input: ReplyInput): {
   const params = {
     name: input.customerName,
     studio: input.studioName,
-    date: formatMelbourne(input.startsAt, "EEEE d MMMM"),
-    time: formatMelbourne(input.startsAt, "h:mm aaa"),
+    date: formatMelbourneFor(locale, input.startsAt, "weekday"),
+    time: formatMelbourneFor(locale, input.startsAt, "time"),
   };
   return {
     locale,

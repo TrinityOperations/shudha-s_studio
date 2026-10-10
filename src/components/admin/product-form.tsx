@@ -7,6 +7,7 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { createProduct, unarchiveProduct, updateProduct } from "@/actions/products";
 import { createTaxonomyItem } from "@/actions/taxonomy";
+import { BanglaBadge } from "@/components/shared/bangla-badge";
 import { FieldMessage } from "@/components/shared/field-message";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +34,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import type { ProductStatus } from "@/db/schema";
 import { useLocale, useT } from "@/lib/i18n/client";
+import { localised } from "@/lib/i18n/localised";
 import type { MessageKey } from "@/lib/i18n/t";
 import { slugify } from "@/lib/slugify";
 import { formatMelbourne } from "@/lib/time";
@@ -102,8 +104,7 @@ export function ProductForm(props: Props) {
     onValuesChange?.(watched as ProductFormValues);
   }, [watched, onValuesChange]);
 
-  const label = (option: TaxonomyOption) =>
-    locale === "bn" && option.nameBn ? option.nameBn : option.name;
+  const label = (option: TaxonomyOption) => localised(locale, option.name, option.nameBn);
 
   function applyFailure(result: {
     error: MessageKey;
@@ -218,7 +219,10 @@ export function ProductForm(props: Props) {
           </Field>
 
           <Field data-invalid={!!errors.titleBn || undefined}>
-            <FieldLabel htmlFor="titleBn">{t("admin.products.form.titleBn")}</FieldLabel>
+            <FieldLabel htmlFor="titleBn">
+              {t("admin.products.form.titleBn")}
+              <BanglaBadge />
+            </FieldLabel>
             <Input id="titleBn" lang="bn" {...form.register("titleBn")} />
             <FieldMessage error={errors.titleBn} />
           </Field>
@@ -248,6 +252,7 @@ export function ProductForm(props: Props) {
           <Field data-invalid={!!errors.descriptionBn || undefined}>
             <FieldLabel htmlFor="descriptionBn">
               {t("admin.products.form.descriptionBn")}
+              <BanglaBadge />
             </FieldLabel>
             <Textarea id="descriptionBn" lang="bn" rows={5} {...form.register("descriptionBn")} />
             <FieldMessage error={errors.descriptionBn} />
@@ -264,6 +269,7 @@ export function ProductForm(props: Props) {
           <Field data-invalid={!!errors.materialNotesBn || undefined}>
             <FieldLabel htmlFor="materialNotesBn">
               {t("admin.products.form.materialNotesBn")}
+              <BanglaBadge />
             </FieldLabel>
             <Textarea
               id="materialNotesBn"
@@ -489,6 +495,7 @@ export function ProductForm(props: Props) {
           <Field data-invalid={!!errors.personalisationNotesBn || undefined}>
             <FieldLabel htmlFor="personalisationNotesBn">
               {t("admin.products.form.personalisationNotesBn")}
+              <BanglaBadge />
             </FieldLabel>
             <Textarea
               id="personalisationNotesBn"

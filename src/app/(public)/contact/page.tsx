@@ -5,16 +5,16 @@ import { ContactForm } from "@/components/public/pages/contact-form";
 import { PageShell } from "@/components/public/pages/page-shell";
 import { buttonVariants } from "@/components/ui/button";
 import { getContactSettings, getSocialSettings } from "@/db/queries/settings";
-import { getT } from "@/lib/i18n";
+import { getLocale, getT } from "@/lib/i18n";
+import { pageMetadata } from "@/lib/i18n/metadata";
 import { whatsappLink } from "@/lib/whatsapp";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getT();
-  return {
+  const [t, locale] = await Promise.all([getT(), getLocale()]);
+  return pageMetadata("/contact", locale, {
     title: t("contact.title"),
     description: t("contact.description"),
-    alternates: { canonical: "/contact" },
-  };
+  });
 }
 
 /** PW-42: form, WhatsApp, social links and the area served. */

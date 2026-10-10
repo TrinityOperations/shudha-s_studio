@@ -2,6 +2,7 @@
 import type { BookingSummary } from "@/actions/booking";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useLocale, useT } from "@/lib/i18n/client";
+import { localised } from "@/lib/i18n/localised";
 import type { MessageKey } from "@/lib/i18n/t";
 
 type Props = {
@@ -16,8 +17,7 @@ type Props = {
 export function BookingConfirmation({ summary, name, onReset, whatsappUrl = null }: Props) {
   const t = useT();
   const locale = useLocale();
-  const product =
-    locale === "bn" && summary.productTitleBn ? summary.productTitleBn : summary.productTitle;
+  const product = localised(locale, summary.productTitle ?? "", summary.productTitleBn) || null;
 
   return (
     <section

@@ -123,10 +123,12 @@ describe("createBooking", () => {
     expect(result).toEqual({
       ok: true,
       data: {
+        // The visitor booked in Bengali (the mocked locale), so the summary uses Bengali
+        // digits and month names (slice #11).
         summary: {
           id: "b1",
-          date: "Wednesday 15 July 2026",
-          time: "11:00 am",
+          date: expect.stringContaining("১৫ জুলাই"),
+          time: expect.stringContaining("১১:০০"),
           consultationType: "phone",
           productTitle: "Eid Mug",
           productTitleBn: "ঈদ মগ",

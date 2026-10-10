@@ -13,6 +13,7 @@ import {
   setTestimonialPhoto,
   updateTestimonial,
 } from "@/actions/testimonials";
+import { BanglaBadge } from "@/components/shared/bangla-badge";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FieldMessage } from "@/components/shared/field-message";
 import { SubmitButton } from "@/components/shared/submit-button";
@@ -245,7 +246,10 @@ function TestimonialForm({
           <FieldMessage error={errors.quote} />
         </Field>
         <Field>
-          <FieldLabel htmlFor="quoteBn">{t("admin.testimonials.quoteBn")}</FieldLabel>
+          <FieldLabel htmlFor="quoteBn">
+            {t("admin.testimonials.quoteBn")}
+            <BanglaBadge />
+          </FieldLabel>
           <Textarea id="quoteBn" lang="bn" rows={3} {...form.register("quoteBn")} />
         </Field>
         <Controller

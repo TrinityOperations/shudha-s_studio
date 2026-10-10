@@ -1,5 +1,6 @@
 import type { Testimonial } from "@/db/schema";
 import { getLocale, getT } from "@/lib/i18n";
+import { localised } from "@/lib/i18n/localised";
 import { SectionHeading } from "./section-heading";
 import { Tag } from "./tag";
 
@@ -20,7 +21,7 @@ export async function KindWords({ testimonials }: { testimonials: Testimonial[] 
             className="border-line flex flex-col justify-between gap-6 border bg-white p-7"
           >
             <blockquote className="font-heading text-ink text-[21px] leading-snug">
-              {locale === "bn" && item.quoteBn ? item.quoteBn : item.quote}
+              {localised(locale, item.quote, item.quoteBn)}
             </blockquote>
             <Tag variant="credit" className="w-fit">
               {item.authorName}

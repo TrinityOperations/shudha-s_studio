@@ -29,8 +29,7 @@ export async function ProductDetail({ product, related, preview = false }: Props
   const [t, locale, delivery] = await Promise.all([getT(), getLocale(), getDeliverySettings()]);
   // PW-48: the owner's delivery note (slice #10) wins over the built-in line when filled.
   const deliveryNote =
-    (locale === "bn" && delivery.noteBn ? delivery.noteBn : delivery.note) ||
-    t("catalogue.product.deliveryNote");
+    localised(locale, delivery.note, delivery.noteBn) || t("catalogue.product.deliveryNote");
   const title = localised(locale, product.title, product.titleBn);
   const description = localised(locale, product.description, product.descriptionBn);
   const materialNotes = localised(locale, product.materialNotes ?? "", product.materialNotesBn);

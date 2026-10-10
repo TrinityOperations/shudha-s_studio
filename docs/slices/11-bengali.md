@@ -36,12 +36,14 @@ Everything else belongs to another slice or the foundation: don't change it. Ask
 - **Tables and storage:** All `_bn` columns.
 - **Schema changes:** None.
 
-## Build plan
-1. Script or test that lists keys missing from `bn.json`.
-2. Fill `bn.json` (from client-provided or reviewed translations).
-3. Make sure every owner form has the `_bn` inputs from OD-36.
-4. Lint rule or test that flags hard-coded visible English in components.
-5. `hreflang`, per-language metadata, font loading checked on iOS Safari and Android Chrome.
+## Build plan (as built)
+1. Completeness checks in `pnpm test`: same keys in both dictionaries, no empty values, matching `{placeholders}`, code-point sort order (`src/lib/i18n/dictionaries.test.ts`).
+2. Hard-coded visible text check in `pnpm test` (`src/lib/i18n/hardcoded-text.test.ts`, allowlist in `allowed-text.ts`): JSX text and `alt` / `aria-label` / `placeholder` / `title` literals in `src/app` and `src/components`.
+3. OD-36: every `_bn` column has an input directly under its English field with a "বাংলা" badge and `lang="bn"`; one fallback helper `localised()` in `src/lib/i18n/localised.ts` used everywhere a `_bn` value is shown.
+4. PW-80: cookie-persisted toggle (unchanged) plus `?lang=en|bn` served directly by the proxy for hreflang; per-language description and `og:locale`; hreflang alternates on every public page through `pageMetadata()`.
+5. Dates in the visitor's language (`formatMelbourneFor`, Bengali digits and months); prices keep Latin digits.
+6. WebKit Playwright project scoped to `e2e/bengali.spec.ts` (fonts, conjuncts, toggle persistence, `?lang=`), WebKit installed in CI.
+7. Reviewed corrections applied with `scripts/i18n/apply-bn-fixes.ts` as the last commit.
 
 ## Watch out for
 - Touches many files: schedule it when few other branches are open, to avoid conflicts.
@@ -60,4 +62,4 @@ If the answer isn't in yet, build with sensible defaults the owner can change, a
 - [ ] Works at phone width and by keyboard
 
 ## Hand-off to later slices
-None.
+- #15 audit: the generated shadcn primitives (`src/components/ui/dialog.tsx`, `sheet.tsx`) carry an sr-only "Close" label in English; the hard-coded-text check skips `src/components/ui`. Localise or override when the audit touches those components.

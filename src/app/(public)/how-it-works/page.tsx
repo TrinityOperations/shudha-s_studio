@@ -3,16 +3,16 @@ import Link from "next/link";
 import { DeliveryNote } from "@/components/public/pages/delivery-note";
 import { PageShell } from "@/components/public/pages/page-shell";
 import { buttonVariants } from "@/components/ui/button";
-import { getT } from "@/lib/i18n";
+import { getLocale, getT } from "@/lib/i18n";
 import type { MessageKey } from "@/lib/i18n/t";
+import { pageMetadata } from "@/lib/i18n/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getT();
-  return {
+  const [t, locale] = await Promise.all([getT(), getLocale()]);
+  return pageMetadata("/how-it-works", locale, {
     title: t("pages.howItWorks.title"),
     description: t("pages.howItWorks.description"),
-    alternates: { canonical: "/how-it-works" },
-  };
+  });
 }
 
 const STEPS = [1, 2, 3, 4, 5] as const;

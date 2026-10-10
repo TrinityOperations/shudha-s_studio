@@ -6,18 +6,18 @@ import { getPublishedProduct, listCatalogueFacets } from "@/db/queries/catalogue
 import { getContactSettings } from "@/db/queries/settings";
 import { listOccasions } from "@/db/queries/taxonomy";
 import { groupSlotsByMelbourneDate, melbourneDateOf } from "@/lib/booking/slots";
-import { getT } from "@/lib/i18n";
-import { formatMelbourne } from "@/lib/time";
+import { getLocale, getT } from "@/lib/i18n";
+import { pageMetadata } from "@/lib/i18n/metadata";
+import { formatMelbourneFor } from "@/lib/time";
 import { SLUG_PATTERN } from "@/lib/validators/products";
 import { whatsappLink } from "@/lib/whatsapp";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getT();
-  return {
+  const [t, locale] = await Promise.all([getT(), getLocale()]);
+  return pageMetadata("/custom-order", locale, {
     title: t("wizard.title"),
     description: t("wizard.description"),
-    alternates: { canonical: "/custom-order" },
-  };
+  });
 }
 
 function first(value: string | string[] | undefined) {
@@ -27,6 +27,7 @@ function first(value: string | string[] | undefined) {
 /** PW-50..PW-53: the custom order wizard; `?product=` preselects a published product (PW-51). */
 export default async function CustomOrderPage({ searchParams }: PageProps<"/custom-order">) {
   const params = await searchParams;
+  const locale = await getLocale();
   const requested = first(params.product) ?? "";
   const now = new Date();
 
@@ -41,10 +42,10 @@ export default async function CustomOrderPage({ searchParams }: PageProps<"/cust
 
   const days: SlotDayOption[] = groupSlotsByMelbourneDate(available.slots).map((day) => ({
     date: day.date,
-    label: formatMelbourne(day.slots[0].startsAt, "EEE d MMM"),
+    label: formatMelbourneFor(locale, day.slots[0].startsAt, "short"),
     slots: day.slots.map((slot) => ({
       start: slot.startsAt.toISOString(),
-      label: formatMelbourne(slot.startsAt, "h:mm aaa"),
+      label: formatMelbourneFor(locale, slot.startsAt, "time"),
     })),
   }));
 

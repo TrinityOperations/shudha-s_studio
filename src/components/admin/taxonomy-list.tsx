@@ -11,6 +11,7 @@ import {
   reorderTaxonomy,
   updateTaxonomyItem,
 } from "@/actions/taxonomy";
+import { BanglaBadge } from "@/components/shared/bangla-badge";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FieldMessage } from "@/components/shared/field-message";
 import { SubmitButton } from "@/components/shared/submit-button";
@@ -296,7 +297,10 @@ function TaxonomyItemForm({
           <FieldMessage id={`${nameId}-error`} error={errors.name} />
         </Field>
         <Field data-invalid={!!errors.nameBn || undefined}>
-          <FieldLabel htmlFor={nameBnId}>{t("admin.taxonomy.nameBn")}</FieldLabel>
+          <FieldLabel htmlFor={nameBnId}>
+            {t("admin.taxonomy.nameBn")}
+            <BanglaBadge />
+          </FieldLabel>
           <Input
             id={nameBnId}
             lang="bn"

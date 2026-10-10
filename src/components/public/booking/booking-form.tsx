@@ -32,6 +32,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { ConsultationType } from "@/db/schema";
 import { prepareImageForUpload } from "@/lib/client-image";
 import { useLocale, useT } from "@/lib/i18n/client";
+import { localised } from "@/lib/i18n/localised";
 import type { MessageKey } from "@/lib/i18n/t";
 import {
   bookingFormSchema,
@@ -147,7 +148,7 @@ export function BookingForm({
     { value: NONE, label: t("booking.form.productNone") },
     ...products.map((p) => ({
       value: p.slug,
-      label: locale === "bn" && p.titleBn ? p.titleBn : p.title,
+      label: localised(locale, p.title, p.titleBn),
     })),
   ];
 
