@@ -1,11 +1,12 @@
 import { getDeliverySettings } from "@/db/queries/settings";
 import { getLocale, getT } from "@/lib/i18n";
+import { localised } from "@/lib/i18n/localised";
 import { Tag } from "@/components/public/home/tag";
 
 /** PW-48: the delivery note from settings, as a section with an anchor (How it works, FAQ). */
 export async function DeliveryNote({ id = "delivery" }: { id?: string }) {
   const [t, locale, delivery] = await Promise.all([getT(), getLocale(), getDeliverySettings()]);
-  const note = locale === "bn" && delivery.noteBn ? delivery.noteBn : delivery.note;
+  const note = localised(locale, delivery.note, delivery.noteBn);
   if (!note) return null;
   return (
     <section

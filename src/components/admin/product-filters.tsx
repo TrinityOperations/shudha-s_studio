@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useLocale, useT } from "@/lib/i18n/client";
+import { localised } from "@/lib/i18n/localised";
 
 const ALL = "all";
 
@@ -59,7 +60,7 @@ export function ProductFilters({ categories, status, categoryId, q }: Props) {
     { value: ALL, label: t("common.all") },
     ...categories.map((c) => ({
       value: c.id,
-      label: locale === "bn" && c.nameBn ? c.nameBn : c.name,
+      label: localised(locale, c.name, c.nameBn),
     })),
   ];
   const hasFilters = Boolean(status || categoryId || q);

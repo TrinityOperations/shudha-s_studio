@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { getGeneralSettings } from "@/db/queries/settings";
 import { getLocale } from "@/lib/i18n";
 import { I18nProvider } from "@/lib/i18n/client";
+import { OG_LOCALES } from "@/lib/i18n/locale";
+import { localised } from "@/lib/i18n/localised";
 import { getMessages } from "@/lib/i18n/t";
 import { publicEnv } from "@/lib/env.public";
 import "./globals.css";
@@ -46,11 +48,12 @@ const tiroBanglaAccent = localFont({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getGeneralSettings();
+  const [settings, locale] = await Promise.all([getGeneralSettings(), getLocale()]);
   return {
     metadataBase: new URL(publicEnv.siteUrl),
     title: { default: settings.studioName, template: `%s · ${settings.studioName}` },
-    description: settings.tagline,
+    description: localised(locale, settings.tagline, settings.taglineBn),
+    openGraph: { siteName: settings.studioName, locale: OG_LOCALES[locale] },
   };
 }
 

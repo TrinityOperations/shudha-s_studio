@@ -7,7 +7,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { focusPosition, SITE_IMAGES_BUCKET } from "@/lib/home";
 import type { SlotDescriptor } from "@/lib/home-editor/context";
-import { useT } from "@/lib/i18n/client";
+import { useLocale, useT } from "@/lib/i18n/client";
 import { publicStorageUrl } from "@/lib/storage";
 import type { SiteImageSlot } from "@/lib/validators/settings";
 import { HERO_SENTINEL } from "@/components/public/layout/header-chrome";
@@ -33,6 +33,7 @@ function prefersLessData(): boolean {
  */
 export function Hero({ poster, videoPath, slots = [] }: Props) {
   const t = useT();
+  const locale = useLocale();
   const reduced = useReducedMotion();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [paused, setPaused] = useState(false);
@@ -126,9 +127,16 @@ export function Hero({ poster, videoPath, slots = [] }: Props) {
       ) : null}
 
       <div className="hero-rise frosted absolute inset-x-4 bottom-6 max-w-[640px] rounded-[14px] p-6 sm:left-8 sm:p-10 lg:bottom-12 lg:left-12 lg:rounded-2xl lg:px-14 lg:py-12">
-        <p lang="bn" className="font-bangla text-mark text-[22px]">
-          {t("home.hero.bangla")}
-        </p>
+        {/* The accent line mirrors the page: Bangla on English pages, English on Bengali ones. */}
+        {locale === "bn" ? (
+          <p lang="en" className="text-mark text-[22px] font-[var(--font-eczar),Georgia,serif]">
+            {t("home.hero.bangla")}
+          </p>
+        ) : (
+          <p lang="bn" className="font-bangla text-mark text-[22px]">
+            {t("home.hero.bangla")}
+          </p>
+        )}
         <h1
           id="hero-heading"
           className="font-heading text-ink mt-2 text-[clamp(38px,4.4vw,58px)] leading-[1.05] tracking-[-0.01em]"

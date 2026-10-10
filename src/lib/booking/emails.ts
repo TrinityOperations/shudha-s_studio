@@ -21,7 +21,8 @@ import { sendEmail, type EmailAttachment, type SendEmailResult } from "@/lib/ema
 import { publicEnv } from "@/lib/env.public";
 import { serverEnv } from "@/lib/env";
 import { isLocale, type Locale } from "@/lib/i18n/locale";
-import { formatMelbourne } from "@/lib/time";
+import { localised } from "@/lib/i18n/localised";
+import { formatMelbourneFor } from "@/lib/time";
 import { whatsappLink } from "@/lib/whatsapp";
 import { buildIcs, ICS_CONTENT_TYPE, ICS_FILENAME } from "./ics";
 
@@ -62,14 +63,10 @@ async function customerProps(booking: Booking, locale: Locale): Promise<Customer
     studioName: general.studioName,
     siteUrl: publicEnv.siteUrl,
     customerName: booking.customerName,
-    date: formatMelbourne(booking.startsAt, "EEEE d MMMM yyyy"),
-    time: formatMelbourne(booking.startsAt, "h:mm aaa"),
+    date: formatMelbourneFor(locale, booking.startsAt, "long"),
+    time: formatMelbourneFor(locale, booking.startsAt, "time"),
     consultationType: booking.consultationType,
-    productTitle: product
-      ? locale === "bn" && product.titleBn
-        ? product.titleBn
-        : product.title
-      : null,
+    productTitle: product ? localised(locale, product.title, product.titleBn) : null,
     manageUrl: manageUrlFor(booking),
     whatsappUrl: contact.whatsappNumber ? whatsappLink(contact.whatsappNumber) : null,
   };

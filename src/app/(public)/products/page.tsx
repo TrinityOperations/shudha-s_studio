@@ -3,12 +3,13 @@ import { CatalogueFilters } from "@/components/public/catalogue/catalogue-filter
 import { Pagination } from "@/components/public/catalogue/pagination";
 import { ProductCard } from "@/components/public/catalogue/product-card";
 import { listCatalogue, listCatalogueFacets } from "@/db/queries/catalogue";
-import { getT } from "@/lib/i18n";
+import { getLocale, getT } from "@/lib/i18n";
+import { pageMetadata } from "@/lib/i18n/metadata";
 import { parseCatalogueParams } from "@/lib/validators/catalogue";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getT();
-  return { title: t("catalogue.title"), alternates: { canonical: "/products" } };
+  const [t, locale] = await Promise.all([getT(), getLocale()]);
+  return pageMetadata("/products", locale, { title: t("catalogue.title") });
 }
 
 /** PW-10..15: the public catalogue. Published products only (enforced in queries/catalogue.ts). */

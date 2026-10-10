@@ -33,6 +33,7 @@ import {
 import type { ProductListRow } from "@/db/queries/products";
 import type { ActionResult } from "@/lib/action-result";
 import { useLocale, useT } from "@/lib/i18n/client";
+import { localised } from "@/lib/i18n/localised";
 import type { MessageKey } from "@/lib/i18n/t";
 import { productImageUrl } from "@/lib/storage";
 import { formatMelbourne } from "@/lib/time";
@@ -99,7 +100,7 @@ export function ProductTable({ rows }: { rows: ProductListRow[] }) {
   }
 
   function name(row: ProductListRow) {
-    return locale === "bn" && row.titleBn ? row.titleBn : row.title;
+    return localised(locale, row.title, row.titleBn);
   }
 
   return (
@@ -213,9 +214,7 @@ export function ProductTable({ rows }: { rows: ProductListRow[] }) {
                 </TableCell>
                 <TableCell>
                   {row.category
-                    ? locale === "bn" && row.category.nameBn
-                      ? row.category.nameBn
-                      : row.category.name
+                    ? localised(locale, row.category.name, row.category.nameBn)
                     : t("admin.products.uncategorised")}
                 </TableCell>
                 <TableCell>

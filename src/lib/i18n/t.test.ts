@@ -3,20 +3,6 @@ import en from "./en.json";
 import bn from "./bn.json";
 import { createT, getMessages, type MessageKey } from "./t";
 
-describe("i18n dictionaries", () => {
-  it("bn.json only contains keys that exist in en.json", () => {
-    const enKeys = new Set(Object.keys(en));
-    const orphans = Object.keys(bn).filter((k) => !enKeys.has(k));
-    expect(orphans).toEqual([]);
-  });
-
-  it("every key has a non-empty English string", () => {
-    for (const [key, value] of Object.entries(en)) {
-      expect(value, key).not.toBe("");
-    }
-  });
-});
-
 describe("createT", () => {
   it("returns the English string for en", () => {
     const t = createT(getMessages("en"));

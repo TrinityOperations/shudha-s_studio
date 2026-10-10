@@ -17,7 +17,7 @@ import { getLocale } from "@/lib/i18n";
 import type { MessageKey } from "@/lib/i18n/t";
 import { processReferenceImage } from "@/lib/images";
 import { uploadStorageObject } from "@/lib/storage.server";
-import { formatMelbourne } from "@/lib/time";
+import { formatMelbourneFor } from "@/lib/time";
 import { verifyTurnstile } from "@/lib/turnstile";
 import {
   bookingFormSchema,
@@ -92,6 +92,7 @@ export async function createBooking(formData: FormData): Promise<ActionResult<Cr
     : null;
 
   const wishlistProductIds = await resolveWishlist(formData);
+  const locale = await getLocale();
 
   const result = await createBookingCore({
     startsAt: new Date(data.slotStart),
@@ -101,7 +102,7 @@ export async function createBooking(formData: FormData): Promise<ActionResult<Cr
     customerEmail: data.customerEmail,
     productId: product?.id ?? null,
     message: data.message || null,
-    locale: await getLocale(),
+    locale,
     ...(wishlistProductIds.length ? { wishlistProductIds } : {}),
   });
   if (!result.ok) return fail(result.error);
@@ -134,8 +135,8 @@ export async function createBooking(formData: FormData): Promise<ActionResult<Cr
   return ok({
     summary: {
       id: booking.id,
-      date: formatMelbourne(booking.startsAt, "EEEE d MMMM yyyy"),
-      time: formatMelbourne(booking.startsAt, "h:mm aaa"),
+      date: formatMelbourneFor(locale, booking.startsAt, "long"),
+      time: formatMelbourneFor(locale, booking.startsAt, "time"),
       consultationType: booking.consultationType,
       productTitle: product?.title ?? null,
       productTitleBn: product?.titleBn ?? null,

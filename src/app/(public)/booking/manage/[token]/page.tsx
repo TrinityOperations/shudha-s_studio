@@ -7,8 +7,8 @@ import { getBookingByManageToken, getBookingProductTitle } from "@/db/queries/bo
 import { getContactSettings } from "@/db/queries/settings";
 import { groupSlotsByMelbourneDate } from "@/lib/booking/slots";
 import { bookingSummary } from "@/lib/booking/summary";
-import { getT } from "@/lib/i18n";
-import { formatMelbourne } from "@/lib/time";
+import { getLocale, getT } from "@/lib/i18n";
+import { formatMelbourneFor } from "@/lib/time";
 import { whatsappLink } from "@/lib/whatsapp";
 import { ManageBooking } from "./manage-booking";
 
@@ -27,6 +27,7 @@ export default async function ManageBookingPage({ params }: PageProps<"/booking/
   const { token } = await params;
   const parsed = tokenSchema.safeParse(token);
   if (!parsed.success) notFound();
+  const locale = await getLocale();
 
   const booking = await getBookingByManageToken(parsed.data);
   if (!booking) notFound();
@@ -40,10 +41,10 @@ export default async function ManageBookingPage({ params }: PageProps<"/booking/
 
   const days: SlotDayOption[] = groupSlotsByMelbourneDate(available.slots).map((day) => ({
     date: day.date,
-    label: formatMelbourne(day.slots[0].startsAt, "EEE d MMM"),
+    label: formatMelbourneFor(locale, day.slots[0].startsAt, "short"),
     slots: day.slots.map((slot) => ({
       start: slot.startsAt.toISOString(),
-      label: formatMelbourne(slot.startsAt, "h:mm aaa"),
+      label: formatMelbourneFor(locale, slot.startsAt, "time"),
     })),
   }));
 

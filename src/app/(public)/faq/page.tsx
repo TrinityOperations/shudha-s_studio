@@ -4,14 +4,15 @@ import { PageShell } from "@/components/public/pages/page-shell";
 import { Paragraphs } from "@/components/public/pages/paragraphs";
 import { listPublishedFaqs } from "@/db/queries/faqs";
 import { getLocale, getT } from "@/lib/i18n";
+import { localised } from "@/lib/i18n/localised";
+import { pageMetadata } from "@/lib/i18n/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getT();
-  return {
+  const [t, locale] = await Promise.all([getT(), getLocale()]);
+  return pageMetadata("/faq", locale, {
     title: t("faq.title"),
     description: t("faq.description"),
-    alternates: { canonical: "/faq" },
-  };
+  });
 }
 
 /** PW-43, PW-48: the published questions, then the delivery note. */
@@ -26,10 +27,10 @@ export default async function FaqPage() {
           {faqs.map((faq) => (
             <div key={faq.id} className="py-6 first:pt-0">
               <dt className="font-heading text-ink text-2xl leading-tight">
-                {locale === "bn" && faq.questionBn ? faq.questionBn : faq.question}
+                {localised(locale, faq.question, faq.questionBn)}
               </dt>
               <dd className="mt-3">
-                <Paragraphs text={locale === "bn" && faq.answerBn ? faq.answerBn : faq.answer} />
+                <Paragraphs text={localised(locale, faq.answer, faq.answerBn)} />
               </dd>
             </div>
           ))}

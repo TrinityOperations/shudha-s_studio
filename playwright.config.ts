@@ -18,6 +18,8 @@ export default defineConfig({
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
     { name: "mobile", use: { ...devices["Pixel 7"] } },
+    // Bengali rendering on WebKit (PW-82): only the Bengali spec, so the rest stays as fast.
+    { name: "webkit", use: { ...devices["Desktop Safari"] }, testMatch: /bengali\.spec\.ts$/ },
   ],
   webServer: process.env.E2E_BASE_URL
     ? undefined

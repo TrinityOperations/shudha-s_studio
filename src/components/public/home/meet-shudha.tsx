@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getLocale, getT } from "@/lib/i18n";
+import { localised } from "@/lib/i18n/localised";
 import type { AboutSettings, SiteImageSlot } from "@/lib/validators/settings";
 import { SiteImage } from "./site-image";
 import { SlotOverlay } from "./slot-overlay";
@@ -10,8 +11,7 @@ type Props = { portrait: SiteImageSlot | null; about: AboutSettings; editing?: b
 /** PW-05: her portrait with a hanging tag and her story (a [placeholder] until she sends it). */
 export async function MeetShudha({ portrait, about, editing = false }: Props) {
   const [t, locale] = await Promise.all([getT(), getLocale()]);
-  const story =
-    (locale === "bn" && about.storyBn ? about.storyBn : about.story) || t("home.meet.story");
+  const story = localised(locale, about.story, about.storyBn) || t("home.meet.story");
   return (
     <section
       aria-labelledby="meet-heading"

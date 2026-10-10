@@ -5,14 +5,15 @@ import { listAvailableSlots } from "@/db/queries/availability";
 import { listPublishedProductOptions } from "@/db/queries/catalogue";
 import { getContactSettings } from "@/db/queries/settings";
 import { groupSlotsByMelbourneDate } from "@/lib/booking/slots";
-import { getT } from "@/lib/i18n";
-import { formatMelbourne } from "@/lib/time";
+import { getLocale, getT } from "@/lib/i18n";
+import { pageMetadata } from "@/lib/i18n/metadata";
+import { formatMelbourneFor } from "@/lib/time";
 import { SLUG_PATTERN } from "@/lib/validators/products";
 import { whatsappLink } from "@/lib/whatsapp";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getT();
-  return { title: t("booking.title"), alternates: { canonical: "/book" } };
+  const [t, locale] = await Promise.all([getT(), getLocale()]);
+  return pageMetadata("/book", locale, { title: t("booking.title") });
 }
 
 function first(value: string | string[] | undefined) {
@@ -22,6 +23,7 @@ function first(value: string | string[] | undefined) {
 /** PW-30..33: slots are computed on the server now; the form only ever sends a slot start back. */
 export default async function BookPage({ searchParams }: PageProps<"/book">) {
   const params = await searchParams;
+  const locale = await getLocale();
   const requested = first(params.product) ?? "";
   const initialProductSlug = SLUG_PATTERN.test(requested) ? requested : "";
   const attachWishlist = first(params.wishlist) === "1";
@@ -35,10 +37,10 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
 
   const days: SlotDayOption[] = groupSlotsByMelbourneDate(available.slots).map((day) => ({
     date: day.date,
-    label: formatMelbourne(day.slots[0].startsAt, "EEE d MMM"),
+    label: formatMelbourneFor(locale, day.slots[0].startsAt, "short"),
     slots: day.slots.map((slot) => ({
       start: slot.startsAt.toISOString(),
-      label: formatMelbourne(slot.startsAt, "h:mm aaa"),
+      label: formatMelbourneFor(locale, slot.startsAt, "time"),
     })),
   }));
 

@@ -8,6 +8,7 @@ import { ProductDetail } from "@/components/public/catalogue/product-detail";
 import { getPublishedProduct, listRelatedProducts } from "@/db/queries/catalogue";
 import { recordProductView } from "@/lib/catalogue/record-view";
 import { getLocale } from "@/lib/i18n";
+import { pageMetadata } from "@/lib/i18n/metadata";
 import { productImageUrl } from "@/lib/storage";
 
 // Shared between generateMetadata and the page within one request.
@@ -27,10 +28,9 @@ export async function generateMetadata({
     .slice(0, 160);
   const image = product.images[0];
   const path = `/products/${product.slug}`;
-  return {
+  return pageMetadata(path, locale, {
     title,
     description: description || undefined,
-    alternates: { canonical: path },
     openGraph: {
       title,
       description: description || undefined,
@@ -47,7 +47,7 @@ export async function generateMetadata({
           ]
         : [],
     },
-  };
+  });
 }
 
 /** PW-20..27, PW-48. Drafts and archived products 404 here; the owner previews them under /admin. */

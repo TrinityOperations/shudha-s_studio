@@ -64,7 +64,7 @@ describe("sendBookingEmail", () => {
     await sendBookingEmail("received", booking);
     const call = mocks.sendEmail.mock.calls[0][0];
     expect(call.to).toBe("asha@example.com");
-    expect(call.subject).toContain("15"); // Bengali subject with the date
+    expect(call.subject).toContain("১৫"); // Bengali digits for a Bengali booking (slice #11); Bengali subject with the date
     expect(call.subject).not.toMatch(/emails\./);
     expect(call.attachments).toHaveLength(1);
     expect(call.attachments[0].filename).toBe("consultation.ics");

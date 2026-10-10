@@ -3,6 +3,7 @@ import { ProductCard } from "@/components/public/catalogue/product-card";
 import type { CatalogueCard } from "@/db/queries/catalogue";
 import type { Category } from "@/db/schema";
 import { getLocale, getT } from "@/lib/i18n";
+import { localised } from "@/lib/i18n/localised";
 import { HOME_NEW_PICKS_MAX } from "@/lib/validators/settings";
 import { Carousel } from "./carousel";
 import { SectionHeading } from "./section-heading";
@@ -42,7 +43,7 @@ export async function NewFromStudio({ products, categories, editing = false }: P
             {categories.map((category) => (
               <li key={category.id} className="shrink-0">
                 <Link href={`/products?category=${category.slug}`} className="chip">
-                  {locale === "bn" && category.nameBn ? category.nameBn : category.name}
+                  {localised(locale, category.name, category.nameBn)}
                 </Link>
               </li>
             ))}

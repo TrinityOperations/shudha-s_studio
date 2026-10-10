@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getLocale } from "@/lib/i18n";
+import { localised } from "@/lib/i18n/localised";
 import type { SeasonalBannerSettings } from "@/lib/validators/settings";
 
 /** Home section 7: one big accent tag; hidden until the owner turns it on (#10, colour in #13). */
@@ -37,5 +38,5 @@ export async function SeasonalBanner({ banner }: { banner: SeasonalBannerSetting
 }
 
 function localiseWith(locale: "en" | "bn") {
-  return (en: string, bn: string) => (locale === "bn" && bn ? bn : en);
+  return (en: string, bn: string) => localised(locale, en, bn);
 }

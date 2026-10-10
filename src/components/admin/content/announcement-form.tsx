@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { updateAnnouncementSettings } from "@/actions/settings";
+import { BanglaBadge } from "@/components/shared/bangla-badge";
 import { FieldMessage } from "@/components/shared/field-message";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { Button } from "@/components/ui/button";
@@ -79,6 +80,7 @@ export function AnnouncementForm({ defaultValues }: { defaultValues: Announcemen
               <Field>
                 <FieldLabel htmlFor={`messages.${index}.textBn`}>
                   {t("admin.announcement.textBn")}
+                  <BanglaBadge />
                 </FieldLabel>
                 <Input
                   id={`messages.${index}.textBn`}
@@ -108,6 +110,7 @@ export function AnnouncementForm({ defaultValues }: { defaultValues: Announcemen
                 <Field>
                   <FieldLabel htmlFor={`messages.${index}.linkLabelBn`}>
                     {t("admin.announcement.linkLabelBn")}
+                    <BanglaBadge />
                   </FieldLabel>
                   <Input
                     id={`messages.${index}.linkLabelBn`}

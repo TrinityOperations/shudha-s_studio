@@ -29,6 +29,7 @@ import {
   updateProductImageAlt,
   uploadProductImages,
 } from "@/actions/product-images";
+import { BanglaBadge } from "@/components/shared/bangla-badge";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FieldMessage } from "@/components/shared/field-message";
 import { SubmitButton } from "@/components/shared/submit-button";
@@ -224,6 +225,7 @@ export function ProductImages({ productId, images }: Props) {
                   <Field>
                     <FieldLabel htmlFor={`altbn-${pending.key}`}>
                       {t("admin.images.altBn")}
+                      <BanglaBadge />
                     </FieldLabel>
                     <Input
                       id={`altbn-${pending.key}`}
@@ -454,7 +456,10 @@ function EditAltForm({ image, onSaved }: { image: ProductImageRow; onSaved: () =
           <FieldMessage id="edit-alt-error" error={errors.alt} />
         </Field>
         <Field data-invalid={!!errors.altBn || undefined}>
-          <FieldLabel htmlFor="edit-alt-bn">{t("admin.images.altBn")}</FieldLabel>
+          <FieldLabel htmlFor="edit-alt-bn">
+            {t("admin.images.altBn")}
+            <BanglaBadge />
+          </FieldLabel>
           <Input id="edit-alt-bn" lang="bn" {...form.register("altBn")} />
           <FieldDescription>{t("admin.settings.taglineBnHint")}</FieldDescription>
           <FieldMessage error={errors.altBn} />

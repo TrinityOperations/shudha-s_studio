@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { createFaq, deleteFaq, reorderFaqs, updateFaq } from "@/actions/faqs";
+import { BanglaBadge } from "@/components/shared/bangla-badge";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FieldMessage } from "@/components/shared/field-message";
 import { SubmitButton } from "@/components/shared/submit-button";
@@ -163,7 +164,10 @@ function FaqForm({
           <FieldMessage error={errors.question} />
         </Field>
         <Field>
-          <FieldLabel htmlFor="questionBn">{t("admin.faqs.questionBn")}</FieldLabel>
+          <FieldLabel htmlFor="questionBn">
+            {t("admin.faqs.questionBn")}
+            <BanglaBadge />
+          </FieldLabel>
           <Input id="questionBn" lang="bn" {...form.register("questionBn")} />
         </Field>
         <Field data-invalid={!!errors.answer || undefined}>
@@ -172,7 +176,10 @@ function FaqForm({
           <FieldMessage error={errors.answer} />
         </Field>
         <Field>
-          <FieldLabel htmlFor="answerBn">{t("admin.faqs.answerBn")}</FieldLabel>
+          <FieldLabel htmlFor="answerBn">
+            {t("admin.faqs.answerBn")}
+            <BanglaBadge />
+          </FieldLabel>
           <Textarea id="answerBn" lang="bn" rows={4} {...form.register("answerBn")} />
         </Field>
         <Controller
