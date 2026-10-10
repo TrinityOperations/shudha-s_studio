@@ -28,9 +28,30 @@ export async function removeStorageObjects(bucket: string, paths: string[]): Pro
   if (error) throw new StorageError(`remove from ${bucket}: ${error.message}`);
 }
 
-export async function copyStorageObject(bucket: string, from: string, to: string): Promise<void> {
-  const { error } = await createAdminClient().storage.from(bucket).copy(from, to);
-  if (error) throw new StorageError(`copy ${bucket}/${from} → ${to}: ${error.message}`);
+/** Copies within a bucket, or into `destinationBucket` when given (gallery approval, slice #12). */
+export async function copyStorageObject(
+  bucket: string,
+  from: string,
+  to: string,
+  destinationBucket?: string,
+): Promise<void> {
+  const { error } = await createAdminClient()
+    .storage.from(bucket)
+    .copy(from, to, destinationBucket ? { destinationBucket } : undefined);
+  const target = destinationBucket ? `${destinationBucket}/${to}` : to;
+  if (error) throw new StorageError(`copy ${bucket}/${from} → ${target}: ${error.message}`);
+}
+
+/** Whether an object exists (a folder listing filtered by name; cheap and needs no download). */
+export async function storageObjectExists(bucket: string, path: string): Promise<boolean> {
+  const slash = path.lastIndexOf("/");
+  const folder = slash === -1 ? "" : path.slice(0, slash);
+  const name = path.slice(slash + 1);
+  const { data, error } = await createAdminClient()
+    .storage.from(bucket)
+    .list(folder, { search: name, limit: 10 });
+  if (error) throw new StorageError(`list ${bucket}/${folder}: ${error.message}`);
+  return (data ?? []).some((item) => item.name === name);
 }
 
 /**

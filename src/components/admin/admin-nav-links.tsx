@@ -3,7 +3,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-export function AdminNavLinks({ links }: { links: { href: string; label: string }[] }) {
+type NavLink = {
+  href: string;
+  label: string;
+  /** A count beside the label (the gallery's pending photos) with its accessible wording */
+  badge?: { count: number; label: string };
+};
+
+export function AdminNavLinks({ links }: { links: NavLink[] }) {
   const pathname = usePathname();
 
   return (
@@ -22,6 +29,15 @@ export function AdminNavLinks({ links }: { links: { href: string; label: string 
               )}
             >
               {link.label}
+              {link.badge ? (
+                <span
+                  className="bg-mark ml-2 inline-block min-w-[18px] rounded-full px-1.5 text-center text-[11px] leading-[18px] font-semibold text-white"
+                  aria-label={link.badge.label}
+                  data-testid="gallery-badge"
+                >
+                  {link.badge.count}
+                </span>
+              ) : null}
             </Link>
           </li>
         );

@@ -55,11 +55,13 @@ Permission wording for consent; whether names are shown.
 If the answer isn't in yet, build with sensible defaults the owner can change, and note them in the PR.
 
 ## Done when
-- [ ] Unapproved photos never visible publicly (tested)
-- [ ] EXIF location stripped
-- [ ] Owner approves from a phone
-- [ ] `pnpm lint && pnpm typecheck && pnpm test` pass and CI is green
-- [ ] Works at phone width and by keyboard
+- [x] Unapproved photos never visible publicly (tested: unit + e2e)
+- [x] EXIF location stripped (unit test with GPS tags)
+- [x] Owner approves from a phone (e2e mobile project, 44px buttons)
+- [x] `pnpm lint && pnpm typecheck && pnpm test` pass (CI on the PR)
+- [x] Works at phone width and by keyboard (e2e submits by keyboard)
 
 ## Hand-off to later slices
-A hook point for #14's push notification on new submissions.
+`onGallerySubmitted` in `src/lib/gallery/hooks.ts` is where #14 adds the push notification (marked in the code). #14's nav redesign moves Gallery under More.
+
+Note for whoever touches hide/delete: Supabase's CDN can keep serving a deleted public file for up to about a minute after Hide, so "hidden" means gone from the site immediately and from the public URL within a minute. Delete has the same lag.

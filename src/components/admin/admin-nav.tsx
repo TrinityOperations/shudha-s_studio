@@ -1,14 +1,28 @@
 import { AdminNavLinks } from "@/components/admin/admin-nav-links";
 import { SignOutButton } from "@/components/admin/sign-out-button";
+import { countPendingGallery } from "@/db/queries/gallery";
 import { getT } from "@/lib/i18n";
 
 export async function AdminNav({ email }: { email: string }) {
-  const t = await getT();
+  const [t, pendingGallery] = await Promise.all([getT(), countPendingGallery()]);
   const links = [
     { href: "/admin", label: t("common.dashboard") },
     { href: "/admin/products", label: t("common.products") },
     { href: "/admin/bookings", label: t("common.bookings") },
     { href: "/admin/availability", label: t("common.availability") },
+    {
+      href: "/admin/gallery",
+      label: t("common.gallery"),
+      badge: pendingGallery
+        ? {
+            count: pendingGallery,
+            label:
+              pendingGallery === 1
+                ? t("admin.gallery.badgeOne")
+                : t("admin.gallery.badge", { count: pendingGallery }),
+          }
+        : undefined,
+    },
     { href: "/admin/settings", label: t("common.settings") },
   ];
 
