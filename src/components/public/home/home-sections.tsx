@@ -20,6 +20,7 @@ import {
   HOME_SIGNATURE_PICKS_MAX,
   type HomeContent,
 } from "@/lib/validators/settings";
+import { ProductCard } from "@/components/public/catalogue/product-card";
 import { FactsStrip } from "./facts-strip";
 import { FollowStudio } from "./follow-studio";
 import { HappyCustomers } from "./happy-customers";
@@ -116,7 +117,16 @@ export async function HomeSections({ home, editing = false }: Props) {
       <FactsStrip />
       <Occasions tiles={occasionTiles} editing={editing} />
       <SignatureDesigns
-        products={signatureProducts}
+        cards={Array.from(
+          { length: editing ? HOME_SIGNATURE_PICKS_MAX : signatureProducts.length },
+          (_, i) => {
+            const product = signatureProducts[i] ?? null;
+            return {
+              key: product?.id ?? `empty-${i}`,
+              card: product ? <ProductCard product={product} /> : null,
+            };
+          },
+        )}
         panel={home.signaturePanel}
         slots={
           editing

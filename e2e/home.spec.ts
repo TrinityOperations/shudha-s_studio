@@ -151,6 +151,36 @@ test.describe("home page and site chrome", () => {
         madeForYou.getByTestId("made-for-you-photo").locator("img").first(),
         madeForYou,
       );
+      // Signature designs: on desktop the panel pins below the collapsed header while the cards
+      // scroll past; on phones it scrolls away like everything else.
+      const signature = visitor.getByTestId("signature-designs");
+      if ((await signature.count()) > 0) {
+        const panel = visitor.getByTestId("signature-panel");
+        const firstCard = visitor.getByTestId("signature-cards").locator("li").first();
+        await visitor.evaluate(() => {
+          const section = document.querySelector('[data-testid="signature-designs"]');
+          if (section)
+            window.scrollTo({ top: section.getBoundingClientRect().top + window.scrollY });
+        });
+        await visitor.waitForTimeout(300);
+        const panelBefore = (await panel.boundingBox())!.y;
+        const cardBefore = (await firstCard.boundingBox())!.y;
+        await visitor.evaluate(() => window.scrollBy({ top: 200 }));
+        await visitor.waitForTimeout(300);
+        const panelAfter = (await panel.boundingBox())!.y;
+        const cardAfter = (await firstCard.boundingBox())!.y;
+        expect(Math.round(cardBefore - cardAfter)).toBeGreaterThanOrEqual(195);
+        if (mobile) {
+          expect(Math.round(panelBefore - panelAfter)).toBeGreaterThanOrEqual(195);
+        } else {
+          const headerBottom =
+            (await visitor.getByTestId("site-header").boundingBox())!.y +
+            (await visitor.getByTestId("site-header").boundingBox())!.height;
+          expect(Math.abs(panelAfter - headerBottom)).toBeLessThanOrEqual(2);
+          expect(Math.abs(panelAfter - panelBefore)).toBeLessThan(200);
+        }
+      }
+
       // The layout checks scrolled; the header checks below start from the top.
       await visitor.evaluate(() => window.scrollTo({ top: 0 }));
 

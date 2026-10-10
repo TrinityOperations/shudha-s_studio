@@ -206,6 +206,18 @@ test.describe("home page editor", () => {
     await expectInside(editorHero.locator("img").first(), editorHero);
     await expect(editorHero.getByRole("heading", { level: 1 })).toBeVisible();
 
+    // The sticky panel pins below the editing bar in edit mode, as it does below the header.
+    const panel = page.getByTestId("signature-panel");
+    await page.evaluate(() => {
+      const section = document.querySelector('[data-testid="signature-designs"]');
+      if (section)
+        window.scrollTo({ top: section.getBoundingClientRect().top + window.scrollY + 200 });
+    });
+    await page.waitForTimeout(300);
+    const bar = (await page.getByTestId("editing-bar").boundingBox())!;
+    expect(Math.abs((await panel.boundingBox())!.y - (bar.y + bar.height))).toBeLessThanOrEqual(2);
+    await page.evaluate(() => window.scrollTo({ top: 0 }));
+
     // Edit mode draws the same page: each section's size matches the public one within 4px.
     const editorBoxes = await sectionSizes(page);
     for (const selector of SECTIONS) {
