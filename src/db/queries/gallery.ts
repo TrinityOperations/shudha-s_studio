@@ -1,7 +1,9 @@
 import "server-only";
-import { and, desc, eq, isNotNull } from "drizzle-orm";
+import { and, count, desc, eq, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
-import { gallerySubmissions } from "@/db/schema";
+import { gallerySubmissions, type GallerySubmission } from "@/db/schema";
+
+export type GalleryStatus = GallerySubmission["status"];
 
 export type GalleryTile = {
   id: string;
@@ -9,24 +11,67 @@ export type GalleryTile = {
   imagePath: string;
   thumbPath: string;
   firstName: string | null;
+  note: string | null;
 };
 
-/** PW-72: approved customer photos, newest first, for the home page row and the gallery (#12). */
-export async function listApprovedGallery(limit = 10): Promise<GalleryTile[]> {
+const approvedWhere = and(
+  eq(gallerySubmissions.status, "approved"),
+  isNotNull(gallerySubmissions.publicImagePath),
+  isNotNull(gallerySubmissions.publicThumbPath),
+);
+
+/** PW-70, PW-72: approved customer photos, newest first, for the home row and the gallery page. */
+export async function listApprovedGallery(limit = 10, offset = 0): Promise<GalleryTile[]> {
   const rows = await db.query.gallerySubmissions.findMany({
-    where: and(
-      eq(gallerySubmissions.status, "approved"),
-      isNotNull(gallerySubmissions.publicImagePath),
-      isNotNull(gallerySubmissions.publicThumbPath),
-    ),
-    columns: { id: true, publicImagePath: true, publicThumbPath: true, firstName: true },
+    where: approvedWhere,
+    columns: {
+      id: true,
+      publicImagePath: true,
+      publicThumbPath: true,
+      firstName: true,
+      note: true,
+    },
     orderBy: [desc(gallerySubmissions.reviewedAt), desc(gallerySubmissions.createdAt)],
     limit,
+    offset,
   });
   return rows.map((row) => ({
     id: row.id,
     imagePath: row.publicImagePath!,
     thumbPath: row.publicThumbPath!,
     firstName: row.firstName,
+    note: row.note,
   }));
+}
+
+export async function countApprovedGallery(): Promise<number> {
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(gallerySubmissions)
+    .where(approvedWhere);
+  return total;
+}
+
+/** OD-32: the owner's queue for one tab, newest first. */
+export async function listGalleryByStatus(status: GalleryStatus): Promise<GallerySubmission[]> {
+  return db.query.gallerySubmissions.findMany({
+    where: eq(gallerySubmissions.status, status),
+    orderBy: [desc(gallerySubmissions.createdAt)],
+  });
+}
+
+/** The badge next to the Gallery link. */
+export async function countPendingGallery(): Promise<number> {
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(gallerySubmissions)
+    .where(eq(gallerySubmissions.status, "pending"));
+  return total;
+}
+
+export async function getGallerySubmission(id: string): Promise<GallerySubmission | null> {
+  const row = await db.query.gallerySubmissions.findFirst({
+    where: eq(gallerySubmissions.id, id),
+  });
+  return row ?? null;
 }
