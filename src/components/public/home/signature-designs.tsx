@@ -84,8 +84,10 @@ export function SignatureDesigns({ cards, panel, slots }: Props) {
               key={key}
               initial={reduced ? false : { opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: reduced ? 0 : i * 0.12 }}
+              // Start rising as the card's top nears the bottom of the viewport, so the second
+              // row is already visible when it scrolls in.
+              viewport={{ once: true, amount: 0.1, margin: "0px 0px 120px 0px" }}
+              transition={{ duration: 0.5, delay: reduced ? 0 : i * 0.08 }}
               className="relative"
             >
               {card ?? (

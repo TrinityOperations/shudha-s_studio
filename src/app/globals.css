@@ -74,6 +74,9 @@
   --mark: #c2402a;
   --scrim: #1a1613;
   --font-heading-stack: var(--font-eczar), Georgia, serif;
+  /* The collapsed public header (and the editor's bar on desktop): 44px content + 2 × 10px
+     padding + 1px border. Sticky things that pin below the header use the same value. */
+  --header-collapsed-height: 65px;
 
   --background: var(--paper);
   --foreground: var(--ink);

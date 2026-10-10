@@ -25,7 +25,7 @@ export function EditingBar({ dirty, onChanged }: Props) {
       className="bg-ink sticky top-0 z-50 text-white"
       data-testid="editing-bar"
     >
-      <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3">
+      <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 lg:h-[var(--header-collapsed-height)] lg:py-0">
         <div className="flex items-center gap-3">
           <span className="font-heading text-lg">{t("admin.editor.bar.title")}</span>
           <Badge
