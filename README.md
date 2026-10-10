@@ -1,6 +1,6 @@
 # Shudha's Studio
 
-Website and owner dashboard for **Shudha's Studio**, a Melbourne personalised-gift maker. Customers browse custom products (with optional starting prices) and book an appointment to discuss an order. The owner manages everything from a private dashboard at `/admin`.
+Website and owner dashboard for **Shudha's Studio**, a Melbourne personalised-gift maker. Customers browse custom products (no prices) and book an appointment to discuss an order. The owner manages everything from a private dashboard at `/admin`.
 
 - Requirements: [`docs/SRS.md`](docs/SRS.md)
 - Decisions log: [`docs/DECISIONS.md`](docs/DECISIONS.md)
@@ -50,8 +50,8 @@ pnpm -v      # 12.x
 
 ### 2. Get the code
 ```
-git clone https://github.com/TrinityOperations/shudhas_studio.git
-cd shudhas_studio
+git clone https://github.com/TrinityOperations/shudha-s_studio.git
+cd shudha-s_studio
 ```
 Avoid folder names with apostrophes or spaces; they break some tools.
 
