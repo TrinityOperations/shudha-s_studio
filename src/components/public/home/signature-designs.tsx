@@ -9,7 +9,7 @@ import { useLocale, useT } from "@/lib/i18n/client";
 import { productImageUrl } from "@/lib/storage";
 import type { SiteImageSlot } from "@/lib/validators/settings";
 import { SiteImage } from "./site-image";
-import { SlotFrame } from "./slot-frame";
+import { SlotOverlay } from "./slot-overlay";
 import { Tag } from "./tag";
 
 type Props = {
@@ -42,10 +42,7 @@ export function SignatureDesigns({ products, panel, slots }: Props) {
       data-testid="signature-designs"
     >
       <div className="flex flex-wrap gap-5">
-        <SlotFrame
-          slots={slots ? [slots.panel] : []}
-          className="relative min-h-[360px] flex-[1_1_380px] overflow-hidden lg:min-h-[560px]"
-        >
+        <div className="relative min-h-[360px] flex-[1_1_380px] overflow-hidden lg:min-h-[560px]">
           <motion.div
             style={reduced ? undefined : { y: drift }}
             className="absolute inset-x-0 -inset-y-10"
@@ -67,7 +64,8 @@ export function SignatureDesigns({ products, panel, slots }: Props) {
               {t("home.signature.link")}
             </Link>
           </div>
-        </SlotFrame>
+          {slots ? <SlotOverlay slots={[slots.panel]} /> : null}
+        </div>
         <ul className="grid flex-[1.4_1_560px] grid-cols-2 gap-4 lg:gap-5">
           {Array.from({ length: tileCount }, (_, i) => products[i] ?? null).map((product, i) => {
             const title = product
@@ -87,6 +85,7 @@ export function SignatureDesigns({ products, panel, slots }: Props) {
                   />
                 ) : null}
                 {title ? <Tag className="absolute bottom-4 left-4 z-10">{title}</Tag> : null}
+                {slots ? <SlotOverlay slots={[{ ...slots.tiles[i], filled: !!product }]} /> : null}
               </div>
             );
             return (
@@ -99,7 +98,7 @@ export function SignatureDesigns({ products, panel, slots }: Props) {
                 className="group relative"
               >
                 {slots ? (
-                  <SlotFrame slots={[{ ...slots.tiles[i], filled: !!product }]}>{tile}</SlotFrame>
+                  tile
                 ) : product ? (
                   <Link href={`/products/${product.slug}`} className="block">
                     {tile}

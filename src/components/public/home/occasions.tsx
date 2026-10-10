@@ -6,7 +6,7 @@ import { getLocale, getT } from "@/lib/i18n";
 import { productImageUrl } from "@/lib/storage";
 import { Carousel } from "./carousel";
 import { SiteImage } from "./site-image";
-import { SlotFrame } from "./slot-frame";
+import { SlotOverlay } from "./slot-overlay";
 import { HangingTag } from "./tag";
 
 export type OccasionTile = { occasion: Occasion; photo: TilePhoto };
@@ -52,15 +52,8 @@ export async function Occasions({
                 <span data-placeholder="occasion-photo" className="bg-mist absolute inset-0" />
               )}
               <HangingTag>{name}</HangingTag>
-            </div>
-          );
-          return (
-            <li
-              key={occasion.id}
-              className="group relative w-[220px] shrink-0 snap-start lg:w-[250px] xl:w-[280px]"
-            >
               {editing ? (
-                <SlotFrame
+                <SlotOverlay
                   slots={[
                     {
                       id: `occasion.${occasion.slug}`,
@@ -71,9 +64,17 @@ export async function Occasions({
                       filled: photo.kind !== "empty",
                     },
                   ]}
-                >
-                  {tile}
-                </SlotFrame>
+                />
+              ) : null}
+            </div>
+          );
+          return (
+            <li
+              key={occasion.id}
+              className="group relative w-[220px] shrink-0 snap-start lg:w-[250px] xl:w-[280px]"
+            >
+              {editing ? (
+                tile
               ) : (
                 <Link href={`/products?occasion=${occasion.slug}`} className="block">
                   {tile}

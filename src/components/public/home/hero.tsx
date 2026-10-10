@@ -11,7 +11,7 @@ import { useT } from "@/lib/i18n/client";
 import { publicStorageUrl } from "@/lib/storage";
 import type { SiteImageSlot } from "@/lib/validators/settings";
 import { HERO_SENTINEL } from "@/components/public/layout/header-chrome";
-import { SlotFrame } from "./slot-frame";
+import { SlotOverlay } from "./slot-overlay";
 
 type Props = {
   poster: SiteImageSlot | null;
@@ -82,38 +82,37 @@ export function Hero({ poster, videoPath, slots = [] }: Props) {
       className="bg-mist relative h-[640px] w-full overflow-hidden lg:h-[720px]"
       data-testid="hero"
     >
-      <SlotFrame slots={slots} className="absolute inset-0">
-        {poster ? (
-          <Image
-            src={publicStorageUrl(poster.bucket, poster.path)}
-            alt=""
-            fill
-            priority
-            fetchPriority="high"
-            sizes="100vw"
-            style={{ objectPosition: focusPosition(poster) }}
-            className="object-cover"
-          />
-        ) : (
-          <div data-placeholder="hero-poster" className="bg-mist absolute inset-0" />
-        )}
-        {showVideo && videoPath ? (
-          <motion.video
-            ref={videoRef}
-            src={publicStorageUrl(SITE_IMAGES_BUCKET, videoPath)}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            className="absolute inset-0 size-full object-cover"
-            data-testid="hero-video"
-          />
-        ) : null}
-      </SlotFrame>
+      {poster ? (
+        <Image
+          src={publicStorageUrl(poster.bucket, poster.path)}
+          alt=""
+          fill
+          priority
+          fetchPriority="high"
+          sizes="100vw"
+          style={{ objectPosition: focusPosition(poster) }}
+          className="object-cover"
+        />
+      ) : (
+        <div data-placeholder="hero-poster" className="bg-mist absolute inset-0" />
+      )}
+      {showVideo && videoPath ? (
+        <motion.video
+          ref={videoRef}
+          src={publicStorageUrl(SITE_IMAGES_BUCKET, videoPath)}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          className="absolute inset-0 size-full object-cover"
+          data-testid="hero-video"
+        />
+      ) : null}
+      <SlotOverlay slots={slots} />
       {showVideo && videoPath ? (
         <button
           type="button"

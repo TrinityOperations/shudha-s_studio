@@ -5,7 +5,7 @@ import { getT } from "@/lib/i18n";
 import type { HomeContent, SocialSettings } from "@/lib/validators/settings";
 import { SectionHeading } from "./section-heading";
 import { SiteImage } from "./site-image";
-import { SlotFrame } from "./slot-frame";
+import { SlotOverlay } from "./slot-overlay";
 
 type Props = { collage: HomeContent["collage"]; social: SocialSettings; editing?: boolean };
 
@@ -79,29 +79,25 @@ export async function FollowStudio({ collage, social, editing = false }: Props) 
             key={i}
             className={`group relative overflow-hidden ${SLOTS[i].phone ?? "hidden lg:block"} ${SLOTS[i].desktop} ${SLOTS[i].shape ?? ""}`}
           >
-            <SlotFrame
-              slots={
-                editing
-                  ? [
-                      {
-                        id: `collage.${i}`,
-                        label: t("admin.editor.slots.collage", { n: i + 1 }),
-                        shape: "wide",
-                        kind: "image",
-                        filled: !!slot,
-                      },
-                    ]
-                  : []
-              }
-              className="absolute inset-0"
-            >
-              <SiteImage
-                slot={slot}
-                alt=""
-                sizes="(min-width: 1024px) 33vw, 66vw"
-                className="transition-transform duration-500 group-hover:scale-[1.03]"
+            <SiteImage
+              slot={slot}
+              alt=""
+              sizes="(min-width: 1024px) 33vw, 66vw"
+              className="transition-transform duration-500 group-hover:scale-[1.03]"
+            />
+            {editing ? (
+              <SlotOverlay
+                slots={[
+                  {
+                    id: `collage.${i}`,
+                    label: t("admin.editor.slots.collage", { n: i + 1 }),
+                    shape: "wide",
+                    kind: "image",
+                    filled: !!slot,
+                  },
+                ]}
               />
-            </SlotFrame>
+            ) : null}
           </li>
         ))}
       </ul>

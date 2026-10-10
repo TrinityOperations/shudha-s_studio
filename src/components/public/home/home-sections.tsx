@@ -35,7 +35,7 @@ import { SignatureDesigns } from "./signature-designs";
 type Props = {
   /** The copy of the home key to render: `published` for visitors, `draft` in the editor */
   home: HomeContent;
-  /** The editor route sets this; sections then describe their photo slots to SlotFrame */
+  /** The editor route sets this; sections then render a SlotOverlay inside each photo box */
   editing?: boolean;
 };
 

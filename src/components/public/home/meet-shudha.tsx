@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getLocale, getT } from "@/lib/i18n";
 import type { AboutSettings, SiteImageSlot } from "@/lib/validators/settings";
 import { SiteImage } from "./site-image";
-import { SlotFrame } from "./slot-frame";
+import { SlotOverlay } from "./slot-overlay";
 import { HangingTag } from "./tag";
 
 type Props = { portrait: SiteImageSlot | null; about: AboutSettings; editing?: boolean };
@@ -18,22 +18,7 @@ export async function MeetShudha({ portrait, about, editing = false }: Props) {
       className="mx-auto w-full max-w-7xl px-4 py-14 lg:px-6 lg:py-20"
     >
       <div className="flex flex-wrap items-center gap-10 lg:gap-16">
-        <SlotFrame
-          slots={
-            editing
-              ? [
-                  {
-                    id: "portrait",
-                    label: t("admin.editor.slots.portrait"),
-                    shape: "tall",
-                    kind: "image",
-                    filled: !!portrait,
-                  },
-                ]
-              : []
-          }
-          className="relative aspect-[4/5] w-full max-w-[400px] flex-[0_1_400px]"
-        >
+        <div className="relative aspect-[4/5] w-full max-w-[400px] flex-[0_1_400px]">
           <SiteImage
             slot={portrait}
             alt=""
@@ -41,7 +26,20 @@ export async function MeetShudha({ portrait, about, editing = false }: Props) {
             emptyLabel={t("home.placeholder.photo")}
           />
           <HangingTag>{t("home.meet.tag")}</HangingTag>
-        </SlotFrame>
+          {editing ? (
+            <SlotOverlay
+              slots={[
+                {
+                  id: "portrait",
+                  label: t("admin.editor.slots.portrait"),
+                  shape: "tall",
+                  kind: "image",
+                  filled: !!portrait,
+                },
+              ]}
+            />
+          ) : null}
+        </div>
         <div className="flex-[1_1_320px]">
           <h2
             id="meet-heading"

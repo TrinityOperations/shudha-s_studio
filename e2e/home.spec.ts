@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 import { Client } from "pg";
 import { cleanupE2EProducts, ownerEmail, ownerPassword, signInAsOwner } from "./helpers";
 
@@ -47,6 +47,20 @@ async function restoreContact(previous: unknown) {
   } finally {
     await client.end();
   }
+}
+
+/** Asserts `inner`'s bounding box lies inside `outer`'s (2px tolerance); skips when `inner` is absent. */
+async function expectInside(inner: Locator, outer: Locator) {
+  if ((await inner.count()) === 0) return;
+  await inner.scrollIntoViewIfNeeded();
+  const [a, b] = await Promise.all([inner.boundingBox(), outer.boundingBox()]);
+  expect(a, "inner box").not.toBeNull();
+  expect(b, "outer box").not.toBeNull();
+  if (!a || !b) return;
+  expect(a.x).toBeGreaterThanOrEqual(b.x - 2);
+  expect(a.y).toBeGreaterThanOrEqual(b.y - 2);
+  expect(a.x + a.width).toBeLessThanOrEqual(b.x + b.width + 2);
+  expect(a.y + a.height).toBeLessThanOrEqual(b.y + b.height + 2);
 }
 
 /** Whether the owner has picked products for "New from the studio" (home key, published copy). */
@@ -127,6 +141,18 @@ test.describe("home page and site chrome", () => {
         "href",
         "/custom-order",
       );
+
+      // Layout: the welcome card is visible and every fill image stays inside its own box
+      // (a wrapper once broke the hero and made-for-you photos' containing blocks).
+      await expect(hero.getByRole("heading", { level: 1 })).toBeVisible();
+      await expectInside(hero.locator("img").first(), hero);
+      const madeForYou = visitor.locator("#made-for-you");
+      await expectInside(
+        madeForYou.getByTestId("made-for-you-photo").locator("img").first(),
+        madeForYou,
+      );
+      // The layout checks scrolled; the header checks below start from the top.
+      await visitor.evaluate(() => window.scrollTo({ top: 0 }));
 
       // Category chips and occasion tiles link into the catalogue.
       const chips = visitor.getByRole("navigation", { name: /shop by category/i });

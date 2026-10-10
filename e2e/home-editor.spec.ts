@@ -1,5 +1,5 @@
 import path from "node:path";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
 import { Client } from "pg";
 import { cleanupE2EProducts, ownerEmail, ownerPassword, signInAsOwner } from "./helpers";
@@ -41,6 +41,48 @@ function sitePaths(content: unknown): string[] {
   };
   walk(content);
   return out;
+}
+
+const SECTIONS = [
+  '[data-testid="hero"]',
+  '[data-testid="facts-strip"]',
+  "#occasions",
+  '[data-testid="signature-designs"]',
+  'section[aria-labelledby="new-heading"]',
+  "#made-for-you",
+  'section[aria-labelledby="meet-heading"]',
+  'section[aria-labelledby="customers-heading"]',
+  'section[aria-labelledby="follow-heading"]',
+];
+
+async function sectionSizes(page: Page) {
+  const sizes: Record<string, { width: number; height: number } | null> = {};
+  for (const selector of SECTIONS) {
+    const box = await page.locator(selector).first().boundingBox();
+    sizes[selector] = box ? { width: Math.round(box.width), height: Math.round(box.height) } : null;
+  }
+  return sizes;
+}
+
+async function expectInside(inner: Locator, outer: Locator) {
+  await inner.scrollIntoViewIfNeeded();
+  const [a, b] = await Promise.all([inner.boundingBox(), outer.boundingBox()]);
+  expect(a, "inner box").not.toBeNull();
+  expect(b, "outer box").not.toBeNull();
+  if (!a || !b) return;
+  expect(a.x).toBeGreaterThanOrEqual(b.x - 2);
+  expect(a.y).toBeGreaterThanOrEqual(b.y - 2);
+  expect(a.x + a.width).toBeLessThanOrEqual(b.x + b.width + 2);
+  expect(a.y + a.height).toBeLessThanOrEqual(b.y + b.height + 2);
+}
+
+/** Hovers the slot's box (desktop shows the button on hover) and checks the change button. */
+async function expectSlotButton(page: Page, id: string) {
+  const button = page.getByTestId(`slot-${id}`);
+  await expect(button, `slot ${id}`).toHaveCount(1);
+  await button.scrollIntoViewIfNeeded();
+  await page.locator(`[data-slot-overlay="${id.startsWith("hero") ? "heroVideo" : id}"]`).hover();
+  await expect(button, `slot ${id}`).toBeVisible();
 }
 
 /**
@@ -133,9 +175,46 @@ test.describe("home page editor", () => {
 
     await createProductWithPhoto(page, sourceTitle);
 
+    // Section sizes on the public page, for the edit-mode comparison below.
+    await page.goto("/");
+    const publicBoxes = await sectionSizes(page);
+
     await page.goto("/admin/home-editor");
     await expect(page.getByTestId("editing-bar")).toBeVisible();
     await expect(page.getByTestId("editor-dirty")).toContainText(/everything is published/i);
+
+    // Every slot has a change button; the collage has ten tiles; the poster stays in the hero.
+    const occasionSlugs =
+      (await withDb(async (c) => {
+        const r = await c.query<{ slug: string }>(`select slug from occasions order by sort_order`);
+        return r.rows.map((row) => row.slug);
+      })) ?? [];
+    const slotIds = [
+      "heroVideo",
+      "heroPoster",
+      "signaturePanel",
+      "madeForYou",
+      "portrait",
+      ...Array.from({ length: 10 }, (_, i) => `collage.${i}`),
+      ...occasionSlugs.map((slug) => `occasion.${slug}`),
+      ...Array.from({ length: 4 }, (_, i) => `signature.${i}`),
+      ...Array.from({ length: 8 }, (_, i) => `new.${i}`),
+    ];
+    for (const id of slotIds) await expectSlotButton(page, id);
+    await expect(page.locator('[data-testid="collage"] > li')).toHaveCount(10);
+    const editorHero = page.getByTestId("hero");
+    await expectInside(editorHero.locator("img").first(), editorHero);
+    await expect(editorHero.getByRole("heading", { level: 1 })).toBeVisible();
+
+    // Edit mode draws the same page: each section's size matches the public one within 4px.
+    const editorBoxes = await sectionSizes(page);
+    for (const selector of SECTIONS) {
+      const a = publicBoxes[selector];
+      const b = editorBoxes[selector];
+      if (!a || !b) continue;
+      expect(Math.abs(a.width - b.width), `${selector} width`).toBeLessThanOrEqual(4);
+      expect(Math.abs(a.height - b.height), `${selector} height`).toBeLessThanOrEqual(4);
+    }
 
     // 1. From products → collage slot 1.
     const collage = page.getByTestId("slot-collage.0");
@@ -150,7 +229,7 @@ test.describe("home page editor", () => {
     await option.click();
     await expect(page.getByText(/photo placed/i)).toBeVisible();
     await expect(page.getByTestId("editor-dirty")).toContainText(/unsaved changes/i);
-    await expect(page.locator('[data-slot-frame="collage.0"] img')).toHaveCount(1);
+    await expect(page.locator(':has(> [data-slot-overlay="collage.0"]) img')).toHaveCount(1);
 
     // 2. Upload as just a photo → portrait.
     const portrait = page.getByTestId("slot-portrait");
@@ -165,7 +244,7 @@ test.describe("home page editor", () => {
     await page.keyboard.press("ArrowRight");
     await sheet.getByTestId("choice-just-photo").click();
     await expect(page.getByText(/photo placed/i)).toBeVisible();
-    await expect(page.locator('[data-slot-frame="portrait"] img')).toHaveCount(1);
+    await expect(page.locator(':has(> [data-slot-overlay="portrait"]) img')).toHaveCount(1);
 
     // 3. Upload as a new product → "new" tile 1 (publishes and places).
     const tile = page.getByTestId("slot-new.0");
@@ -179,7 +258,7 @@ test.describe("home page editor", () => {
     await sheet.getByLabel(/title \(english\)/i).fill(newTitle);
     await sheet.getByRole("button", { name: /save and place/i }).click();
     await expect(page.getByText(/product created and placed/i)).toBeVisible();
-    await expect(page.locator('[data-slot-frame="new.0"]')).toContainText(newTitle);
+    await expect(page.locator(':has(> [data-slot-overlay="new.0"])')).toContainText(newTitle);
 
     // Not published yet: a visitor doesn't see the new product on the home page.
     const visitor = await context.browser()!.newPage();
@@ -216,13 +295,13 @@ test.describe("home page editor", () => {
     await portraitAgain.click();
     await sheet.getByRole("button", { name: /remove from this spot/i }).click();
     await expect(page.getByTestId("editor-dirty")).toContainText(/unsaved changes/i);
-    await expect(page.locator('[data-slot-frame="portrait"] img')).toHaveCount(0);
+    await expect(page.locator(':has(> [data-slot-overlay="portrait"]) img')).toHaveCount(0);
     await page
       .getByTestId("editing-bar")
       .getByRole("button", { name: /discard changes/i })
       .click();
     await page.getByRole("button", { name: /^discard$/i }).click();
     await expect(page.getByText(/changes discarded/i)).toBeVisible();
-    await expect(page.locator('[data-slot-frame="portrait"] img')).toHaveCount(1);
+    await expect(page.locator(':has(> [data-slot-overlay="portrait"]) img')).toHaveCount(1);
   });
 });

@@ -4,7 +4,7 @@ import type { SlotShape } from "@/lib/validators/home-editor";
 
 /**
  * What a photo slot on the home page tells the editor about itself. Only the editor route
- * provides this context; for visitors it is null and SlotFrame renders nothing extra.
+ * provides this context; for visitors it is null and SlotOverlay renders nothing.
  */
 export type SlotDescriptor = {
   /** "portrait", "collage.3", "occasion.eid", "signature.0", "new.5", "heroVideo", "heroPoster"… */
