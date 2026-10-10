@@ -2,8 +2,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useEffect, useState, useTransition } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { createProduct, unarchiveProduct, updateProduct } from "@/actions/products";
 import { createTaxonomyItem } from "@/actions/taxonomy";
@@ -54,6 +54,17 @@ export type ProductFormTaxonomy = {
 type Props =
   | { mode: "create"; defaultValues: ProductFormValues; taxonomy: ProductFormTaxonomy }
   | {
+      /** Inside the home page editor's panel: the panel owns the photo and calls the action. */
+      mode: "editor";
+      defaultValues: ProductFormValues;
+      taxonomy: ProductFormTaxonomy;
+      photoUrl: string;
+      onValuesChange: (values: ProductFormValues) => void;
+      /** Resolves true when the product was saved (published and placed, or kept as a draft). */
+      onSubmit: (values: ProductFormValues, publish: boolean) => Promise<boolean>;
+      onCancel: () => void;
+    }
+  | {
       mode: "edit";
       productId: string;
       status: ProductStatus;
@@ -75,6 +86,7 @@ export function ProductForm(props: Props) {
   const [tagPending, startTagTransition] = useTransition();
   const [unarchivePending, startUnarchive] = useTransition();
   const [slugTouched, setSlugTouched] = useState(mode === "edit");
+  const [publishIntent, setPublishIntent] = useState(true);
   const archived = mode === "edit" && props.status === "archived";
 
   const form = useForm<ProductFormValues, unknown, ProductInput>({
@@ -82,6 +94,13 @@ export function ProductForm(props: Props) {
     defaultValues,
   });
   const { errors, isSubmitting } = form.formState;
+
+  // The editor's panel keeps the typed values so a mid-form close can save them as a draft.
+  const onValuesChange = mode === "editor" ? props.onValuesChange : null;
+  const watched = useWatch({ control: form.control });
+  useEffect(() => {
+    onValuesChange?.(watched as ProductFormValues);
+  }, [watched, onValuesChange]);
 
   const label = (option: TaxonomyOption) =>
     locale === "bn" && option.nameBn ? option.nameBn : option.name;
@@ -98,6 +117,10 @@ export function ProductForm(props: Props) {
 
   const onSubmit = form.handleSubmit(async (values) => {
     setServerError(null);
+    if (mode === "editor") {
+      await props.onSubmit(values, publishIntent);
+      return;
+    }
     if (mode === "create") {
       // Redirects to the edit page on success and resolves to nothing here.
       const result = await createProduct(values);
@@ -533,17 +556,43 @@ export function ProductForm(props: Props) {
 
         {serverError ? <FieldError>{t(serverError)}</FieldError> : null}
 
-        <div className="flex flex-wrap items-center gap-3">
-          <SubmitButton
-            pending={isSubmitting}
-            pendingLabel={mode === "create" ? t("common.working") : t("common.saving")}
-          >
-            {mode === "create" ? t("admin.products.form.create") : t("admin.products.form.save")}
-          </SubmitButton>
-          <Link href="/admin/products" className={buttonVariants({ variant: "ghost" })}>
-            {t("admin.products.backToList")}
-          </Link>
-        </div>
+        {mode === "editor" ? (
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              aria-busy={isSubmitting && publishIntent}
+              onClick={() => setPublishIntent(true)}
+            >
+              {isSubmitting && publishIntent
+                ? t("common.saving")
+                : t("admin.editor.panel.savePlace")}
+            </Button>
+            <Button
+              type="submit"
+              variant="outline"
+              disabled={isSubmitting}
+              onClick={() => setPublishIntent(false)}
+            >
+              {t("admin.editor.panel.saveDraft")}
+            </Button>
+            <Button type="button" variant="ghost" onClick={props.onCancel} disabled={isSubmitting}>
+              {t("common.cancel")}
+            </Button>
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-3">
+            <SubmitButton
+              pending={isSubmitting}
+              pendingLabel={mode === "create" ? t("common.working") : t("common.saving")}
+            >
+              {mode === "create" ? t("admin.products.form.create") : t("admin.products.form.save")}
+            </SubmitButton>
+            <Link href="/admin/products" className={buttonVariants({ variant: "ghost" })}>
+              {t("admin.products.backToList")}
+            </Link>
+          </div>
+        )}
       </fieldset>
     </form>
   );

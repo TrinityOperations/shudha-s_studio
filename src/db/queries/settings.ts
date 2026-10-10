@@ -9,19 +9,27 @@ import {
   defaultAboutSettings,
   defaultAnnouncementSettings,
   defaultContactSettings,
+  defaultDeliverySettings,
   defaultGeneralSettings,
   defaultHomeContent,
+  defaultHomeSettings,
+  defaultLegalSettings,
+  deliverySettingsSchema,
   defaultSeasonalBannerSettings,
   defaultSocialSettings,
   generalSettingsSchema,
   homeSettingsSchema,
+  legalSettingsSchema,
   seasonalBannerSettingsSchema,
   socialSettingsSchema,
   type AboutSettings,
   type AnnouncementSettings,
   type ContactSettings,
+  type DeliverySettings,
   type GeneralSettings,
   type HomeContent,
+  type HomeSettings,
+  type LegalSettings,
   type SeasonalBannerSettings,
   type SocialSettings,
 } from "@/lib/validators/settings";
@@ -107,5 +115,39 @@ export async function getSocialSettings(): Promise<SocialSettings> {
       return parsed.success ? parsed.data : defaultSocialSettings;
     },
     defaultSocialSettings,
+  );
+}
+
+export async function getDeliverySettings(): Promise<DeliverySettings> {
+  return readSetting(
+    "delivery",
+    (stored) => {
+      const parsed = deliverySettingsSchema.safeParse(stored);
+      return parsed.success ? parsed.data : defaultDeliverySettings;
+    },
+    defaultDeliverySettings,
+  );
+}
+
+export async function getLegalSettings(): Promise<LegalSettings> {
+  return readSetting(
+    "legal",
+    (stored) => {
+      const parsed = legalSettingsSchema.safeParse(stored);
+      return parsed.success ? parsed.data : defaultLegalSettings;
+    },
+    defaultLegalSettings,
+  );
+}
+
+/** Both copies of the home key, for the editor (slice #10). The public page uses getHomeSettings. */
+export async function getHomeSettingsFull(): Promise<HomeSettings> {
+  return readSetting(
+    "home",
+    (stored) => {
+      const parsed = homeSettingsSchema.safeParse(stored);
+      return parsed.success ? parsed.data : defaultHomeSettings;
+    },
+    defaultHomeSettings,
   );
 }

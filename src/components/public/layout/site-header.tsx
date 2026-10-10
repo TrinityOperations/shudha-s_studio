@@ -15,7 +15,7 @@ type Props = { studioName: string; announcement: AnnouncementSettings };
 /** docs/design.md, "Header": announcement strip, then the sticky centred header. */
 export async function SiteHeader({ studioName, announcement }: Props) {
   const [t, locale] = await Promise.all([getT(), getLocale()]);
-  const messages = announcement.messages
+  const messages = (announcement.enabled ? announcement.messages : [])
     .map((m) => ({
       text: locale === "bn" && m.textBn ? m.textBn : m.text,
       linkLabel: locale === "bn" && m.linkLabelBn ? m.linkLabelBn : m.linkLabel,

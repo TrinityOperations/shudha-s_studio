@@ -5,8 +5,9 @@ import { getT } from "@/lib/i18n";
 import type { HomeContent, SocialSettings } from "@/lib/validators/settings";
 import { SectionHeading } from "./section-heading";
 import { SiteImage } from "./site-image";
+import { SlotFrame } from "./slot-frame";
 
-type Props = { collage: HomeContent["collage"]; social: SocialSettings };
+type Props = { collage: HomeContent["collage"]; social: SocialSettings; editing?: boolean };
 
 /**
  * PW-07: the collage (docs/design.md, section 11). Ten slots on desktop (6 columns, 190px rows),
@@ -30,7 +31,7 @@ const SLOTS: { phone: string | null; desktop: string; shape?: string }[] = [
   { phone: null, desktop: "lg:[grid-area:3/5/4/7]" },
 ];
 
-export async function FollowStudio({ collage, social }: Props) {
+export async function FollowStudio({ collage, social, editing = false }: Props) {
   const t = await getT();
   const slots = collageSlots(collage, SLOTS.length);
   return (
@@ -78,12 +79,29 @@ export async function FollowStudio({ collage, social }: Props) {
             key={i}
             className={`group relative overflow-hidden ${SLOTS[i].phone ?? "hidden lg:block"} ${SLOTS[i].desktop} ${SLOTS[i].shape ?? ""}`}
           >
-            <SiteImage
-              slot={slot}
-              alt=""
-              sizes="(min-width: 1024px) 33vw, 66vw"
-              className="transition-transform duration-500 group-hover:scale-[1.03]"
-            />
+            <SlotFrame
+              slots={
+                editing
+                  ? [
+                      {
+                        id: `collage.${i}`,
+                        label: t("admin.editor.slots.collage", { n: i + 1 }),
+                        shape: "wide",
+                        kind: "image",
+                        filled: !!slot,
+                      },
+                    ]
+                  : []
+              }
+              className="absolute inset-0"
+            >
+              <SiteImage
+                slot={slot}
+                alt=""
+                sizes="(min-width: 1024px) 33vw, 66vw"
+                className="transition-transform duration-500 group-hover:scale-[1.03]"
+              />
+            </SlotFrame>
           </li>
         ))}
       </ul>

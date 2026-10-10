@@ -11,3 +11,10 @@ export async function listVisibleTestimonials(limit = 3): Promise<Testimonial[]>
     limit,
   });
 }
+
+/** OD-31: every testimonial, hidden ones included, for the dashboard. */
+export async function listAllTestimonials(): Promise<Testimonial[]> {
+  return db.query.testimonials.findMany({
+    orderBy: [asc(testimonials.sortOrder), asc(testimonials.createdAt)],
+  });
+}

@@ -41,6 +41,7 @@ describe("homeSettingsSchema", () => {
       path: "home/shudha.webp",
       thumbPath: null,
       focus: { x: 0.5, y: 0.5 },
+      bucket: "site-images",
     });
     expect(parsed.published.occasionTiles.eid).toMatchObject({ focus: { x: 0.1, y: 0.9 } });
     expect(parsed.published.newPicks).toEqual([]);
@@ -60,7 +61,7 @@ describe("homeSettingsSchema", () => {
 
 describe("content keys read by the home page", () => {
   it("announcement, banner and social default to empty or off", () => {
-    expect(announcementSettingsSchema.parse({})).toEqual({ messages: [] });
+    expect(announcementSettingsSchema.parse({})).toEqual({ enabled: true, messages: [] });
     expect(announcementSettingsSchema.parse({ messages: [{ text: " Hi " }] }).messages[0]).toEqual({
       text: "Hi",
       textBn: "",

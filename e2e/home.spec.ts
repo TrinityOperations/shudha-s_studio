@@ -49,6 +49,23 @@ async function restoreContact(previous: unknown) {
   }
 }
 
+/** Whether the owner has picked products for "New from the studio" (home key, published copy). */
+async function hasNewPicks(): Promise<boolean> {
+  const url = process.env.DIRECT_DATABASE_URL ?? process.env.DATABASE_URL;
+  if (!url) return false;
+  const client = new Client({ connectionString: url, ssl: { rejectUnauthorized: false } });
+  await client.connect();
+  try {
+    const r = await client.query<{ n: number }>(
+      `select coalesce(jsonb_array_length(value -> 'published' -> 'newPicks'), 0)::int as n
+       from site_settings where key = 'home'`,
+    );
+    return (r.rows[0]?.n ?? 0) > 0;
+  } finally {
+    await client.end();
+  }
+}
+
 /**
  * PW-01..PW-04, PW-47 and the header from docs/design.md: hero, chips, occasion tiles, a
  * published product under "New from the studio", the collapsing header, the phone menu and the
@@ -123,9 +140,14 @@ test.describe("home page and site chrome", () => {
         /\/products\?occasion=/,
       );
 
-      // The published product is in "New from the studio".
+      // "New from the studio" shows the owner's picks when she has chosen some (the home page
+      // editor, slice #10), otherwise the newest published products, so the e2e product.
       const newRow = visitor.getByRole("list", { name: /new from the studio/i });
-      await expect(newRow.getByRole("link", { name: productTitle })).toBeVisible();
+      if (await hasNewPicks()) {
+        expect(await newRow.getByRole("link").count()).toBeGreaterThan(0);
+      } else {
+        await expect(newRow.getByRole("link", { name: productTitle })).toBeVisible();
+      }
 
       // Header: name shown at the top, hidden once the hero is gone, back at the top.
       // Desktop markup comes first in the header, the phone markup second.

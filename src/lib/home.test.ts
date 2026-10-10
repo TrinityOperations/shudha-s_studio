@@ -12,7 +12,12 @@ const card = (id: string): CatalogueCard => ({
   thumb: null,
   hoverThumb: null,
 });
-const slot = { path: "home/a.webp", thumbPath: null, focus: { x: 0.2, y: 0.8 } };
+const slot = {
+  path: "home/a.webp",
+  thumbPath: null,
+  focus: { x: 0.2, y: 0.8 },
+  bucket: "site-images" as const,
+};
 const photo = { path: "p/1.webp", alt: "one", altBn: null };
 
 describe("pickProducts", () => {

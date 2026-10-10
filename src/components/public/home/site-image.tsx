@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { focusPosition, SITE_IMAGES_BUCKET } from "@/lib/home";
+import { focusPosition } from "@/lib/home";
 import { publicStorageUrl } from "@/lib/storage";
 import type { SiteImageSlot } from "@/lib/validators/settings";
 
@@ -31,7 +31,7 @@ export function SiteImage({ slot, alt, sizes, priority, className = "", emptyLab
   }
   return (
     <Image
-      src={publicStorageUrl(SITE_IMAGES_BUCKET, slot.path)}
+      src={publicStorageUrl(slot.bucket, slot.path)}
       alt={alt}
       fill
       sizes={sizes}

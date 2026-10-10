@@ -30,12 +30,11 @@ Full text: `docs/SRS.md`.
 
 ## Files you own (create and change freely)
 - `src/app/(public)/{about,how-it-works,contact,faq,privacy,terms}/**`, `src/app/not-found.tsx`
-- `src/app/admin/(dashboard)/settings/**` (extend: content, contact, social, announcement, account)
-- `src/app/admin/(dashboard)/faqs/**`, `src/app/admin/(dashboard)/testimonials/**`
-- `src/actions/settings.ts` (extend), `faqs.ts`, `testimonials.ts`, `contact.ts` (+ tests)
+- `src/app/admin/(dashboard)/settings/**` (hub, content, announcement, banner, faqs, testimonials, account), `src/app/admin/home-editor/**`
+- `src/actions/settings.ts` (extend), `faqs.ts`, `testimonials.ts`, `contact.ts`, `site-images.ts`, `home-editor.ts`, `account.ts` (+ tests)
 - `src/db/queries/settings.ts` (extend), `faqs.ts`, `testimonials.ts`
 - `src/lib/validators/settings.ts` (extend), `faqs.ts`, `testimonials.ts`, `contact.ts`
-- `src/components/public/pages/**`, `src/components/admin/content/**`
+- `src/components/public/pages/**`, `src/components/admin/content/**`, `src/components/admin/home-editor/**`, `src/lib/home-editor/**`, `src/lib/site-images.server.ts`
 
 ## Shared files you may touch (follow `docs/WORKFLOW.md` section 6)
 - `src/lib/i18n/en.json`, `bn.json` (add keys in your namespace, alphabetical)
@@ -49,12 +48,13 @@ Everything else belongs to another slice or the foundation: don't change it. Ask
 - **Tables and storage:** site_settings, faqs, testimonials, contact_messages.
 - **Schema changes:** None.
 
-## Build plan
-1. Settings keys for home, about, contact (including the studio's WhatsApp number, validated with `whatsappNumberSchema` from `src/lib/validators/common.ts`, already on main), social links, delivery note, announcement banner (Zod-validated values). Export a `getContactSettings()` query: #5 and #9 read the WhatsApp number from it.
-2. Public pages reading from settings; FAQ page from `faqs`; branded 404.
-3. Contact form with Turnstile, saving to `contact_messages` and emailing the owner (use #5's helper if merged, else store only).
-4. Dashboard editors for settings, FAQs (reorder), testimonials (add, hide, reorder), change password/email.
-5. Privacy and Terms as editable text with sensible starter content.
+## Build plan (as built)
+1. Settings keys read by the pages: `about`, `delivery`, `social`, `contact` (from #5), `legal`, `announcement` (with an on/off switch), `seasonal_banner`, `home` (draft + published, from #9). Schemas in `src/lib/validators/settings.ts`, readers in `src/db/queries/settings.ts`.
+2. Public pages: `/about`, `/how-it-works` (with `#delivery`), `/delivery` → redirect, `/contact`, `/faq`, `/privacy`, `/terms`, branded `not-found.tsx`. The delivery note overrides the product page's built-in line when filled.
+3. Contact form: Turnstile, the shared rate limiter (`contact:` bucket), `contact_messages`, owner email through `src/lib/email.ts` (dry run locally).
+4. Dashboard under `/admin/settings/*`: Content (story, delivery note, contact, social, legal), Announcement, Seasonal banner, FAQs, Testimonials (with photo), Account (password only).
+5. Home page editor at `/admin/home-editor` (docs/design.md, "Home page editor"): editing bar, slot overlays via `SlotFrame`, the picker panel (From products / Upload with crop preview), upload as just-a-photo or as a new product through the product form, hero video via signed direct upload, Save / Discard / Exit.
+6. Migration `0004_site_images_video.sql`: `video/mp4` allowed in `site-images`.
 
 ## Watch out for
 - Every visible text on these pages comes from settings or `t()`, never hard-coded.

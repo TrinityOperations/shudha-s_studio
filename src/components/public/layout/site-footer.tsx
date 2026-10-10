@@ -24,7 +24,7 @@ const COLUMNS: Column[] = [
     heading: "footer.studio",
     links: [
       { href: "/about", key: "header.nav.about" },
-      { href: "/#made-for-you", key: "footer.howItWorks" },
+      { href: "/how-it-works", key: "footer.howItWorks" },
       { href: "/gallery", key: "header.nav.customers" },
       { href: "/faq", key: "footer.questions" },
     ],
@@ -33,7 +33,7 @@ const COLUMNS: Column[] = [
     heading: "footer.help",
     links: [
       { href: "/contact", key: "footer.contact" },
-      { href: "/delivery", key: "footer.delivery" },
+      { href: "/how-it-works#delivery", key: "footer.delivery" },
       { href: "/privacy", key: "footer.privacy" },
       { href: "/terms", key: "footer.terms" },
     ],

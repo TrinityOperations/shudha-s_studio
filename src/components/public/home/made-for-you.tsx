@@ -3,11 +3,18 @@ import { buttonVariants } from "@/components/ui/button";
 import { getT } from "@/lib/i18n";
 import type { SiteImageSlot } from "@/lib/validators/settings";
 import { SiteImage } from "./site-image";
+import { SlotFrame } from "./slot-frame";
 
 const STEPS = ["home.made.step1", "home.made.step2", "home.made.step3"] as const;
 
 /** Home section 6: the custom order promise, the three wizard steps and the call to action. */
-export async function MadeForYou({ photo }: { photo: SiteImageSlot | null }) {
+export async function MadeForYou({
+  photo,
+  editing = false,
+}: {
+  photo: SiteImageSlot | null;
+  editing?: boolean;
+}) {
   const t = await getT();
   return (
     <section
@@ -16,14 +23,29 @@ export async function MadeForYou({ photo }: { photo: SiteImageSlot | null }) {
       className="mx-auto w-full max-w-7xl px-4 py-6 lg:px-6 lg:py-10"
     >
       <div className="border-line flex flex-wrap border bg-white">
-        <div className="relative min-h-[260px] flex-[1_1_400px] lg:min-h-[520px]">
+        <SlotFrame
+          slots={
+            editing
+              ? [
+                  {
+                    id: "madeForYou",
+                    label: t("admin.editor.slots.madeForYou"),
+                    shape: "wide",
+                    kind: "image",
+                    filled: !!photo,
+                  },
+                ]
+              : []
+          }
+          className="relative min-h-[260px] flex-[1_1_400px] lg:min-h-[520px]"
+        >
           <SiteImage
             slot={photo}
             alt=""
             sizes="(min-width: 1024px) 50vw, 100vw"
             emptyLabel={t("home.placeholder.photo")}
           />
-        </div>
+        </SlotFrame>
         <div className="flex flex-[1_1_400px] flex-col justify-center p-8 lg:p-14">
           <h2
             id="made-heading"

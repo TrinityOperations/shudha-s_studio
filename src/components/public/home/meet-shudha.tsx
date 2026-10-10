@@ -2,12 +2,13 @@ import Link from "next/link";
 import { getLocale, getT } from "@/lib/i18n";
 import type { AboutSettings, SiteImageSlot } from "@/lib/validators/settings";
 import { SiteImage } from "./site-image";
+import { SlotFrame } from "./slot-frame";
 import { HangingTag } from "./tag";
 
-type Props = { portrait: SiteImageSlot | null; about: AboutSettings };
+type Props = { portrait: SiteImageSlot | null; about: AboutSettings; editing?: boolean };
 
 /** PW-05: her portrait with a hanging tag and her story (a [placeholder] until she sends it). */
-export async function MeetShudha({ portrait, about }: Props) {
+export async function MeetShudha({ portrait, about, editing = false }: Props) {
   const [t, locale] = await Promise.all([getT(), getLocale()]);
   const story =
     (locale === "bn" && about.storyBn ? about.storyBn : about.story) || t("home.meet.story");
@@ -17,7 +18,22 @@ export async function MeetShudha({ portrait, about }: Props) {
       className="mx-auto w-full max-w-7xl px-4 py-14 lg:px-6 lg:py-20"
     >
       <div className="flex flex-wrap items-center gap-10 lg:gap-16">
-        <div className="relative aspect-[4/5] w-full max-w-[400px] flex-[0_1_400px]">
+        <SlotFrame
+          slots={
+            editing
+              ? [
+                  {
+                    id: "portrait",
+                    label: t("admin.editor.slots.portrait"),
+                    shape: "tall",
+                    kind: "image",
+                    filled: !!portrait,
+                  },
+                ]
+              : []
+          }
+          className="relative aspect-[4/5] w-full max-w-[400px] flex-[0_1_400px]"
+        >
           <SiteImage
             slot={portrait}
             alt=""
@@ -25,7 +41,7 @@ export async function MeetShudha({ portrait, about }: Props) {
             emptyLabel={t("home.placeholder.photo")}
           />
           <HangingTag>{t("home.meet.tag")}</HangingTag>
-        </div>
+        </SlotFrame>
         <div className="flex-[1_1_320px]">
           <h2
             id="meet-heading"
@@ -34,7 +50,7 @@ export async function MeetShudha({ portrait, about }: Props) {
             {t("home.meet.title")}
           </h2>
           <p
-            className="font-heading text-ink-soft mt-6 max-w-[600px] text-[20px] leading-relaxed lg:text-[22px]"
+            className="font-heading text-ink-soft mt-6 max-w-[600px] text-[20px] leading-relaxed whitespace-pre-line lg:text-[22px]"
             data-placeholder={about.story ? undefined : "story"}
           >
             {story}

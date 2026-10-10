@@ -8,7 +8,7 @@ config({ path: ".env.local" });
 
 async function main() {
   const { db } = await import("./index");
-  const { availabilityRules, bookingSettings, categories, occasions, siteSettings, tags } =
+  const { availabilityRules, bookingSettings, categories, faqs, occasions, siteSettings, tags } =
     await import("./schema");
   const { defaultGeneralSettings } = await import("@/lib/validators/settings");
   const { DEFAULT_AVAILABILITY_RULES, DEFAULT_BOOKING_SETTINGS } =
@@ -59,6 +59,21 @@ async function main() {
   ].map((row, sortOrder) => ({ ...row, sortOrder }));
   await db.insert(occasions).values(occasionRows).onConflictDoNothing();
 
+  // PW-43, PW-48: the delivery question every customer asks, only when the FAQ is still empty.
+  const existingFaqs = await db.select({ id: faqs.id }).from(faqs).limit(1);
+  if (existingFaqs.length === 0) {
+    await db.insert(faqs).values({
+      question: "Do you deliver?",
+      questionBn: "আপনারা কি ডেলিভারি করেন?",
+      answer:
+        "Yes. You can pick up in Melbourne or we post anywhere in Australia. We arrange it with you during the consultation.",
+      answerBn:
+        "হ্যাঁ। আপনি মেলবোর্নে পিকআপ করতে পারেন, বা আমরা অস্ট্রেলিয়ার যেকোনো জায়গায় ডাকযোগে পাঠাই। পরামর্শের সময় আপনার সাথে ঠিক করে নিই।",
+      sortOrder: 0,
+      published: true,
+    });
+  }
+
   // The "signature" tag drives the home page's signature designs section (PW-09).
   await db
     .insert(tags)
@@ -66,7 +81,7 @@ async function main() {
     .onConflictDoNothing();
 
   console.log(
-    "Seed complete: site_settings, booking_settings, availability_rules, categories, occasions, tags",
+    "Seed complete: site_settings, booking_settings, availability_rules, categories, occasions, tags, faqs",
   );
 }
 

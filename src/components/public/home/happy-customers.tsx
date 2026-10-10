@@ -5,18 +5,30 @@ import { GALLERY_IMAGES_BUCKET } from "@/lib/home";
 import { getT } from "@/lib/i18n";
 import { publicStorageUrl } from "@/lib/storage";
 import { Carousel } from "./carousel";
+import { SlotFrame } from "./slot-frame";
 import { HangingTag } from "./tag";
 
 /** Home section 10: approved customer photos (#12); hidden until there are any. */
-export async function HappyCustomers({ tiles }: { tiles: GalleryTile[] }) {
+export async function HappyCustomers({
+  tiles,
+  editing = false,
+}: {
+  tiles: GalleryTile[];
+  editing?: boolean;
+}) {
   const t = await getT();
-  if (tiles.length === 0) return null;
+  if (tiles.length === 0 && !editing) return null;
   const title = t("home.customers.title");
   return (
     <section
       aria-labelledby="customers-heading"
       className="mx-auto w-full max-w-7xl px-4 py-14 lg:px-6 lg:py-20"
     >
+      {editing ? (
+        <SlotFrame slots={[]} managed="gallery" className="mb-6 min-h-[120px]">
+          <div className="bg-mist border-line h-[120px] border" />
+        </SlotFrame>
+      ) : null}
       <Carousel
         label={title}
         title={title}
