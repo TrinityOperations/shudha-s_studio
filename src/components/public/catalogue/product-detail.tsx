@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import type { CatalogueCard, ProductDetail as ProductDetailModel } from "@/db/queries/catalogue";
 import { publicEnv } from "@/lib/env.public";
+import { getDeliverySettings } from "@/db/queries/settings";
 import { getLocale, getT } from "@/lib/i18n";
 import type { MessageKey } from "@/lib/i18n/t";
 import { productImageUrl } from "@/lib/storage";
@@ -25,7 +26,11 @@ type Props = {
 
 /** PW-21..27, PW-48: the whole product page body, shared by the public route and the admin preview. */
 export async function ProductDetail({ product, related, preview = false }: Props) {
-  const [t, locale] = await Promise.all([getT(), getLocale()]);
+  const [t, locale, delivery] = await Promise.all([getT(), getLocale(), getDeliverySettings()]);
+  // PW-48: the owner's delivery note (slice #10) wins over the built-in line when filled.
+  const deliveryNote =
+    (locale === "bn" && delivery.noteBn ? delivery.noteBn : delivery.note) ||
+    t("catalogue.product.deliveryNote");
   const title = localised(locale, product.title, product.titleBn);
   const description = localised(locale, product.description, product.descriptionBn);
   const materialNotes = localised(locale, product.materialNotes ?? "", product.materialNotesBn);
@@ -99,7 +104,7 @@ export async function ProductDetail({ product, related, preview = false }: Props
                 {t("catalogue.product.customOrder")}
               </Link>
             </div>
-            <p className="text-muted-foreground text-sm">{t("catalogue.product.deliveryNote")}</p>
+            <p className="text-muted-foreground text-sm">{deliveryNote}</p>
           </div>
 
           {description ? <p className="whitespace-pre-line">{description}</p> : null}

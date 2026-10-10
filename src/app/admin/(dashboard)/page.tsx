@@ -27,9 +27,14 @@ export default async function AdminHomePage() {
         {t("admin.dashboard.signedInAs", { email: owner.email ?? "" })}
       </p>
       <p className="max-w-prose">{t("admin.dashboard.intro")}</p>
-      <Link href="/admin/settings" className={buttonVariants({ variant: "outline" })}>
-        {t("common.settings")}
-      </Link>
+      <div className="flex flex-wrap gap-2">
+        <Link href="/admin/home-editor" prefetch={false} className={buttonVariants()}>
+          {t("admin.editor.entry")}
+        </Link>
+        <Link href="/admin/settings" className={buttonVariants({ variant: "outline" })}>
+          {t("common.settings")}
+        </Link>
+      </div>
 
       <section className="space-y-3 rounded-lg border p-4" aria-labelledby="next-bookings-heading">
         <div className="flex flex-wrap items-center justify-between gap-2">

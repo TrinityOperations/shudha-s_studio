@@ -18,7 +18,7 @@ describe("home page settings readers", () => {
   it("return defaults when the row is missing or malformed", async () => {
     findFirst.mockResolvedValue(undefined);
     expect(await getHomeSettings()).toEqual(defaultHomeContent);
-    expect(await getAnnouncementSettings()).toEqual({ messages: [] });
+    expect(await getAnnouncementSettings()).toEqual({ enabled: true, messages: [] });
     expect(await getSeasonalBannerSettings()).toMatchObject({ enabled: false });
     expect(await getAboutSettings()).toEqual({ story: "", storyBn: "" });
     expect(await getSocialSettings()).toEqual({ instagram: "", facebook: "" });

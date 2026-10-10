@@ -3,16 +3,22 @@ import { ProductCard } from "@/components/public/catalogue/product-card";
 import type { CatalogueCard } from "@/db/queries/catalogue";
 import type { Category } from "@/db/schema";
 import { getLocale, getT } from "@/lib/i18n";
+import { HOME_NEW_PICKS_MAX } from "@/lib/validators/settings";
 import { Carousel } from "./carousel";
 import { SectionHeading } from "./section-heading";
+import { SlotOverlay } from "./slot-overlay";
 
-type Props = { products: CatalogueCard[]; categories: Category[] };
+type Props = { products: CatalogueCard[]; categories: Category[]; editing?: boolean };
 
 /** PW-02 and PW-04: the owner's picks (or the newest eight) under a row of category chips. */
-export async function NewFromStudio({ products, categories }: Props) {
+export async function NewFromStudio({ products, categories, editing = false }: Props) {
   const [t, locale] = await Promise.all([getT(), getLocale()]);
-  if (products.length === 0 && categories.length === 0) return null;
+  if (products.length === 0 && categories.length === 0 && !editing) return null;
   const title = t("home.new.title");
+  const shown = products.map((p) => p.id);
+  const tiles = editing
+    ? Array.from({ length: HOME_NEW_PICKS_MAX }, (_, i) => products[i] ?? null)
+    : products;
   return (
     <section
       aria-labelledby="new-heading"
@@ -43,11 +49,35 @@ export async function NewFromStudio({ products, categories }: Props) {
           </ul>
         </nav>
       ) : null}
-      {products.length ? (
+      {tiles.length ? (
         <Carousel label={title} className="mt-8">
-          {products.map((product) => (
-            <li key={product.id} className="w-[230px] shrink-0 snap-start sm:w-[260px]">
-              <ProductCard product={product} />
+          {tiles.map((product, i) => (
+            <li
+              key={product?.id ?? `empty-${i}`}
+              className="relative w-[230px] shrink-0 snap-start sm:w-[260px]"
+            >
+              {product ? (
+                <ProductCard product={product} />
+              ) : (
+                <div
+                  className="bg-mist border-line aspect-[4/5] border"
+                  data-placeholder="new-tile"
+                />
+              )}
+              {editing ? (
+                <SlotOverlay
+                  slots={[
+                    {
+                      id: `new.${i}`,
+                      label: t("admin.editor.slots.new", { n: i + 1 }),
+                      shape: "square",
+                      kind: "product",
+                      filled: !!product,
+                      shownProductIds: shown,
+                    },
+                  ]}
+                />
+              ) : null}
             </li>
           ))}
         </Carousel>

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 import { Client } from "pg";
 import { cleanupE2EProducts, ownerEmail, ownerPassword, signInAsOwner } from "./helpers";
 
@@ -44,6 +44,37 @@ async function restoreContact(previous: unknown) {
          on conflict (key) do update set value = excluded.value`,
         [JSON.stringify(previous)],
       );
+  } finally {
+    await client.end();
+  }
+}
+
+/** Asserts `inner`'s bounding box lies inside `outer`'s (2px tolerance); skips when `inner` is absent. */
+async function expectInside(inner: Locator, outer: Locator) {
+  if ((await inner.count()) === 0) return;
+  await inner.scrollIntoViewIfNeeded();
+  const [a, b] = await Promise.all([inner.boundingBox(), outer.boundingBox()]);
+  expect(a, "inner box").not.toBeNull();
+  expect(b, "outer box").not.toBeNull();
+  if (!a || !b) return;
+  expect(a.x).toBeGreaterThanOrEqual(b.x - 2);
+  expect(a.y).toBeGreaterThanOrEqual(b.y - 2);
+  expect(a.x + a.width).toBeLessThanOrEqual(b.x + b.width + 2);
+  expect(a.y + a.height).toBeLessThanOrEqual(b.y + b.height + 2);
+}
+
+/** Whether the owner has picked products for "New from the studio" (home key, published copy). */
+async function hasNewPicks(): Promise<boolean> {
+  const url = process.env.DIRECT_DATABASE_URL ?? process.env.DATABASE_URL;
+  if (!url) return false;
+  const client = new Client({ connectionString: url, ssl: { rejectUnauthorized: false } });
+  await client.connect();
+  try {
+    const r = await client.query<{ n: number }>(
+      `select coalesce(jsonb_array_length(value -> 'published' -> 'newPicks'), 0)::int as n
+       from site_settings where key = 'home'`,
+    );
+    return (r.rows[0]?.n ?? 0) > 0;
   } finally {
     await client.end();
   }
@@ -111,6 +142,48 @@ test.describe("home page and site chrome", () => {
         "/custom-order",
       );
 
+      // Layout: the welcome card is visible and every fill image stays inside its own box
+      // (a wrapper once broke the hero and made-for-you photos' containing blocks).
+      await expect(hero.getByRole("heading", { level: 1 })).toBeVisible();
+      await expectInside(hero.locator("img").first(), hero);
+      const madeForYou = visitor.locator("#made-for-you");
+      await expectInside(
+        madeForYou.getByTestId("made-for-you-photo").locator("img").first(),
+        madeForYou,
+      );
+      // Signature designs: on desktop the panel pins below the collapsed header while the cards
+      // scroll past; on phones it scrolls away like everything else.
+      const signature = visitor.getByTestId("signature-designs");
+      if ((await signature.count()) > 0) {
+        const panel = visitor.getByTestId("signature-panel");
+        const firstCard = visitor.getByTestId("signature-cards").locator("li").first();
+        await visitor.evaluate(() => {
+          const section = document.querySelector('[data-testid="signature-designs"]');
+          if (section)
+            window.scrollTo({ top: section.getBoundingClientRect().top + window.scrollY });
+        });
+        await visitor.waitForTimeout(300);
+        const panelBefore = (await panel.boundingBox())!.y;
+        const cardBefore = (await firstCard.boundingBox())!.y;
+        await visitor.evaluate(() => window.scrollBy({ top: 200 }));
+        await visitor.waitForTimeout(300);
+        const panelAfter = (await panel.boundingBox())!.y;
+        const cardAfter = (await firstCard.boundingBox())!.y;
+        expect(Math.round(cardBefore - cardAfter)).toBeGreaterThanOrEqual(195);
+        if (mobile) {
+          expect(Math.round(panelBefore - panelAfter)).toBeGreaterThanOrEqual(195);
+        } else {
+          const headerBottom =
+            (await visitor.getByTestId("site-header").boundingBox())!.y +
+            (await visitor.getByTestId("site-header").boundingBox())!.height;
+          expect(Math.abs(panelAfter - headerBottom)).toBeLessThanOrEqual(2);
+          expect(Math.abs(panelAfter - panelBefore)).toBeLessThan(200);
+        }
+      }
+
+      // The layout checks scrolled; the header checks below start from the top.
+      await visitor.evaluate(() => window.scrollTo({ top: 0 }));
+
       // Category chips and occasion tiles link into the catalogue.
       const chips = visitor.getByRole("navigation", { name: /shop by category/i });
       await expect(chips.getByRole("link").first()).toHaveAttribute(
@@ -123,9 +196,14 @@ test.describe("home page and site chrome", () => {
         /\/products\?occasion=/,
       );
 
-      // The published product is in "New from the studio".
+      // "New from the studio" shows the owner's picks when she has chosen some (the home page
+      // editor, slice #10), otherwise the newest published products, so the e2e product.
       const newRow = visitor.getByRole("list", { name: /new from the studio/i });
-      await expect(newRow.getByRole("link", { name: productTitle })).toBeVisible();
+      if (await hasNewPicks()) {
+        expect(await newRow.getByRole("link").count()).toBeGreaterThan(0);
+      } else {
+        await expect(newRow.getByRole("link", { name: productTitle })).toBeVisible();
+      }
 
       // Header: name shown at the top, hidden once the hero is gone, back at the top.
       // Desktop markup comes first in the header, the phone markup second.

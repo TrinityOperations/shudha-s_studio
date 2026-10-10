@@ -26,7 +26,7 @@ export function HeaderChrome({ children }: { children: ReactNode }) {
     <header
       data-collapsed={collapsed}
       data-testid="site-header"
-      className="group/header bg-paper border-line sticky top-0 z-40 border-b transition-[padding] duration-300 data-[collapsed=false]:py-[18px] data-[collapsed=true]:py-2.5"
+      className="group/header bg-paper border-line sticky top-0 z-40 box-border border-b transition-[padding] duration-300 data-[collapsed=false]:py-[18px] data-[collapsed=true]:h-[var(--header-collapsed-height)] data-[collapsed=true]:py-2.5"
     >
       {children}
     </header>

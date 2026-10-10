@@ -2,12 +2,13 @@ import Link from "next/link";
 import { getLocale, getT } from "@/lib/i18n";
 import type { AboutSettings, SiteImageSlot } from "@/lib/validators/settings";
 import { SiteImage } from "./site-image";
+import { SlotOverlay } from "./slot-overlay";
 import { HangingTag } from "./tag";
 
-type Props = { portrait: SiteImageSlot | null; about: AboutSettings };
+type Props = { portrait: SiteImageSlot | null; about: AboutSettings; editing?: boolean };
 
 /** PW-05: her portrait with a hanging tag and her story (a [placeholder] until she sends it). */
-export async function MeetShudha({ portrait, about }: Props) {
+export async function MeetShudha({ portrait, about, editing = false }: Props) {
   const [t, locale] = await Promise.all([getT(), getLocale()]);
   const story =
     (locale === "bn" && about.storyBn ? about.storyBn : about.story) || t("home.meet.story");
@@ -25,6 +26,19 @@ export async function MeetShudha({ portrait, about }: Props) {
             emptyLabel={t("home.placeholder.photo")}
           />
           <HangingTag>{t("home.meet.tag")}</HangingTag>
+          {editing ? (
+            <SlotOverlay
+              slots={[
+                {
+                  id: "portrait",
+                  label: t("admin.editor.slots.portrait"),
+                  shape: "tall",
+                  kind: "image",
+                  filled: !!portrait,
+                },
+              ]}
+            />
+          ) : null}
         </div>
         <div className="flex-[1_1_320px]">
           <h2
@@ -34,7 +48,7 @@ export async function MeetShudha({ portrait, about }: Props) {
             {t("home.meet.title")}
           </h2>
           <p
-            className="font-heading text-ink-soft mt-6 max-w-[600px] text-[20px] leading-relaxed lg:text-[22px]"
+            className="font-heading text-ink-soft mt-6 max-w-[600px] text-[20px] leading-relaxed whitespace-pre-line lg:text-[22px]"
             data-placeholder={about.story ? undefined : "story"}
           >
             {story}

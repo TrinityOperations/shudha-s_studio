@@ -3,17 +3,21 @@ import { motion, useReducedMotion } from "framer-motion";
 import { PauseIcon, PlayIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { focusPosition, SITE_IMAGES_BUCKET } from "@/lib/home";
+import type { SlotDescriptor } from "@/lib/home-editor/context";
 import { useT } from "@/lib/i18n/client";
 import { publicStorageUrl } from "@/lib/storage";
 import type { SiteImageSlot } from "@/lib/validators/settings";
 import { HERO_SENTINEL } from "@/components/public/layout/header-chrome";
+import { SlotOverlay } from "./slot-overlay";
 
 type Props = {
   poster: SiteImageSlot | null;
   videoPath: string | null;
+  /** Editor-only: the slot descriptors for the video and the poster (translated on the server) */
+  slots?: SlotDescriptor[];
 };
 
 const noop = () => () => {};
@@ -27,7 +31,7 @@ function prefersLessData(): boolean {
  * PW-01: full-bleed looping video (poster first, the LCP image) with the frosted welcome card.
  * Reduced motion shows the poster only; so do Save-Data and pages without a video yet.
  */
-export function Hero({ poster, videoPath }: Props) {
+export function Hero({ poster, videoPath, slots = [] }: Props) {
   const t = useT();
   const reduced = useReducedMotion();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -38,7 +42,24 @@ export function Hero({ poster, videoPath }: Props) {
     () => !prefersLessData(),
     () => false,
   );
-  const showVideo = !!videoPath && !reduced && allowed;
+  // The video is mounted only after the window has loaded and the browser is idle, so its
+  // download never competes with the poster (the LCP image) and the first photos.
+  const [pageSettled, setPageSettled] = useState(false);
+  useEffect(() => {
+    let idle: number | undefined;
+    const settle = () => {
+      const schedule =
+        window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 1000));
+      idle = schedule(() => setPageSettled(true), { timeout: 2500 });
+    };
+    if (document.readyState === "complete") settle();
+    else window.addEventListener("load", settle, { once: true });
+    return () => {
+      window.removeEventListener("load", settle);
+      if (idle !== undefined) (window.cancelIdleCallback ?? window.clearTimeout)(idle);
+    };
+  }, []);
+  const showVideo = !!videoPath && !reduced && allowed && pageSettled;
 
   function togglePlayback() {
     const video = videoRef.current;
@@ -63,10 +84,11 @@ export function Hero({ poster, videoPath }: Props) {
     >
       {poster ? (
         <Image
-          src={publicStorageUrl(SITE_IMAGES_BUCKET, poster.path)}
+          src={publicStorageUrl(poster.bucket, poster.path)}
           alt=""
           fill
           priority
+          fetchPriority="high"
           sizes="100vw"
           style={{ objectPosition: focusPosition(poster) }}
           className="object-cover"
@@ -90,6 +112,7 @@ export function Hero({ poster, videoPath }: Props) {
           data-testid="hero-video"
         />
       ) : null}
+      <SlotOverlay slots={slots} />
       {showVideo && videoPath ? (
         <button
           type="button"

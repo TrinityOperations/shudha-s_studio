@@ -5,10 +5,11 @@ import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { db, type Db } from "@/db";
-import { productImages, productOccasions, products, productTags } from "@/db/schema";
+import { db } from "@/db";
+import { productImages, products } from "@/db/schema";
 import { fail, ok, type ActionResult } from "@/lib/action-result";
 import { requireOwner } from "@/lib/auth";
+import { slugBase, syncJoins } from "@/lib/products";
 import { ensureUniqueSlug, slugify } from "@/lib/slug";
 import { PRODUCT_IMAGES_BUCKET } from "@/lib/storage";
 import { copyStorageObject, removeStorageObjects, StorageError } from "@/lib/storage.server";
@@ -19,35 +20,11 @@ import {
   productSchema,
   type BulkProductsInput,
   type ProductFormValues,
-  type ProductInput,
 } from "@/lib/validators/products";
-
-type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
 
 function revalidateProducts() {
   // Product data appears on the admin list, the edit page and (later) the public catalogue.
   revalidatePath("/", "layout");
-}
-
-async function syncJoins(tx: Tx, productId: string, occasionIds: string[], tagIds: string[]) {
-  await tx.delete(productOccasions).where(eq(productOccasions.productId, productId));
-  await tx.delete(productTags).where(eq(productTags.productId, productId));
-  if (occasionIds.length) {
-    await tx
-      .insert(productOccasions)
-      .values(occasionIds.map((occasionId) => ({ productId, occasionId })))
-      .onConflictDoNothing();
-  }
-  if (tagIds.length) {
-    await tx
-      .insert(productTags)
-      .values(tagIds.map((tagId) => ({ productId, tagId })))
-      .onConflictDoNothing();
-  }
-}
-
-function slugBase(input: ProductInput) {
-  return input.slug || slugify(input.title) || "product";
 }
 
 /** OD-10: saves the basics as a draft, then redirects to the edit page where images can be added. */

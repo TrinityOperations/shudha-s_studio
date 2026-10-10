@@ -7,8 +7,14 @@ import { publicStorageUrl } from "@/lib/storage";
 import { Carousel } from "./carousel";
 import { HangingTag } from "./tag";
 
-/** Home section 10: approved customer photos (#12); hidden until there are any. */
-export async function HappyCustomers({ tiles }: { tiles: GalleryTile[] }) {
+type Props = { tiles: GalleryTile[]; editing?: boolean };
+
+/**
+ * Home section 10: approved customer photos (#12); hidden until there are any. In the editor the
+ * heading carries a "Managed in Gallery" link instead of slot buttons, so the section's size is
+ * the same as on the public page.
+ */
+export async function HappyCustomers({ tiles, editing = false }: Props) {
   const t = await getT();
   if (tiles.length === 0) return null;
   const title = t("home.customers.title");
@@ -23,13 +29,24 @@ export async function HappyCustomers({ tiles }: { tiles: GalleryTile[] }) {
         headingId="customers-heading"
         showControls
         action={
-          <Link
-            href="/gallery"
-            prefetch={false}
-            className="text-ink text-[15px] font-medium underline underline-offset-[5px]"
-          >
-            {t("home.customers.link")}
-          </Link>
+          <>
+            {editing ? (
+              <a
+                href="/admin/gallery"
+                className="bg-paper text-ink rounded-full px-3 py-1.5 text-sm font-medium shadow"
+                data-testid="slot-managed"
+              >
+                {t("admin.editor.managedInGallery")}
+              </a>
+            ) : null}
+            <Link
+              href="/gallery"
+              prefetch={false}
+              className="text-ink text-[15px] font-medium underline underline-offset-[5px]"
+            >
+              {t("home.customers.link")}
+            </Link>
+          </>
         }
       >
         {tiles.map((tile) => (
